@@ -12,7 +12,8 @@ elseif (trim(`whoami`) !== "root")
 $incPath = "includes";
 $filesPath = [
     "load.php",
-    "directory.php"
+    "directory.php",
+    "compare_files.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
@@ -21,6 +22,11 @@ foreach ($filesPath as $filePath)
 $dataJson = new LoadJSON("data.json");
 $dataJson->type_validation();
 $configData = $dataJson->data;
+
+// Perform comparison between files and backup files
+$path = $configData->save_to->path;
+$backupDir = $configData->backup->dir;
+compare_files($path, $backupDir);
 
 // Load executables
 $php = $argv[1];

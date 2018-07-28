@@ -1,6 +1,5 @@
 <?php
 
-
 class LoadJSON
 {
     // Processed data
