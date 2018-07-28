@@ -1,0 +1,22 @@
+{
+    "interface": {
+        "name": "wlan0",
+        "mac": "00:00:00:00:00:00"
+    },
+    "packets_count": 100,
+    "save_to": {
+        "path": "/path/to/dir",
+        "format": ".txt"
+    },
+    "backup": {
+        "dir": "backed_up_files",
+        "timeout": 20
+    },
+    "logs": {
+        "screen": false
+    },
+    "executables": {
+        "screen": "screen",
+        "tcpdump": "tcpdump"
+    }
+}

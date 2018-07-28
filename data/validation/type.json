@@ -1,0 +1,20 @@
+{
+    "data.json": {
+        "required": [
+            "interface.name",
+            "interface.mac",
+            "save_to.path"
+        ],
+        "warning": [
+            ["executables.screen", "screen"],
+            ["executables.tcpdump", "tcpdump"]
+        ],
+        "optional": [
+            ["packets_count", 100],
+            ["save_to.format", ".txt"],
+            ["backup.dir", "backup"],
+            ["backup.timeout", 60],
+            ["logs.screen", false]
+        ]
+    }
+}
