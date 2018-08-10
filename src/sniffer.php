@@ -60,6 +60,9 @@ while (true) {
     // Splits each packet from the output
     $packetsData = explode(PHP_EOL, $output);
 
+    // Open the log file
+    $logFile = @fopen($skippedPacketsFile, "a");
+
     // Extracts data from each packet
     foreach ($packetsData as $packetData) {
         // Extract data
@@ -67,7 +70,7 @@ while (true) {
 
         // Skip if there aren't two MAC addresses
         if (count((array)$macAddresses) !== 2 || $packetSize === 0) {
-            log_packets($skippedPacketsFile, (array)$macAddresses, $packetSize,
+            log_packets($logFile, (array)$macAddresses, $packetSize,
                 $packetData);
             continue;
         }
@@ -82,6 +85,9 @@ while (true) {
         elseif (!empty($remoteMac))
             $devicesInfo[$remoteMac] = $packetSize;
     }
+
+    // Close file
+    fclose($logFile);
 
     // Saves the sent/received packets to files
     foreach ($devicesInfo as $addr => $size)
@@ -160,11 +166,12 @@ function format(string $num, bool $addColons = true) {
 }
 
 // Log skipped packets
-function log_packets(string $filename, array $macAddresses, int $packetSize,
+function log_packets($file, array $macAddresses, int $packetSize,
     string $packetData) {
-    // Open the log file
-    $file = fopen($filename, "a");
-    
+    // Return if logging skipped packets is disabled or if the file is wrong
+    if (!$toLogSkippedPackets || !is_resource($file))
+        return;
+        
     // Output MAC addresses
     $output = "Extracted MAC addresses were: ";
     $macAddressesLast = count($macAddresses) - 1;
@@ -178,4 +185,7 @@ function log_packets(string $filename, array $macAddresses, int $packetSize,
     // Output the whole packet data
     $output .= "The whole packet data was:" . PHP_EOL;
     $output .= $packetData . PHP_EOL . PHP_EOL;
+
+    // Write to the file
+    fwrite($file, $output);
 }
