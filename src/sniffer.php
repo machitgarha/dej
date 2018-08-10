@@ -23,7 +23,7 @@ $users = array_combine(
     array_values($usersJson->data),
     array_keys($usersJson->data));
 
-    // Interface info
+// Interface info
 $interfaceName = $configData->interface->name;
 $interfaceMac = $configData->interface->mac;
 
@@ -36,6 +36,12 @@ $packetsCount = $configData->packets_count;
 
 // Load executables
 $tcpdump = $configData->executables->tcpdump;
+
+// Set logs configurations
+$logDir = "log";
+directory($logDir);
+$skippedPacketsFile = "$logDir/skipped_packets.log";
+$toLogSkippedPackets = $configData->logs->skipped_packets;
 
 while (true) {
     // Array to save size of transferred packets based on MAC addresses
@@ -56,14 +62,20 @@ while (true) {
     // Splits each packet from the output
     $packetsData = explode(PHP_EOL, $output);
 
+    // Open the log file
+    $logFile = fopen($skippedPacketsFile, "a");
+
     // Extracts data from each packet
     foreach ($packetsData as $packetData) {
         // Extract data
         list($macAddresses, $packetSize) = get_info($packetData);
 
         // Skip if there aren't two MAC addresses
-        if (count((array)$macAddresses) !== 2)
+        if (count((array)$macAddresses) !== 2 || $packetSize === 0) {
+            log_packets($logFile, (array)$macAddresses, (int)$packetSize,
+                $packetData);
             continue;
+        }
 
         // Manipulate remote device's MAC address
         $remoteMac = $macAddresses[$macAddresses[0] === $interfaceMac
@@ -73,14 +85,16 @@ while (true) {
         if (isset($devicesInfo[$remoteMac]))
             $devicesInfo[$remoteMac] += $packetSize;
         elseif (!empty($remoteMac))
-            $devicesInfo[$remoteMac] = 0;
+            $devicesInfo[$remoteMac] = $packetSize;
     }
+
+    // Close file
+    fclose($logFile);
 
     // Saves the sent/received packets to files
     foreach ($devicesInfo as $addr => $size)
         save_to_file($addr, $size);
 }
-
 
 // Extracts useful info from a packet info
 function get_info(string $packetData)
@@ -109,10 +123,9 @@ function get_info(string $packetData)
      */
     return [
         $macAddresses[0],
-        $packetSize
+        (int)$packetSize
     ];
 }
-
 
 // Saves extracted data into files, named by MAC addresses
 function save_to_file(string $macAddress, int $packetsTotalSize)
@@ -136,7 +149,6 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
     if (is_readable($filePath))
         $lastVal = format(file_get_contents($filePath), false);
 
-    echo "Here: $macFileLastVal";
 
     // Adds new value to the last value
     $lastVal += $macFileLastVal + $packetsTotalSize;
@@ -152,4 +164,31 @@ function format(string $num, bool $addColons = true) {
     if ($addColons)
         return number_format($num);
     return (int)str_replace(",", "", $num);
+}
+
+// Log skipped packets
+function log_packets($file, array $macAddresses, int $packetSize,
+    string $packetData) {
+    global $toLogSkippedPackets;
+    
+    // Return if logging skipped packets is disabled or if the file is wrong
+    if (!$toLogSkippedPackets || !is_resource($file))
+        return;
+        
+    // Output MAC addresses
+    $output = "Extracted MAC addresses were: ";
+    $macAddressesLast = count($macAddresses) - 1;
+    foreach ($macAddresses as $macAddress)
+        $output .= "$macAddress" . ($macAddress ===
+            $macAddresses[$macAddressesLast] ? PHP_EOL : ", ");
+    
+    // Output packet size
+    $output .= "Extracted packet size was: $packetSize (bytes)" . PHP_EOL;
+
+    // Output the whole packet data
+    $output .= "The whole packet data was:" . PHP_EOL;
+    $output .= $packetData . PHP_EOL . PHP_EOL;
+
+    // Write to the file
+    fwrite($file, $output);
 }
