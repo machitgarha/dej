@@ -13,7 +13,8 @@
         "timeout": 20
     },
     "logs": {
-        "screen": false
+        "screen": false,
+        "skipped_packets": false
     },
     "executables": {
         "screen": "screen",

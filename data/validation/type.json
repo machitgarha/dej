@@ -14,7 +14,8 @@
             ["save_to.format", ".txt"],
             ["backup.dir", "backup"],
             ["backup.timeout", 60],
-            ["logs.screen", false]
+            ["logs.screen", false],
+            ["logs.skipped_packets", false]
         ]
     }
 }
