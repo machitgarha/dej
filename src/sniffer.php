@@ -38,7 +38,9 @@ $packetsCount = $configData->packets_count;
 $tcpdump = $configData->executables->tcpdump;
 
 // Set logs configurations
-$skippedPacketsFile = "logs/skipped_packets.txt";
+$logDir = "log";
+directory($logDir);
+$skippedPacketsFile = "$logDir/skipped_packets.txt";
 $toLogSkippedPackets = $configData->logs->skipped_packets;
 
 while (true) {
@@ -61,7 +63,7 @@ while (true) {
     $packetsData = explode(PHP_EOL, $output);
 
     // Open the log file
-    $logFile = @fopen($skippedPacketsFile, "a");
+    $logFile = fopen($skippedPacketsFile, "a");
 
     // Extracts data from each packet
     foreach ($packetsData as $packetData) {
