@@ -149,7 +149,6 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
     if (is_readable($filePath))
         $lastVal = format(file_get_contents($filePath), false);
 
-    echo "Here: $macFileLastVal";
 
     // Adds new value to the last value
     $lastVal += $macFileLastVal + $packetsTotalSize;
