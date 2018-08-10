@@ -73,7 +73,7 @@ while (true) {
         if (isset($devicesInfo[$remoteMac]))
             $devicesInfo[$remoteMac] += $packetSize;
         elseif (!empty($remoteMac))
-            $devicesInfo[$remoteMac] = 0;
+            $devicesInfo[$remoteMac] = $packetSize;
     }
 
     // Saves the sent/received packets to files
