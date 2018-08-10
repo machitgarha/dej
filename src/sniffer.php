@@ -40,7 +40,7 @@ $tcpdump = $configData->executables->tcpdump;
 // Set logs configurations
 $logDir = "log";
 directory($logDir);
-$skippedPacketsFile = "$logDir/skipped_packets.txt";
+$skippedPacketsFile = "$logDir/skipped_packets.log";
 $toLogSkippedPackets = $configData->logs->skipped_packets;
 
 while (true) {
@@ -169,6 +169,8 @@ function format(string $num, bool $addColons = true) {
 // Log skipped packets
 function log_packets($file, array $macAddresses, int $packetSize,
     string $packetData) {
+    global $toLogSkippedPackets;
+    
     // Return if logging skipped packets is disabled or if the file is wrong
     if (!$toLogSkippedPackets || !is_resource($file))
         return;
