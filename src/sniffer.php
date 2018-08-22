@@ -15,13 +15,17 @@ $dataJson->type_validation();
 $configData = $dataJson->data;
 
 // Load users config file
-$usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE);
-$usersJson->regex_validation();
+$usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE, true);
 
-// Flip array keys and values for better access
-$users = array_combine(
-    array_values($usersJson->data),
-    array_keys($usersJson->data));
+// Further operations if file exist
+if ($usersJson->data) {
+    $usersJson->regex_validation();
+
+    // Flip array keys and values for better access
+    $users = array_combine(
+        array_values($usersJson->data),
+        array_keys($usersJson->data));
+}
 
 // Interface info
 $interfaceName = $configData->interface->name;
