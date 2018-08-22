@@ -3,7 +3,7 @@
 class LoadJSON
 {
     // Processed data
-    public $data;
+    public $data = null;
     
     // Type of data; either object (0) or array (1)
     public $dataType = 0;
@@ -38,7 +38,8 @@ class LoadJSON
     
     // Loads JSON file and handles data
     public function __construct(string $filePath,
-        int $type = self::OBJECT_DATA_TYPE, bool $withPrefex = true)
+        int $type = self::OBJECT_DATA_TYPE, bool $isOptional = false,
+        bool $withPrefex = true)
     {
         // Set properties
         $this->filename = $filePath;
@@ -47,9 +48,12 @@ class LoadJSON
         
         // Checks for file existance and readability
         if (!is_readable($this->filePath))
-            $this->warn("file_reading_error", [
-                "filename" => $this->filePath
-            ], "exit");
+            if ($isOptional)
+                return;
+            else
+                $this->warn("file_reading_error", [
+                    "filename" => $this->filePath
+                ], "exit");
         
         // Get data from JSON file as object (0)
         $this->data = json_decode(file_get_contents($this->filePath));
