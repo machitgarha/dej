@@ -124,12 +124,31 @@ class LoadJSON
         
         // Adds a field to data with a default value
         $addField = function (array $field, &$data) {
-            $property = str_replace(".", "->", $field[0]);
-            eval("\$data->$property = \$field[1];");
+            // Split object parts
+            $properties = explode(".", $field[0]);
+
+            // Reference to the object
+            $ref = &$data;
+
+            // Create properties which they consist some other properties
+            $propertiesCount = count($properties);
+            for ($i = 0; $i < $propertiesCount - 1; $i++) {
+                $propertyName = $properties[$i];
+
+                // Create if not exist
+                if (!isset($ref->$propertyName))
+                    $ref->$propertyName = new stdClass();
+
+                // Update reference to the latest created property
+                $ref = &$ref->$propertyName;
+            }
+
+            // Set the property, as the last work
+            $ref->{$properties[$propertiesCount - 1]} = $field[1];
         };
         
         // Handles required fields
-        foreach ($validationData["required"] as $field)            
+        foreach ($validationData["required"] as $field)
             // Checks if a field is available or not
             if (!$fieldExists($field, $data))
                 // Exit program
