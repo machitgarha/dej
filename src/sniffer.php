@@ -67,7 +67,7 @@ while (true) {
     $packetsData = explode(PHP_EOL, $output);
 
     // Open the log file
-    $logFile = fopen($skippedPacketsFile, "a");
+    $logFile = $toLogSkippedPackets ? fopen($skippedPacketsFile, "a") : false;
 
     // Extracts data from each packet
     foreach ($packetsData as $packetData) {
@@ -93,7 +93,8 @@ while (true) {
     }
 
     // Close file
-    fclose($logFile);
+    if ($logFile)
+        fclose($logFile);
 
     // Saves the sent/received packets to files
     foreach ($devicesInfo as $addr => $size)
