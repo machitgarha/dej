@@ -15,17 +15,13 @@ $dataJson->type_validation();
 $configData = $dataJson->data;
 
 // Load users config file
-$usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE, true);
+$usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE);
+$usersJson->regex_validation();
 
-// Further operations if file exist
-if ($usersJson->data) {
-    $usersJson->regex_validation();
-
-    // Flip array keys and values for better access
-    $users = array_combine(
-        array_values($usersJson->data),
-        array_keys($usersJson->data));
-}
+// Flip array keys and values for better access
+$users = array_combine(
+    array_values($usersJson->data),
+    array_keys($usersJson->data));
 
 // Interface info
 $interfaceName = $configData->interface->name;
@@ -136,6 +132,9 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
 {
     global $users, $path, $format;
 
+    // Convert it to float, bytes and kilobytes are decimal
+    $packetsTotalSize /= 10 ** 6;
+
     // Produces the filename
     directory($path);
     $macFilePath = $path . $macAddress . $format;
@@ -153,7 +152,6 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
     if (is_readable($filePath))
         $lastVal = format(file_get_contents($filePath), false);
 
-
     // Adds new value to the last value
     $lastVal += $macFileLastVal + $packetsTotalSize;
 
@@ -165,9 +163,29 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
 
 // Formats a number into a better human readable one
 function format(string $num, bool $addColons = true) {
-    if ($addColons)
-        return number_format($num);
-    return (int)str_replace(",", "", $num);
+    if ($addColons) {
+        // Get decimal part with leading zero in bytes for larger number support
+        $decPart = substr((string)sprintf("%.6f", $num - floor($num)), 2, 6);
+
+        return number_format(floor($num) . $decPart);
+    }
+
+    // Split number into parts
+    $numParts = explode(",", $num);
+    $countNumParts = count($numParts);
+
+    // Extract Megabytes
+    $mbPart = "";
+    $i = 0;
+    for (; $i < $countNumParts - 2; $i++)
+        $mbPart .= $numParts[$i];
+    
+    // Extract bytes
+    $bytesPart = "";
+    for (; $i < $countNumParts; $i++)
+        $bytesPart .= sprintf('%03d', $numParts[$i]);
+
+    return (float)("$mbPart.$bytesPart");
 }
 
 // Log skipped packets
