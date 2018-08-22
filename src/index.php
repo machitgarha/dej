@@ -60,3 +60,5 @@ foreach ($filenames as $fname) {
     $logPart = $configData->logs->screen ? "-L -Logfile $logDir/$fname.log": "";
     `$screen -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
+
+echo "Everything got running!";
