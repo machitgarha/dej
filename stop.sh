@@ -2,4 +2,4 @@
 
 # Don't move this file.
 
-sh src/php_check.sh stop
+sh src/php.sh stop
