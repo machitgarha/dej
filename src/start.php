@@ -17,11 +17,15 @@ echo "Starting Dej..." . PHP_EOL;
 // If there are some screens running, prompt user
 if (count(search_screens()) > 0) {
     // Prompt user to stop started screens or not
-    echo "Already running. Stop? [Y/n] ";
+    echo "Already running. Stop? [Y(es)/n(o)/c(ancel)] ";
     $cliInput = fopen("php://stdin", "r");
     // Analyze user input
     $response = strtolower(trim(fgetc($cliInput)));
     fclose($cliInput);
+
+    // If user wants to cancel, cancel!
+    if ($response === "c")
+        exit("Canceled!" . PHP_EOL);
 
     // Check if user wanted to stop or not, if yes, continue
     if ($response !== "n")
