@@ -1,19 +1,12 @@
 <?php
 
-// Check for root permissions
-if (`which whoami` === null)
-    echo "Warning: We cannot detect if you gave root permissions or " .
-        "not. \nBe sure you did that, otherwise, capturing won't " .
-        "perform." . PHP_EOL;
-elseif (trim(`whoami`) !== "root")
-    exit("Root permissions needed." . PHP_EOL);
-
 // Includes
 $incPath = "includes";
 $filesPath = [
     "load.php",
     "directory.php",
-    "compare_files.php"
+    "compare_files.php",
+    "root_permissions.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
