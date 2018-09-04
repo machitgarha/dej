@@ -1,22 +1,32 @@
 <?php
 
-// Check for root permissions
-if (`which whoami` === null)
-    echo "Warning: We cannot detect if you gave root permissions or " .
-        "not. \nBe sure you did that, otherwise, capturing won't " .
-        "perform." . PHP_EOL;
-elseif (trim(`whoami`) !== "root")
-    exit("Root permissions needed." . PHP_EOL);
-
 // Includes
 $incPath = "includes";
 $filesPath = [
     "load.php",
     "directory.php",
-    "compare_files.php"
+    "compare_files.php",
+    "root_permissions.php",
+    "screen.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
+
+echo "Starting Dej..." . PHP_EOL;
+
+// If there are some screens running, prompt user
+if (count(search_screens()) > 0) {
+    // Prompt user to stop started screens or not
+    echo "Already running. Stop? [Y/n] ";
+    $cliInput = fopen("php://stdin", "r");
+    // Analyze user input
+    $response = strtolower(trim(fgetc($cliInput)));
+    fclose($cliInput);
+
+    // Check if user wanted to stop or not, if yes, continue
+    if ($response !== "n")
+        echo `php -f src/stop.php` . "Starting Dej..." . PHP_EOL;
+}
 
 // Load configurations
 $dataJson = new LoadJSON("data.json");
@@ -58,7 +68,7 @@ foreach ($filenames as $fname) {
     // Check if logs were enabled for screen or not
     directory($logDir);
     $logPart = $configData->logs->screen ? "-L -Logfile $logDir/$fname.log": "";
-    `$screen -d -m $logPart $php -f $sourceDir/$fname.php`;
+    `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
-echo "Everything got running!";
+echo "Everything got running!" . PHP_EOL;
