@@ -11,6 +11,8 @@ $filesPath = [
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
+echo "Starting Dej..." . PHP_EOL;
+
 // Load configurations
 $dataJson = new LoadJSON("data.json");
 $dataJson->type_validation();
@@ -54,4 +56,4 @@ foreach ($filenames as $fname) {
     `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
-echo "Everything got running!";
+echo "Everything got running!" . PHP_EOL;
