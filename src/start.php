@@ -6,12 +6,27 @@ $filesPath = [
     "load.php",
     "directory.php",
     "compare_files.php",
-    "root_permissions.php"
+    "root_permissions.php",
+    "screen.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
 echo "Starting Dej..." . PHP_EOL;
+
+// If there are some screens running, prompt user
+if (count(search_screens()) > 0) {
+    // Prompt user to stop started screens or not
+    echo "Already running. Stop? [y/N] ";
+    $cliInput = fopen("php://stdin", "r");
+    // Analyze user input
+    $response = strtolower(trim(fgetc($cliInput)));
+    fclose($cliInput);
+
+    // Check if user wanted to stop or not, if yes, continue
+    if ($response !== "" && $response !== "n")
+        echo `php -f src/stop.php` . "Starting Dej..." . PHP_EOL;
+}
 
 // Load configurations
 $dataJson = new LoadJSON("data.json");

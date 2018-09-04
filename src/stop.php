@@ -3,21 +3,16 @@
 // Includes
 $incPath = "includes";
 $filesPath = [
-    "root_permissions.php"
+    "root_permissions.php",
+    "screen.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
 echo "Stopping Dej..." . PHP_EOL;
 
-// List of all screens
-$screens = `screen -ls`;
-
-// Search for proper screens to stop
-$matches = [];
-$screenSessionPids = [];
-preg_match_all("/[0-9]*\.dej/", $screens, $matches, PREG_PATTERN_ORDER);
-$screenSessionPids = $matches[0];
+// Search for Dej screens
+$screenSessionPids = search_screens();
 
 // Check if there are some screens to stop
 if (count($screenSessionPids) !== 0) {
