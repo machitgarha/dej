@@ -58,7 +58,7 @@ foreach ($filenames as $fname) {
     // Check if logs were enabled for screen or not
     directory($logDir);
     $logPart = $configData->logs->screen ? "-L -Logfile $logDir/$fname.log": "";
-    `$screen -d -m $logPart $php -f $sourceDir/$fname.php`;
+    `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
 echo "Everything got running!";
