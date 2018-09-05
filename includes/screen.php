@@ -2,6 +2,9 @@
 
 // Search for Dej screens and return their full session name
 function search_screens(): array {
+    // Wipe all dead screens
+    `screen -wipe`;
+
     // List of all screens
     $screens = `screen -ls`;
 
