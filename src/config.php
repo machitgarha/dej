@@ -1,8 +1,8 @@
 <?php
 
 // Break if incorrect number of arguments supplied
-/*if ($argc !== 3)
-    throw new InvalidArgumentException();*/
+if ($argc !== 3)
+    throw new InvalidArgumentException();
 
 // Includes
 $incPath = "includes";

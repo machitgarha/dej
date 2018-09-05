@@ -96,12 +96,13 @@ if [ $# -eq 0 ]; then
 # An arguments supplied
 elif [ $# -eq 1 ]; then
     case $1 in
+        # Start PHP process for each command
         start|stop|status)
             sh src/php.sh $1
             ;;
         restart)
-            sh stop.sh
-            sh start.sh
+            sh src/php.sh stop
+            sh src/php.sh start
             ;;
         --help)
             printfl "$help";
@@ -111,25 +112,18 @@ elif [ $# -eq 1 ]; then
             ;;
         *)
             printfl "${error[unknownCommand]}"
+            ;;
     esac
 
 # Two arguments supplied
 elif [ $# -eq 2 ]; then
     case $1 in
+        # User wants help on specific command
         --help)
             case $2 in
-                start|stop|restart|status)
+                # Print help for each command
+                start|stop|restart|status|config)
                     printfl "${help[${2}]}"
-                    ;;
-                config)
-                    case $3 in
-                        list)
-                            printfl "${help[configList]}"
-                            ;;
-                        *)
-                            printfl "${error[badUsage]}"
-                            ;;
-                    esac
                     ;;
                 *)
                     printfl "${error[unknownCommand]}"
@@ -138,6 +132,17 @@ elif [ $# -eq 2 ]; then
             ;;
         start|stop|restart|status)
             printfl "${error[badUsage]}"
+            ;;
+        config)
+            case $2 in
+                # User wants a list of available fields
+                list)
+                    printfl "${help[configList]}"
+                    ;;
+                *)
+                    printfl "${error[badUsage]}"
+                    ;;
+            esac
             ;;               
         *)
             printfl "${error[unknownCommand]}"
@@ -150,6 +155,7 @@ elif [ $# -eq 3 ]; then
         --help|start|stop|restart|status)
             printfl "${error[badUsage]}"
             ;;
+        # Change the configuration file (i.e. config/data.json)
         config)
             sh src/php.sh config $2 $3
             ;;
