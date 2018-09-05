@@ -12,7 +12,7 @@ class LoadJSON
     const ARRAY_DATA_TYPE = 1;
     
     // File path of the JSON file
-    private $prefex = "./config";
+    public $prefix = "./config";
     private $filename;
     public $filePath;
     
@@ -39,11 +39,11 @@ class LoadJSON
     // Loads JSON file and handles data
     public function __construct(string $filePath,
         int $type = self::OBJECT_DATA_TYPE, bool $isOptional = false,
-        bool $withPrefex = true)
+        bool $withprefix = true)
     {
         // Set properties
         $this->filename = $filePath;
-        $this->filePath = $withPrefex ? "{$this->prefex}/$filePath" : $filePath;
+        $this->filePath = $withprefix ? "{$this->prefix}/$filePath" : $filePath;
         $this->defaultDataType = $type;
         
         // Checks for file existance and readability
@@ -118,43 +118,10 @@ class LoadJSON
         $validationData = $this->prepare_validation("type",
             self::ARRAY_DATA_TYPE);
         
-        // Check if a field exist in data or not
-        $fieldExists = function (string $field, $data) {
-            return array_reduce(explode('.', $field),
-                function ($object, $property) {
-                    return $object->$property ?? null;
-                }, $data) !== null;
-        };
-        
-        // Adds a field to data with a default value
-        $addField = function (array $field, &$data) {
-            // Split object parts
-            $properties = explode(".", $field[0]);
-
-            // Reference to the object
-            $ref = &$data;
-
-            // Create properties which they consist some other properties
-            $propertiesCount = count($properties);
-            for ($i = 0; $i < $propertiesCount - 1; $i++) {
-                $propertyName = $properties[$i];
-
-                // Create if not exist
-                if (!isset($ref->$propertyName))
-                    $ref->$propertyName = new stdClass();
-
-                // Update reference to the latest created property
-                $ref = &$ref->$propertyName;
-            }
-
-            // Set the property, as the last work
-            $ref->{$properties[$propertiesCount - 1]} = $field[1];
-        };
-        
         // Handles required fields
         foreach ($validationData["required"] as $field)
             // Checks if a field is available or not
-            if (!$fieldExists($field, $data))
+            if (!$this->get_field($field, $data))
                 // Exit program
                 $this->warn("required_field_missing", [
                     "field" => $field,
@@ -164,7 +131,7 @@ class LoadJSON
         // Handles warning fields
         foreach ($validationData["warning"] as $field)
             // Checks if a field is available or not
-            if (!$fieldExists($field[0], $data)) {
+            if (!$this->get_field($field[0], $data)) {
                 // Warn user
                 $this->warn("warn_field_missing", [
                     "field" => $field[0],
@@ -172,15 +139,65 @@ class LoadJSON
                     "default" => $field[1]
                 ]);
                     
-                $addField($field, $data);
+                $this->add_field($field, $data);
             }
             
         // Handles optional fields
         foreach ($validationData["optional"] as $field)
-            if (!$fieldExists($field[0], $data))
-                $addField($field, $data);
+            if (!$this->get_field($field[0], $data))
+                $this->add_field($field, $data);
         
         $this->change_type();
+    }
+
+    // Check if a field exist in data or not
+    public function get_field(string $field, $data = null, $getValue = false)
+    {
+        // Default value
+        if (!$data)
+            $data = $this->data;
+
+        // Get its value
+        $fieldValue = array_reduce(explode('.', $field),
+            function ($object, $property) {
+                return $object->$property ?? null;
+            }, $data);
+
+        if ($getValue)
+            return $fieldValue;
+
+        // Return if field exists or not
+        return $fieldValue !== null;
+    }
+
+    // Adds a field to data with a default value
+    public function add_field(array $field, &$data = null)
+    {
+        // Default value
+        if (!$data)
+            $data = &$this->data;
+
+        // Split object parts
+        $properties = explode(".", $field[0]);
+
+        // Reference to the object
+        $ref = &$data;
+
+        // Create properties which they consist some other properties
+        $propertiesCount = count($properties);
+        for ($i = 0; $i < $propertiesCount - 1; $i++) {
+            $propertyName = $properties[$i];
+
+            // Create if not exist
+            if (!isset($ref->$propertyName))
+                $ref->$propertyName = new stdClass();
+
+            // Update reference to the latest created property
+            $ref = &$ref->$propertyName;
+        }
+
+        // Set the property, as the last work
+        $ref->{$properties[$propertiesCount - 1]} = $field[1];
     }
     
     // Handles validations based on regular expressions

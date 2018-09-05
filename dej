@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# Source directory
+src="./"
+
+# Prints a message with a new line at end
+printfl () {
+    printf "$1\n"
+}
+
+moreInfo="Try 'dej --help' for more information."
+
+# Array for output
+typeset -A help
+typeset -A error
+
+# Help when --help entered
+help[0]=\
+"Dej is a command-line tool which can sniff all transmitted packets on an
+interface and save results inside files. Devices separated by MAC addresses.
+For instance, you can run Dej on your WiFi-related-interface to see how much
+network data each device used by your WiFi (in fact, Dej was created mainly
+for this purpose).
+Dej uses PHP, tcpdump and screen to run, so you must have them installed.
+Because tcpdump can’t be ran without root permissions, you must give root
+permissions to Dej (e.g. run as sudo).
+
+Available commands:
+dej start
+dej stop
+dej restart
+dej status
+dej config {option} {value}
+dej --help [command]
+dej --help config list"
+
+help[start]=\
+"Usage: dej start
+Starts Dej (needs root permissions)."
+
+help[stop]=\
+"Usage: dej stop
+Stops Dej (needs root permissions)."
+
+help[restart]=\
+"Usage: dej restart
+Stops Dej, then starts it (needs root permissions)."
+
+help[status]=\
+"Usage: dej status
+Prints Dej running status (needs root permissions). Possible values are:
+'Not running.': You could run it using 'dej start'.
+'W: Partially running.': Some files are running, some of them are not
+You should restart dej by 'dej restart' and then run 'dej status' to check
+if it's running properly. If the problem persists, you should check your
+configuration files (exist in ./config/), especially data.json.
+'Running': You could stop it using 'dej stop'.
+'W: Running more than once.': Keep in mind, you should start Dej only once.
+The output usually means you have ran it more than once. You should restart
+Dej using 'dej restart' in this case."
+
+help[config]=\
+"Usage: dej config {option} {value}
+Edits the configuration file and change {option}'s value to {value}. The
+config file exist in ./config/data.json, which you can edit it manually."
+
+help[configList]=\
+"You can set update an option using:
+'dej config {option} {value}'
+
+List is not available."
+
+# Errors while entering commands
+error[badUsage]=\
+"Bad usage.
+$moreInfo"
+error[unknownCommand]=\
+"Unknown command
+$moreInfo"
+error[tooMany]=\
+"Too many arguments supplied!
+$moreInfo"
+
+# No arguments supplied
+if [ $# -eq 0 ]; then
+    printfl "You must specify a command."
+    printfl $moreInfo
+
+# An arguments supplied
+elif [ $# -eq 1 ]; then
+    case $1 in
+        start)
+            sh start.sh
+            ;;
+        stop)
+            sh stop.sh
+            ;;
+        restart)
+            sh stop.sh
+            sh start.sh
+            ;;
+        status)
+            sh status.sh
+            ;;
+        --help)
+            printfl "$help";
+            ;;
+        config)
+            printfl "${error[badUsage]}"
+            ;;
+        *)
+            printfl "${error[unknownCommand]}"
+    esac
+
+# Two arguments supplied
+elif [ $# -eq 2 ]; then
+    case $1 in
+        --help)
+            case $2 in
+                start|stop|restart|status)
+                    printfl "${help[${2}]}"
+                    ;;
+                config)
+                    case $3 in
+                        list)
+                            printfl "${help[configList]}"
+                            ;;
+                        *)
+                            printfl "${error[badUsage]}"
+                            ;;
+                    esac
+                    ;;
+                *)
+                    printfl "${error[unknownCommand]}"
+                    ;;
+            esac
+            ;;
+        start|stop|restart|status)
+            printfl "${error[badUsage]}"
+            ;;               
+        *)
+            printfl "${error[unknownCommand]}"
+            ;;
+    esac
+
+# Three arguments supplied
+elif [ $# -eq 3 ]; then
+    case $1 in
+        --help|start|stop|restart|status)
+            printfl "${error[badUsage]}"
+            ;;
+        config)
+            sh src/php.sh config $2 $3
+            ;;
+        *)
+            printfl "${error[unknownCommand]}"
+            ;;
+    esac
+
+# Too many arguments (> 3)
+else
+    printfl "${error[tooMany]}"
+fi
