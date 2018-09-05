@@ -69,7 +69,7 @@ echol("Saving the change...");
 
 // Open the file to save
 $dataJsonFile = fopen($dataJson->prefix . "/data.json", "w");
-fwrite($dataJsonFile, json_encode($dataJson->data));
+fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
 fclose($dataJsonFile);
 
 echol("Saved!");
