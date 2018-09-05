@@ -48,7 +48,9 @@ Stops Dej, then starts it (needs root permissions)."
 
 help[status]=\
 "Usage: dej status
-Prints Dej running status (needs root permissions). Possible values are:
+Prints Dej running status (needs root permissions).
+
+Possible values are:
 'Not running.': You could run it using 'dej start'.
 'W: Partially running.': Some files are running, some of them are not
 You should restart dej by 'dej restart' and then run 'dej status' to check
@@ -74,12 +76,15 @@ List is not available."
 error[commandIsAMust]=\
 "You must specify a command.
 $moreInfo"
+
 error[badUsage]=\
 "Bad usage.
 $moreInfo"
+
 error[unknownCommand]=\
 "Unknown command
 $moreInfo"
+
 error[tooMany]=\
 "Too many arguments supplied!
 $moreInfo"
@@ -91,18 +96,12 @@ if [ $# -eq 0 ]; then
 # An arguments supplied
 elif [ $# -eq 1 ]; then
     case $1 in
-        start)
-            sh start.sh
-            ;;
-        stop)
-            sh stop.sh
+        start|stop|status)
+            sh src/php.sh $1
             ;;
         restart)
             sh stop.sh
             sh start.sh
-            ;;
-        status)
-            sh status.sh
             ;;
         --help)
             printfl "$help";
