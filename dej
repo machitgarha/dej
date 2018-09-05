@@ -86,7 +86,7 @@ $moreInfo"
 
 # No arguments supplied
 if [ $# -eq 0 ]; then
-    printfl ${error[commandIsAMust]}
+    printfl "${error[commandIsAMust]}"
 
 # An arguments supplied
 elif [ $# -eq 1 ]; then
