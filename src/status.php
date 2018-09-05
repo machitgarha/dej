@@ -21,7 +21,7 @@ switch ($screensCount) {
         break;
 
     case 1:
-        echo "Warning: Partially running.";
+        echo "W: Partially running.";
         break;
     
     case 2:
@@ -29,7 +29,7 @@ switch ($screensCount) {
         break;
 
     default:
-        echo "Extra processes running. You should restart Dej.";
+        echo "W: Running more than once.";
         break;
 }
 
