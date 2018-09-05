@@ -71,6 +71,9 @@ help[configList]=\
 List is not available."
 
 # Errors while entering commands
+error[commandIsAMust]=\
+"You must specify a command.
+$moreInfo"
 error[badUsage]=\
 "Bad usage.
 $moreInfo"
@@ -83,8 +86,7 @@ $moreInfo"
 
 # No arguments supplied
 if [ $# -eq 0 ]; then
-    printfl "You must specify a command."
-    printfl $moreInfo
+    printfl ${error[commandIsAMust]}
 
 # An arguments supplied
 elif [ $# -eq 1 ]; then
