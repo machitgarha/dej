@@ -8,11 +8,12 @@ if ($argc !== 3)
 $incPath = "includes";
 $filesPath = [
     "load.php",
+    "shell.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
-echo "Loading configuration file...\n";
+echol("Loading configuration file...");
 
 // Load configurations
 $dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, true);
@@ -21,11 +22,11 @@ $configData = $dataJson->data;
 
 // Check if configuration file exists, and if not, create it
 if ($dataJson->data)
-    echo "Loaded successfully.\n\n";
+    echol("Loaded successfully.", 2);
 else {
-    echo "File doesn't exist, creating it...\n";
+    echol("File doesn't exist, creating it...");
     touch($dataJson->prefix . "/data.json");
-    echo "Created.";
+    echol("Created.");
 }
 
 // Load all possible options
@@ -48,14 +49,14 @@ $value = $argv[2];
 
 // Break if it is an invalid option
 if (!in_array($option, $possibleOptions))
-    exit("There is no $option option exists.\n"
+    exit("There is no $option option exists."
         . "Check 'dej --help config list' for more information." . PHP_EOL);
 
 // Check if there is any field exist
 if ($dataJson->get_field($option))
-    echo "Current value: '" . $dataJson->get_field($option, null, true) . "'\n";
+    echol("Current value: '" . $dataJson->get_field($option, null, true) . "'");
 
-echo "Changing it to '$value'...\n";
+echol("Changing it to '$value'...");
 
 // Change field's value
 $dataJson->add_field([
@@ -63,12 +64,12 @@ $dataJson->add_field([
     $value
 ]);
 
-echo "Changed!\n\n";
-echo "Saving the change...\n";
+echol("Changed!", 2);
+echol("Saving the change...");
 
 // Open the file to save
 $dataJsonFile = fopen($dataJson->prefix . "/data.json", "w");
 fwrite($dataJsonFile, json_encode($dataJson->data));
 fclose($dataJsonFile);
 
-echo "Saved!\n";
+echol("Saved!");

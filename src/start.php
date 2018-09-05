@@ -7,12 +7,13 @@ $filesPath = [
     "directory.php",
     "compare_files.php",
     "root_permissions.php",
-    "screen.php"
+    "screen.php",
+    "shell.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
-echo "Starting Dej..." . PHP_EOL;
+echol("Starting Dej...");
 
 // If there are some screens running, prompt user
 if (count(search_screens()) > 0) {
@@ -25,11 +26,11 @@ if (count(search_screens()) > 0) {
 
     // If user wants to cancel, cancel!
     if ($response === "c")
-        exit("Canceled!" . PHP_EOL);
+        exitl("Canceled!");
 
     // Check if user wanted to stop or not, if yes, continue
     if ($response !== "n")
-        echo `php -f src/stop.php` . "Starting Dej..." . PHP_EOL;
+        echol(`php -f src/stop.php` . "Starting Dej...");
 }
 
 // Load configurations
@@ -54,10 +55,10 @@ $neededExecutables = [
 ];
 foreach ($neededExecutables as $neededExecutable)
     if (!`which {$neededExecutable[1]}`)
-        exit("You must have {$neededExecutable[0]} command installed," .
+        exitl("You must have {$neededExecutable[0]} command installed," .
             " i.e., the specified executable file cannot be used (" .
             "{$neededExecutable[1]}). Fix it by editing executables " .
-            "field in config/data.json." . PHP_EOL);
+            "field in config/data.json.");
 
 // Names of directories and files
 $sourceDir = "src";
@@ -75,4 +76,4 @@ foreach ($filenames as $fname) {
     `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
-echo "Everything got running!" . PHP_EOL;
+echol("Everything got running!");

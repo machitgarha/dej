@@ -4,12 +4,13 @@
 $incPath = "includes";
 $filesPath = [
     "root_permissions.php",
-    "screen.php"
+    "screen.php",
+    "shell.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
-echo "Checking Dej status..." . PHP_EOL;
+echol("Checking Dej status...");
 
 // Search for Dej screens
 $screenSessionPids = search_screens();
@@ -17,20 +18,14 @@ $screensCount = count($screenSessionPids);
 
 switch ($screensCount) {
     case 0:
-        echo "Not running.";
-        break;
+        exitl("Not running.");
 
     case 1:
-        echo "W: Partially running.";
-        break;
+        exitl("W: Partially running.");
     
     case 2:
-        echo "Running!";
-        break;
+        exitl("Running!");
 
     default:
-        echo "W: Running more than once.";
-        break;
+        exitl("W: Running more than once.");
 }
-
-echo PHP_EOL;
