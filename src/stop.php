@@ -4,7 +4,8 @@
 $incPath = "includes";
 $filesPath = [
     "root_permissions.php",
-    "screen.php"
+    "screen.php",
+    "shell.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
