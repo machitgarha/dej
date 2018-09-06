@@ -3,9 +3,15 @@
 # PHP executable to run PHP files, change this if needed
 phpExecutable="php"
 
-
 # Check for PHP executable to be exist
 havePhp=`which $phpExecutable`
+
+# Check
+truePhpVersion=`php -r "echo (float)(phpversion()) >= 7;"`
+if [ "$truePhpVersion" != "1" ]; then
+    echo "Your PHP version must be at least 7."
+    exit
+fi
 
 # Run PHP files, if PHP is present
 if [ -n "$havePhp" ]; then
