@@ -120,7 +120,7 @@ elif [ $# -eq 1 ]; then
 elif [ $# -eq 2 ]; then
     case $1 in
         # User wants help on specific command
-        --help)
+        --help|-h|help)
             case $2 in
                 # Print help for each command
                 start|stop|restart|status|config)
@@ -132,7 +132,14 @@ elif [ $# -eq 2 ]; then
             esac
             ;;
         start|stop|restart|status)
-            printfl "${error[badUsage]}"
+            case $2 in
+                --help|-h|help)
+                    printfl "${help[${1}]}"
+                    ;;
+                *)
+                    printfl "${error[badUsage]}"
+                    ;;
+            esac
             ;;
         config)
             case $2 in
