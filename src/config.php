@@ -26,7 +26,7 @@ if ($dataJson->data)
 else {
     echol("File doesn't exist, creating it...");
     touch($dataJson->prefix . "/data.json");
-    echol("Created.");
+    echol("Created.", 2);
 }
 
 // Load all possible options
@@ -68,7 +68,7 @@ echol("Changed!", 2);
 echol("Saving the change...");
 
 // Open the file to save
-$dataJsonFile = fopen($dataJson->prefix . "/data.json", "w");
+$dataJsonFile = fopen($dataJson->filePath, "w");
 fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
 fclose($dataJsonFile);
 

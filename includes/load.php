@@ -15,6 +15,7 @@ class LoadJSON
     public $prefix = "./config";
     private $filename;
     public $filePath;
+    private $isOptional = false;
     
     // Holding directory and names of validation files
     private $validationDir = "./data/validation/";
@@ -39,12 +40,13 @@ class LoadJSON
     // Loads JSON file and handles data
     public function __construct(string $filePath,
         int $type = self::OBJECT_DATA_TYPE, bool $isOptional = false,
-        bool $withprefix = true)
+        bool $withPrefix = true)
     {
         // Set properties
         $this->filename = $filePath;
-        $this->filePath = $withprefix ? "{$this->prefix}/$filePath" : $filePath;
+        $this->filePath = $withPrefix ? "{$this->prefix}/$filePath" : $filePath;
         $this->defaultDataType = $type;
+        $this->isOptional = $isOptional;
         
         // Checks for file existance and readability
         if (!is_readable($this->filePath))
@@ -84,6 +86,10 @@ class LoadJSON
     private function prepare_validation(string $validationType,
         int $returnAs = self::OBJECT_DATA_TYPE)
     {
+        // If the file is optional, don't continue
+        if ($this->isOptional)
+            return false;
+
         $this->change_type(self::OBJECT_DATA_TYPE);
         
         // Find validation file
@@ -93,10 +99,11 @@ class LoadJSON
         if (!is_readable($validationFile))
             $this->warn("file_reading_error", [
                 "filename" => $validationFile
-            ]);
+            ], "exit");
         
         // Get validation data
-        $validationData = json_decode(file_get_contents($validationFile),           true)[$this->filename] ?? null;
+        $validationData = json_decode(file_get_contents($validationFile),
+            true)[$this->filename] ?? null;
         
         // Warn user if data cannot be validated
         if (!$validationData)
@@ -117,6 +124,10 @@ class LoadJSON
         // Getting things ready and get validation data
         $validationData = $this->prepare_validation("type",
             self::ARRAY_DATA_TYPE);
+
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
         
         // Handles required fields
         foreach ($validationData["required"] as $field)
@@ -176,6 +187,10 @@ class LoadJSON
         // Default value
         if (!$data)
             $data = &$this->data;
+        
+        // If the file is optional
+        if (!$data)
+            $data = new stdClass();
 
         // Split object parts
         $properties = explode(".", $field[0]);
@@ -209,13 +224,9 @@ class LoadJSON
         $validationData = $this->prepare_validation("regex",
             self::OBJECT_DATA_TYPE);
 
-        /* // Check if a field exist in data or not
-        $isValid = function (string $field, string $regex, $data) {
-            return preg_match($regex, array_reduce(explode('.', $field),
-                function ($object, $property) {
-                    return $object->$property ?? null;
-                }, $data));
-        };*/
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
 
         // Validates using regular expressions
         foreach ($validationData as $regex)

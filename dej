@@ -2,6 +2,7 @@
 
 # Source directory
 src="./"
+cd $src;
 
 # Prints a message with a new line at end
 printfl () {
