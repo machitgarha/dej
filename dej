@@ -31,9 +31,10 @@ dej start
 dej stop
 dej restart
 dej status
+dej help [command]
 dej config {option} {value}
-dej --help [command]
-dej --help config list"
+dej config list
+dej config create"
 
 help[start]=\
 "Usage: dej start
@@ -146,6 +147,13 @@ elif [ $# -eq 2 ]; then
                 # User wants a list of available fields
                 list)
                     printfl "${help[configList]}"
+                    ;;
+                # User wants to create the configuration file
+                create)
+                    printfl "Creating configuration file..."
+                    mkdir config > /dev/null
+                    touch data.json
+                    printfl "Created successfully."
                     ;;
                 *)
                     printfl "${error[badUsage]}"
