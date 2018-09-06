@@ -94,15 +94,15 @@ elif [ $# -eq 2 ]; then
                 # User wants to create the configuration file
                 create)
                     printfl "Creating configuration file..."
-                    mkdir config > /dev/null
-                    touch data.json
+                    mkdir config >/dev/null 2>&1
+                    touch config/data.json
                     printfl "Created successfully."
                     ;;
                 *)
                     printfl "${error[badUsage]}"
                     ;;
             esac
-            ;;               
+            ;;
         *)
             printfl "${error[unknownCommand]}"
             ;;
