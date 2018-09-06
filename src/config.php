@@ -52,11 +52,20 @@ if (!in_array($option, $possibleOptions))
     exit("There is no $option option exists."
         . "Check 'dej --help config list' for more information." . PHP_EOL);
 
-// Check if there is any field exist
-if ($dataJson->get_field($option))
-    echol("Current value: '" . $dataJson->get_field($option, null, true) . "'");
+// Get field's current value
+$currentValue = $dataJson->get_field($option, null, true);
 
-echol("Changing it to '$value'...");
+// Check if there is any field exist
+if ($currentValue)
+    echol("Current value is '$currentValue'.");
+
+// Check if values are equal, then break if it is
+if ($currentValue === $value) {
+    echol("Nothing to do!", 2);
+    goto check;
+}
+
+echol("Setting it to '$value'...");
 
 // Change field's value
 $dataJson->add_field([
@@ -64,12 +73,25 @@ $dataJson->add_field([
     $value
 ]);
 
-echol("Changed!", 2);
+echol("Set!", 2);
 echol("Saving the change...");
 
 // Open the file to save
-$dataJsonFile = fopen($dataJson->filePath, "w");
+$dataJsonFile = @fopen($dataJson->filePath, "w");
+
+// Warn user if cannot save
+if (!$dataJsonFile)
+    exitl("Error: Cannot open the {$dataJson->filePath} for saving.");
+
+// Write new data to the file with a pretty format
 fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
 fclose($dataJsonFile);
 
-echol("Saved!");
+echol("Saved!", 2);
+
+check:
+echol("Checking configuration file...");
+
+// Check for missing fields, and output warnings for them
+$dataJson = new LoadJSON("data.json");
+$dataJson->type_validation(true);

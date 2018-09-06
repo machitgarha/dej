@@ -29,9 +29,8 @@ class LoadJSON
         "file_reading_error" => "Cannot read %filename%.",
         "validation_not_found" => "Cannot validate %filename% file with"
             . " '%validation_type%' validation type.",
-        "required_field_missing" => "Missing '%field%' field in "
-            . "%filename%.",
-        "warn_field_missing" => "Missing '%field%' field in %filename%."
+        "missing_field" => "Missing %?type% '%field%' field in %filename%.",
+        "warn_set_field" => "Missing '%field%' field in %filename%."
             . "\nSetting it to '%default%' (default value).",
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
             . "%conditions%."
@@ -117,7 +116,7 @@ class LoadJSON
     }
     
     // Handles validation based on field types
-    public function type_validation()
+    public function type_validation(bool $justWarning = false)
     {
         $data = &$this->data;
         
@@ -134,17 +133,18 @@ class LoadJSON
             // Checks if a field is available or not
             if (!$this->get_field($field, $data))
                 // Exit program
-                $this->warn("required_field_missing", [
+                $this->warn("missing_field", [
                     "field" => $field,
-                    "filename" => $this->filePath
-                ], "exit");
+                    "filename" => $this->filePath,
+                    "?type" => "required"
+                ], $justWarning ? "warn" : "exit");
             
         // Handles warning fields
         foreach ($validationData["warning"] as $field)
             // Checks if a field is available or not
             if (!$this->get_field($field[0], $data)) {
                 // Warn user
-                $this->warn("warn_field_missing", [
+                $this->warn($justWarning ? "missing_field" : "warn_set_field", [
                     "field" => $field[0],
                     "filename" => $this->filePath,
                     "default" => $field[1]
@@ -261,6 +261,9 @@ class LoadJSON
         // Preparing output message
         $msg = str_replace(array_keys($bindValues), array_values($bindValues),
             $this->errorMessages[$messageIndex] . PHP_EOL);
+        
+        // Skip optional output parameters
+        $msg = preg_replace("/%\?.*%\s/", "", $msg);
         
         // Handles the type of printing message
         switch ($type) {
