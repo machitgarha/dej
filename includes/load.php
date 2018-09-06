@@ -12,9 +12,10 @@ class LoadJSON
     const ARRAY_DATA_TYPE = 1;
     
     // File path of the JSON file
-    private $prefex = "./config";
+    public $prefix = "./config";
     private $filename;
     public $filePath;
+    private $isOptional = false;
     
     // Holding directory and names of validation files
     private $validationDir = "./data/validation/";
@@ -28,9 +29,8 @@ class LoadJSON
         "file_reading_error" => "Cannot read %filename%.",
         "validation_not_found" => "Cannot validate %filename% file with"
             . " '%validation_type%' validation type.",
-        "required_field_missing" => "Missing '%field%' field in "
-            . "%filename%.",
-        "warn_field_missing" => "Missing '%field%' field in %filename%."
+        "missing_field" => "Missing %?type% '%field%' field in %filename%.",
+        "warn_set_field" => "Missing '%field%' field in %filename%."
             . "\nSetting it to '%default%' (default value).",
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
             . "%conditions%."
@@ -39,12 +39,13 @@ class LoadJSON
     // Loads JSON file and handles data
     public function __construct(string $filePath,
         int $type = self::OBJECT_DATA_TYPE, bool $isOptional = false,
-        bool $withPrefex = true)
+        bool $withPrefix = true)
     {
         // Set properties
         $this->filename = $filePath;
-        $this->filePath = $withPrefex ? "{$this->prefex}/$filePath" : $filePath;
+        $this->filePath = $withPrefix ? "{$this->prefix}/$filePath" : $filePath;
         $this->defaultDataType = $type;
+        $this->isOptional = $isOptional;
         
         // Checks for file existance and readability
         if (!is_readable($this->filePath))
@@ -84,6 +85,10 @@ class LoadJSON
     private function prepare_validation(string $validationType,
         int $returnAs = self::OBJECT_DATA_TYPE)
     {
+        // If the file is optional, don't continue
+        if ($this->isOptional)
+            return false;
+
         $this->change_type(self::OBJECT_DATA_TYPE);
         
         // Find validation file
@@ -93,10 +98,11 @@ class LoadJSON
         if (!is_readable($validationFile))
             $this->warn("file_reading_error", [
                 "filename" => $validationFile
-            ]);
+            ], "exit");
         
         // Get validation data
-        $validationData = json_decode(file_get_contents($validationFile),           true)[$this->filename] ?? null;
+        $validationData = json_decode(file_get_contents($validationFile),
+            true)[$this->filename] ?? null;
         
         // Warn user if data cannot be validated
         if (!$validationData)
@@ -110,77 +116,103 @@ class LoadJSON
     }
     
     // Handles validation based on field types
-    public function type_validation()
+    public function type_validation(bool $justWarning = false)
     {
         $data = &$this->data;
         
         // Getting things ready and get validation data
         $validationData = $this->prepare_validation("type",
             self::ARRAY_DATA_TYPE);
-        
-        // Check if a field exist in data or not
-        $fieldExists = function (string $field, $data) {
-            return array_reduce(explode('.', $field),
-                function ($object, $property) {
-                    return $object->$property ?? null;
-                }, $data) !== null;
-        };
-        
-        // Adds a field to data with a default value
-        $addField = function (array $field, &$data) {
-            // Split object parts
-            $properties = explode(".", $field[0]);
 
-            // Reference to the object
-            $ref = &$data;
-
-            // Create properties which they consist some other properties
-            $propertiesCount = count($properties);
-            for ($i = 0; $i < $propertiesCount - 1; $i++) {
-                $propertyName = $properties[$i];
-
-                // Create if not exist
-                if (!isset($ref->$propertyName))
-                    $ref->$propertyName = new stdClass();
-
-                // Update reference to the latest created property
-                $ref = &$ref->$propertyName;
-            }
-
-            // Set the property, as the last work
-            $ref->{$properties[$propertiesCount - 1]} = $field[1];
-        };
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
         
         // Handles required fields
         foreach ($validationData["required"] as $field)
             // Checks if a field is available or not
-            if (!$fieldExists($field, $data))
+            if (!$this->get_field($field, $data))
                 // Exit program
-                $this->warn("required_field_missing", [
+                $this->warn("missing_field", [
                     "field" => $field,
-                    "filename" => $this->filePath
-                ], "exit");
+                    "filename" => $this->filePath,
+                    "?type" => "required"
+                ], $justWarning ? "warn" : "exit");
             
         // Handles warning fields
         foreach ($validationData["warning"] as $field)
             // Checks if a field is available or not
-            if (!$fieldExists($field[0], $data)) {
+            if (!$this->get_field($field[0], $data)) {
                 // Warn user
-                $this->warn("warn_field_missing", [
+                $this->warn($justWarning ? "missing_field" : "warn_set_field", [
                     "field" => $field[0],
                     "filename" => $this->filePath,
                     "default" => $field[1]
                 ]);
                     
-                $addField($field, $data);
+                $this->add_field($field, $data);
             }
             
         // Handles optional fields
         foreach ($validationData["optional"] as $field)
-            if (!$fieldExists($field[0], $data))
-                $addField($field, $data);
+            if (!$this->get_field($field[0], $data))
+                $this->add_field($field, $data);
         
         $this->change_type();
+    }
+
+    // Check if a field exist in data or not
+    public function get_field(string $field, $data = null, $getValue = false)
+    {
+        // Default value
+        if (!$data)
+            $data = $this->data;
+
+        // Get its value
+        $fieldValue = array_reduce(explode('.', $field),
+            function ($object, $property) {
+                return $object->$property ?? null;
+            }, $data);
+
+        if ($getValue)
+            return $fieldValue;
+
+        // Return if field exists or not
+        return $fieldValue !== null;
+    }
+
+    // Adds a field to data with a default value
+    public function add_field(array $field, &$data = null)
+    {
+        // Default value
+        if (!$data)
+            $data = &$this->data;
+        
+        // If the file is optional
+        if (!$data)
+            $data = new stdClass();
+
+        // Split object parts
+        $properties = explode(".", $field[0]);
+
+        // Reference to the object
+        $ref = &$data;
+
+        // Create properties which they consist some other properties
+        $propertiesCount = count($properties);
+        for ($i = 0; $i < $propertiesCount - 1; $i++) {
+            $propertyName = $properties[$i];
+
+            // Create if not exist
+            if (!isset($ref->$propertyName))
+                $ref->$propertyName = new stdClass();
+
+            // Update reference to the latest created property
+            $ref = &$ref->$propertyName;
+        }
+
+        // Set the property, as the last work
+        $ref->{$properties[$propertiesCount - 1]} = $field[1];
     }
     
     // Handles validations based on regular expressions
@@ -192,13 +224,9 @@ class LoadJSON
         $validationData = $this->prepare_validation("regex",
             self::OBJECT_DATA_TYPE);
 
-        /* // Check if a field exist in data or not
-        $isValid = function (string $field, string $regex, $data) {
-            return preg_match($regex, array_reduce(explode('.', $field),
-                function ($object, $property) {
-                    return $object->$property ?? null;
-                }, $data));
-        };*/
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
 
         // Validates using regular expressions
         foreach ($validationData as $regex)
@@ -233,6 +261,9 @@ class LoadJSON
         // Preparing output message
         $msg = str_replace(array_keys($bindValues), array_values($bindValues),
             $this->errorMessages[$messageIndex] . PHP_EOL);
+        
+        // Skip optional output parameters
+        $msg = preg_replace("/%\?.*%\s/", "", $msg);
         
         // Handles the type of printing message
         switch ($type) {

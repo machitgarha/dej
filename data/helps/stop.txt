@@ -1,0 +1,2 @@
+Usage: dej stop
+Stops Dej (needs root permissions).

@@ -4,12 +4,13 @@
 $incPath = "includes";
 $filesPath = [
     "root_permissions.php",
-    "screen.php"
+    "screen.php",
+    "shell.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
 
-echo "Stopping Dej..." . PHP_EOL;
+echol("Stopping Dej...");
 
 // Search for Dej screens
 $screenSessionPids = search_screens();
@@ -20,8 +21,6 @@ if (count($screenSessionPids) !== 0) {
     foreach ($screenSessionPids as $screenSessionPid)
         `screen -X -S $screenSessionPid quit`;
     
-    echo "Done!";
+    echol("Done!");
 } else
-    echo "Not started, nothing to do!";
-
-echo PHP_EOL;
+    echol("Not started, nothing to do!");

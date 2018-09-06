@@ -1,0 +1,2 @@
+Usage: dej start
+Starts Dej (needs root permissions).

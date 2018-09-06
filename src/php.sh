@@ -9,7 +9,11 @@ havePhp=`which $phpExecutable`
 
 # Run PHP files, if PHP is present
 if [ -n "$havePhp" ]; then
-    $phpExecutable -f src/$1.php $phpExecutable
+    if [ $# -eq 3 ]; then
+        $phpExecutable -f src/$1.php $2 $3
+    else
+        $phpExecutable -f src/$1.php $phpExecutable
+    fi
 else
     # Warn user for which PHP not exists
     echo "Cannot run PHP. Simply, install PHP, or change the executable path"
