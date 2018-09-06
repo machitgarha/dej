@@ -1,0 +1,26 @@
+You can set update an option using:
+'dej config {option} {value}'
+
+Help: * means required, + means should-set, every field which is not required
+has a default value.
+- interface.name (*): Interface name of your device you want to sniff.
+- interface.mac (*): Interface's MAC address of your device you want to sniff.
+- save_to.path (*): Where to save files. The files are about how much data each
+device used.
+- save_to.format: Files' format. Default is '.txt'.
+- executables.screen (+): The executable file of the 'screen' command. It can be
+either the command name absolutely or the path to the command file. Default is
+'screen'.
+- executables.tcpdump (+): The executable file of the 'tcpdump' command. It can
+be either the command name absolutely or the path to the command file. Default
+is 'tcpdump'.
+- packets_count: Save into files when this no. of packets sniffed. Default is
+100.
+- backup.dir: Where to backup files inside inside 'save_to.path' (i.e. path
+is relative). Default is 'backup'.
+- backup.timeout: Take a backup from files in once in this no. of seconds.
+Default is 60 (i.e. backup once each minute).
+- logs.screen: Log outputs from running files inside the 'log' directory or not.
+Default is false.
+- logs.skipped_packets: Log outputs from sniffer file about which packets
+skipped. Default is false.
