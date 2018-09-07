@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# You may copy this file, but moving it causes problems.
+
 # Source directory
 src="./"
 cd $src;
@@ -39,12 +41,8 @@ if [ $# -eq 0 ]; then
 elif [ $# -eq 1 ]; then
     case $1 in
         # Start PHP process for each command
-        start|stop|status)
+        start|stop|status|restart)
             sh src/php.sh $1
-            ;;
-        restart)
-            sh src/php.sh stop
-            sh src/php.sh start
             ;;
         help|-h|--help)
             printfl "`cat $helps/help.txt`";

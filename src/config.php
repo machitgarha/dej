@@ -8,7 +8,8 @@ if ($argc !== 3)
 $incPath = "includes";
 $filesPath = [
     "load.php",
-    "shell.php"
+    "shell.php",
+    "directory.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";
@@ -25,7 +26,8 @@ if ($dataJson->data)
     echol("Loaded successfully.", 2);
 else {
     echol("File doesn't exist, creating it...");
-    touch($dataJson->prefix . "/data.json");
+    directory($dataJson->prefix);
+    touch($dataJson->filePath);
     echol("Created.", 2);
 }
 
@@ -88,6 +90,9 @@ fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
 fclose($dataJsonFile);
 
 echol("Saved!", 2);
+
+// Restart Dej to see the effects
+echol(`./dej restart`);
 
 check:
 echol("Checking configuration file...");

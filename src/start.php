@@ -15,6 +15,10 @@ foreach ($filesPath as $filePath)
 
 echol("Starting Dej...");
 
+// Stop if root permissions not granted
+if (!root_permissions())
+    return;
+
 // If there are some screens running, prompt user
 if (count(search_screens()) > 0) {
     // Prompt user to stop started screens or not

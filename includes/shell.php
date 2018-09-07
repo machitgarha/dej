@@ -1,7 +1,7 @@
 <?php
 
 // Prints an output with a new line at the end
-function echol(string $str, int $newLinesCount = 1) {
+function echol(string $str = "", int $newLinesCount = 1) {
     echo $str;
     for ($i = 0; $i < $newLinesCount; $i++)
         echo PHP_EOL;
