@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Source directory
 src="./"
@@ -12,31 +12,28 @@ printfl () {
 # Helps path
 helps="data/helps"
 
-# Array for output
-typeset -A error
-
 # Errors while entering commands
 moreInfo="Try 'dej --help' for more information."
 
-error[commandIsAMust]=\
+commandExpectedError=\
 "You must specify a command.
 $moreInfo"
 
-error[badUsage]=\
+badUsageError=\
 "Bad usage.
 $moreInfo"
 
-error[unknownCommand]=\
+unknownCommandError=\
 "Unknown command
 $moreInfo"
 
-error[tooMany]=\
+tooManyArgsError=\
 "Too many arguments supplied!
 $moreInfo"
 
 # No arguments supplied
 if [ $# -eq 0 ]; then
-    printfl "${error[commandIsAMust]}"
+    printfl "$commandExpectedError"
 
 # An arguments supplied
 elif [ $# -eq 1 ]; then
@@ -53,10 +50,10 @@ elif [ $# -eq 1 ]; then
             printfl "`cat $helps/help.txt`";
             ;;
         config)
-            printfl "${error[badUsage]}"
+            printfl "$badUsageError"
             ;;
         *)
-            printfl "${error[unknownCommand]}"
+            printfl "$unknownCommandError"
             ;;
     esac
 
@@ -71,7 +68,7 @@ elif [ $# -eq 2 ]; then
                     printfl "`cat $helps/$2.txt`"
                     ;;
                 *)
-                    printfl "${error[unknownCommand]}"
+                    printfl "$unknownCommandError"
                     ;;
             esac
             ;;
@@ -81,7 +78,7 @@ elif [ $# -eq 2 ]; then
                     printfl "`cat $helps/$1.txt`"
                     ;;
                 *)
-                    printfl "${error[badUsage]}"
+                    printfl "$badUsageError"
                     ;;
             esac
             ;;
@@ -99,12 +96,12 @@ elif [ $# -eq 2 ]; then
                     printfl "Created successfully."
                     ;;
                 *)
-                    printfl "${error[badUsage]}"
+                    printfl "$badUsageError"
                     ;;
             esac
             ;;
         *)
-            printfl "${error[unknownCommand]}"
+            printfl "$unknownCommandError"
             ;;
     esac
 
@@ -112,18 +109,18 @@ elif [ $# -eq 2 ]; then
 elif [ $# -eq 3 ]; then
     case $1 in
         --help|start|stop|restart|status)
-            printfl "${error[badUsage]}"
+            printfl "$badUsageError"
             ;;
         # Change the configuration file (i.e. config/data.json)
         config)
             sh src/php.sh config $2 $3
             ;;
         *)
-            printfl "${error[unknownCommand]}"
+            printfl "$unknownCommandError"
             ;;
     esac
 
 # Too many arguments (> 3)
 else
-    printfl "${error[tooMany]}"
+    printfl "$tooManyArgsError"
 fi
