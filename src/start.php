@@ -3,7 +3,7 @@
 // Includes
 $incPath = "includes";
 $filesPath = [
-    "load.php",
+    "load_json.php",
     "directory.php",
     "compare_files.php",
     "root_permissions.php",

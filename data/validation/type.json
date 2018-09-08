@@ -1,21 +1,56 @@
 {
-    "data.json": {
-        "required": [
-            "interface.name",
-            "interface.mac",
-            "save_to.path"
-        ],
-        "warning": [
-            ["executables.screen", "screen"],
-            ["executables.tcpdump", "tcpdump"]
-        ],
-        "optional": [
-            ["packets_count", 100],
-            ["save_to.format", ".txt"],
-            ["backup.dir", "backup"],
-            ["backup.timeout", 60],
-            ["logs.screen", false],
-            ["logs.skipped_packets", false]
-        ]
-    }
+    "data.json": [
+        {
+            "name": "interface.name",
+            "class": "required"
+        },
+        {
+            "name": "interface.mac",
+            "type": "mac",
+            "class": "required"
+        },
+        {
+            "name": "save_to.path",
+            "class": "required"
+        },
+        {
+            "name": "executables.screen",
+            "default_value": "screen",
+            "class": "warn"
+        },
+        {
+            "name": "executables.tcpdump",
+            "default_value": "tcpdump",
+            "class": "warn"
+        },
+        {
+            "name": "packets_count",
+            "default_value": 100,
+            "type": "int"
+        },
+        {
+            "name": "save_to.format",
+            "default_value": ".txt"
+        },
+        {
+            "name": "backup.dir",
+            "default_value": "backup",
+            "type": "alphanumeric"
+        },
+        {
+            "name": "backup.timeout",
+            "default_value": 60,
+            "type": "int"
+        },
+        {
+            "name": "logs.screen",
+            "default_value": false,
+            "type": "bool"
+        },
+        {
+            "name": "logs.skipped_packets",
+            "default_value": false,
+            "type": "bool"
+        }
+    ]
 }

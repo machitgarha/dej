@@ -4,7 +4,7 @@
 $incPath = "includes";
 $filesPath = [
     "directory.php",
-    "load.php"
+    "load_json.php"
 ];
 foreach ($filesPath as $filePath)
     require "$incPath/$filePath";

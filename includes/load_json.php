@@ -30,8 +30,6 @@ class LoadJSON
         "validation_not_found" => "Cannot validate %filename% file with"
             . " '%validation_type%' validation type.",
         "missing_field" => "Missing %?type% '%field%' field in %filename%.",
-        "warn_set_field" => "Missing '%field%' field in %filename%."
-            . "\nSetting it to '%default%' (default value).",
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
             . "%conditions%."
     ];
@@ -127,62 +125,52 @@ class LoadJSON
         // If the file is optional, don't perform checks
         if (!$validationData)
             return false;
-        
-        // Handles required fields
-        foreach ($validationData["required"] as $field)
-            // Checks if a field is available or not
-            if (!$this->get_field($field, $data))
-                // Exit program
-                $this->warn("missing_field", [
-                    "field" => $field,
-                    "filename" => $this->filePath,
-                    "?type" => "required"
-                ], $justWarning ? "warn" : "exit");
-            
-        // Handles warning fields
-        foreach ($validationData["warning"] as $field)
-            // Checks if a field is available or not
-            if (!$this->get_field($field[0], $data)) {
-                // Warn user
-                $this->warn($justWarning ? "missing_field" : "warn_set_field", [
-                    "field" => $field[0],
-                    "filename" => $this->filePath,
-                    "default" => $field[1]
-                ]);
-                    
-                $this->add_field($field, $data);
+
+        // Iteration over all fields
+        foreach ($validationData as $field) {
+            $fieldName = $field["name"];
+            $fieldClass = $field["class"] ?? "optional";
+            $defaultValue = $field["default_value"] ?? null;
+
+            // If the field exists, then
+            if (!$this->get_field($fieldName, $data)) {
+                // If field is not required, set the default value for it
+                if ($fieldClass !== "required")
+                    $this->add_field($fieldName, $defaultValue, $data);
+                
+                // If field is not optional, generate a message
+                if ($fieldClass !== "optional")
+                    $this->warn("missing_field", [
+                        "field" => $fieldName,
+                        "filename" => $this->filePath,
+                        "?type" => $fieldClass === "required" ? "required" : ""
+                    ], (!$justWarning && $fieldClass === "required") ? "exit" : 
+                        "warn");
             }
-            
-        // Handles optional fields
-        foreach ($validationData["optional"] as $field)
-            if (!$this->get_field($field[0], $data))
-                $this->add_field($field, $data);
+        }
         
         $this->change_type();
     }
 
     // Check if a field exist in data or not
-    public function get_field(string $field, $data = null, $getValue = false)
+    public function get_field(string $fieldName, $data = null,
+        $getValue = false)
     {
         // Default value
         if (!$data)
             $data = $this->data;
 
         // Get its value
-        $fieldValue = array_reduce(explode('.', $field),
+        $fieldValue = array_reduce(explode('.', $fieldName),
             function ($object, $property) {
                 return $object->$property ?? null;
             }, $data);
 
-        if ($getValue)
-            return $fieldValue;
-
-        // Return if field exists or not
-        return $fieldValue !== null;
+        return ($getValue ? $fieldValue : $fieldValue !== null);
     }
 
     // Adds a field to data with a default value
-    public function add_field(array $field, &$data = null)
+    public function add_field(string $fieldName, $value, &$data = null)
     {
         // Default value
         if (!$data)
@@ -193,7 +181,7 @@ class LoadJSON
             $data = new stdClass();
 
         // Split object parts
-        $properties = explode(".", $field[0]);
+        $properties = explode(".", $fieldName);
 
         // Reference to the object
         $ref = &$data;
@@ -212,7 +200,7 @@ class LoadJSON
         }
 
         // Set the property, as the last work
-        $ref->{$properties[$propertiesCount - 1]} = $field[1];
+        $ref->{$properties[$propertiesCount - 1]} = $value;
     }
     
     // Handles validations based on regular expressions
@@ -256,7 +244,8 @@ class LoadJSON
         $bindArr = $bindValues;
         $bindValues = [];
         foreach ($bindArr as $key => $val)
-            $bindValues["%$key%"] = $val;
+            if (!empty($val))
+                $bindValues["%$key%"] = $val;
         
         // Preparing output message
         $msg = str_replace(array_keys($bindValues), array_values($bindValues),
@@ -267,14 +256,14 @@ class LoadJSON
         
         // Handles the type of printing message
         switch ($type) {
-            // Exits program
+            // Exit program
             case "exit":
-            exit("Error: $msg");
+                exit("Error: $msg");
             
-            // Just print out the message
+            // Warn user
             case "warn":
-            echo("Warning: $msg");
-            break;
+                echo "Warning: $msg";
+                break;
         }
     }
 }

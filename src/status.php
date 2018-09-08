@@ -12,6 +12,10 @@ foreach ($filesPath as $filePath)
 
 echol("Checking Dej status...");
 
+// Stop if root permissions not granted
+if (!root_permissions())
+    return;
+
 // Search for Dej screens
 $screenSessionPids = search_screens();
 $screensCount = count($screenSessionPids);

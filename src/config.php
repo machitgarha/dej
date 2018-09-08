@@ -7,7 +7,7 @@ if ($argc !== 3)
 // Includes
 $incPath = "includes";
 $filesPath = [
-    "load.php",
+    "load_json.php",
     "shell.php",
     "directory.php"
 ];
@@ -70,10 +70,7 @@ if ($currentValue === $value) {
 echol("Setting it to '$value'...");
 
 // Change field's value
-$dataJson->add_field([
-    $option,
-    $value
-]);
+$dataJson->add_field($option, $value);
 
 echol("Set!", 2);
 echol("Saving the change...");
