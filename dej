@@ -47,7 +47,7 @@ elif [ $# -eq 1 ]; then
         help|-h|--help)
             printfl "`cat $helps/help.txt`";
             ;;
-        config)
+        config|users)
             printfl "$badUsageError"
             ;;
         *)
@@ -59,7 +59,7 @@ elif [ $# -eq 1 ]; then
 elif [ $# -eq 2 ]; then
     case $1 in
         # User wants help on specific command
-        --help|-h|help)
+        help|-h|--help)
             case $2 in
                 # Print help for each command
                 start|stop|restart|status|config)
@@ -67,16 +67,6 @@ elif [ $# -eq 2 ]; then
                     ;;
                 *)
                     printfl "$unknownCommandError"
-                    ;;
-            esac
-            ;;
-        start|stop|restart|status)
-            case $2 in
-                --help|-h|help)
-                    printfl "`cat $helps/$1.txt`"
-                    ;;
-                *)
-                    printfl "$badUsageError"
                     ;;
             esac
             ;;
@@ -94,6 +84,9 @@ elif [ $# -eq 2 ]; then
                     printfl "$badUsageError"
                     ;;
             esac
+            ;;
+        start|stop|restart|status)
+            printfl "$badUsageError"
             ;;
         *)
             printfl "$unknownCommandError"

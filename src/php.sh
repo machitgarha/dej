@@ -15,10 +15,12 @@ fi
 
 # Run PHP files, if PHP is present
 if [ -n "$havePhp" ]; then
-    if [ $# -eq 3 ]; then
-        $phpExecutable -f src/$1.php $2 $3
-    else
+    if [ "$1" = "start" ]; then
         $phpExecutable -f src/$1.php $phpExecutable
+    else
+        fileName="$1"
+        shift
+        $phpExecutable -f src/$fileName.php "$@"
     fi
 else
     # Warn user for which PHP not exists
