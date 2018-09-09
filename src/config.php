@@ -12,7 +12,7 @@ $filesPath = [
     "directory.php"
 ];
 foreach ($filesPath as $filePath)
-    require "$incPath/$filePath";
+    require_once "$incPath/$filePath";
 
 echol("Loading configuration file...");
 
@@ -25,10 +25,9 @@ $configData = $dataJson->data;
 if ($dataJson->data)
     echol("Loaded successfully.", 2);
 else {
-    echol("File doesn't exist, creating it...");
-    directory($dataJson->prefix);
-    touch($dataJson->filePath);
-    echol("Created.", 2);
+    echol("It doesn't exist.");
+    require "src/create.php";
+    echol();
 }
 
 // Load all possible options
@@ -71,16 +70,20 @@ switch ($fieldType) {
 
     case "alphanumeric":
         $value = preg_replace("/[^a-z0-9]/i", "", $value);
-        break;       
+        break;
+    
+    case "mac":
+        $dataJson->type_validation([$option => $value]);
+        break;
 }
 
 // Check if values are equal, then break if it is
 if ($currentValue === $value) {
-    echol("Nothing to do!", 2);
+    echol("Nothing to do!");
     goto check;
 }
 
-echol("Setting it to " . json_encode($value) . "...");
+echol("Setting $option to " . json_encode($value) . "...");
 
 // Change field's value
 $dataJson->add_field($option, $value);
@@ -101,13 +104,29 @@ fclose($dataJsonFile);
 
 echol("Saved!", 2);
 
-// Restart Dej to see the effects
-echol(`./dej restart`);
+echol("Restarting Dej...");
+
+// Restart Dej to see the effects and show the result
+ob_start();
+require "src/restart.php";
+$restartOutput = ob_get_clean();
+if (preg_match("/(Everything got running!)/", $restartOutput))
+    echol("Restarted successfully!");
+else
+    echol("Failed. Run 'dej restart' for more information.");
 
 check:
-echol("Checking configuration file...");
-
-// Check for missing fields, and output warnings for them
+// Check for warnings
+ob_start();
 $dataJson = new LoadJSON("data.json");
 $dataJson->class_validation(true);
 $dataJson->type_validation();
+$warningsOutput = ob_get_clean();
+
+// If at least a warning found, print it
+$warningsCount = preg_match_all("/(warning:)/i", $warningsOutput);
+if (!empty($warningsOutput)) {
+    echol();
+    echol("Found $warningsCount warning(s) in the configuration file.");
+    echol("Try 'dej config check' for more details.");
+}

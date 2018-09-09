@@ -21,7 +21,7 @@ function root_permissions(bool $quiet = false) {
 // You should not run this command as root, if running as root, warn user
 function should_not_be_root() {
     if (root_permissions(true)) {
-        echo "You should not run this command as root. Continue? [Y(es)/n(o)] ";
+        echo "You should not run as root. Continue? [Y(es)/n(o)] ";
         $cliInput = fopen("php://stdin", "r");
 
         // Analyze user input

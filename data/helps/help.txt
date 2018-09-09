@@ -16,3 +16,4 @@ dej help [command]
 dej config {option} {value}
 dej config list
 dej config create
+dej config check
