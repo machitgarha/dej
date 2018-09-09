@@ -11,7 +11,7 @@ $filesPath = [
     "shell.php"
 ];
 foreach ($filesPath as $filePath)
-    require "$incPath/$filePath";
+    require_once "$incPath/$filePath";
 
 echol("Starting Dej...");
 
@@ -38,7 +38,9 @@ if (count(search_screens()) > 0) {
 }
 
 // Load configurations
-$dataJson = new LoadJSON("data.json");
+$dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, false, true,
+    "Help: If it doesn't exist, create it by running 'dej config create'.");
+$dataJson->class_validation();
 $dataJson->type_validation();
 $configData = $dataJson->data;
 

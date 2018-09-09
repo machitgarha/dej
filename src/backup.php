@@ -7,10 +7,11 @@ $filesPath = [
     "load_json.php"
 ];
 foreach ($filesPath as $filePath)
-    require "$incPath/$filePath";
+    require_once "$incPath/$filePath";
 
 // Load configurations
 $dataJson = new LoadJSON("data.json");
+$dataJson->class_validation();
 $dataJson->type_validation();
 $configData = $dataJson->data;
 
