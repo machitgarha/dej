@@ -18,7 +18,7 @@ echol("Loading configuration file...");
 
 // Load configurations
 $dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, true);
-$dataJson->type_validation();
+$dataJson->class_validation();
 $configData = $dataJson->data;
 
 // Check if configuration file exists, and if not, create it
@@ -38,28 +38,41 @@ $types = $typeJson->data->{"data.json"};
 
 // Extract all possible options
 $possibleOptions = [];
-foreach ($types as $fields)
-    foreach ($fields as $field)
-        if (!is_array($field))
-            array_push($possibleOptions, $field);
-        else
-            array_push($possibleOptions, $field[0]);
+foreach ($types as $fieldName => $fieldData)
+    array_push($possibleOptions, $fieldName);
 
 // Set arguments
 $option = $argv[1];
 $value = $argv[2];
 
 // Break if it is an invalid option
-if (!in_array($option, $possibleOptions))
-    exit("There is no $option option exists."
-        . "Check 'dej --help config list' for more information." . PHP_EOL);
+if (!in_array($option, $possibleOptions)) {
+    echol("There is no $option option exists.");
+    exitl("Check 'dej config list' for more information.");
+}
 
 // Get field's current value
 $currentValue = $dataJson->get_field($option, null, true);
 
 // Check if there is any field exist
-if ($currentValue)
-    echol("Current value is '$currentValue'.");
+if ($currentValue !== null)
+    echol("Current value is " . json_encode($currentValue) . ".");
+
+// Fix values
+$fieldType = $types->$option->type ?? "string";
+switch ($fieldType) {
+    case "bool":
+        $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        break;
+
+    case "int":
+        $value = filter_var($value, FILTER_VALIDATE_INT);
+        break;
+
+    case "alphanumeric":
+        $value = preg_replace("/[^a-z0-9]/i", "", $value);
+        break;       
+}
 
 // Check if values are equal, then break if it is
 if ($currentValue === $value) {
@@ -67,7 +80,7 @@ if ($currentValue === $value) {
     goto check;
 }
 
-echol("Setting it to '$value'...");
+echol("Setting it to " . json_encode($value) . "...");
 
 // Change field's value
 $dataJson->add_field($option, $value);
@@ -96,4 +109,5 @@ echol("Checking configuration file...");
 
 // Check for missing fields, and output warnings for them
 $dataJson = new LoadJSON("data.json");
-$dataJson->type_validation(true);
+$dataJson->class_validation(true);
+$dataJson->type_validation();

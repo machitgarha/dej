@@ -39,6 +39,7 @@ if (count(search_screens()) > 0) {
 
 // Load configurations
 $dataJson = new LoadJSON("data.json");
+$dataJson->class_validation();
 $dataJson->type_validation();
 $configData = $dataJson->data;
 

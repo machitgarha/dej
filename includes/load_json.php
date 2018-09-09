@@ -31,7 +31,9 @@ class LoadJSON
             . " '%validation_type%' validation type.",
         "missing_field" => "Missing %?type% '%field%' field in %filename%.",
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
-            . "%conditions%."
+            . "%conditions%.",
+        "warn_bad_type" => "'%field%' field in %filename% is invalid. It must\n"
+            . "be a/an %type%. Current value: %value%"
     ];
     
     // Loads JSON file and handles data
@@ -86,8 +88,6 @@ class LoadJSON
         // If the file is optional, don't continue
         if ($this->isOptional)
             return false;
-
-        $this->change_type(self::OBJECT_DATA_TYPE);
         
         // Find validation file
         $validationFile = $this->validationFiles[$validationType];
@@ -113,24 +113,25 @@ class LoadJSON
         return $validationData;
     }
     
-    // Handles validation based on field types
-    public function type_validation(bool $justWarning = false)
-    {
-        $data = &$this->data;
-        
+    // Handles validation based on field classes (e.g. required)
+    public function class_validation(bool $justWarning = false)
+    {        
         // Getting things ready and get validation data
         $validationData = $this->prepare_validation("type",
-            self::ARRAY_DATA_TYPE);
+            self::OBJECT_DATA_TYPE);
 
         // If the file is optional, don't perform checks
         if (!$validationData)
             return false;
+        
+        // Prepare data
+        $data = &$this->data;
+        $this->change_type(self::OBJECT_DATA_TYPE);
 
         // Iteration over all fields
-        foreach ($validationData as $field) {
-            $fieldName = $field["name"];
-            $fieldClass = $field["class"] ?? "optional";
-            $defaultValue = $field["default_value"] ?? null;
+        foreach ($validationData as $fieldName => $fieldData) {
+            $fieldClass = $fieldData->class ?? "optional";
+            $defaultValue = $fieldData->default_value ?? null;
 
             // If the field exists, then
             if (!$this->get_field($fieldName, $data)) {
@@ -147,6 +148,108 @@ class LoadJSON
                     ], (!$justWarning && $fieldClass === "required") ? "exit" : 
                         "warn");
             }
+        }
+        
+        $this->change_type();
+    }
+
+    // Handles validations based on regular expressions
+    public function regex_validation()
+    {        
+        // Getting things ready and get validation data
+        $validationData = $this->prepare_validation("regex",
+            self::OBJECT_DATA_TYPE);
+
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
+
+        // Prepare data
+        $data = &$this->data;
+        $this->change_type(self::OBJECT_DATA_TYPE);
+
+        // Validates using regular expressions
+        foreach ($validationData as $regex)
+            // Checks for field expression
+            if (preg_match("/[^a-z0-9\._]/i", $regex->field))
+                // Parsing data
+                foreach ($data as $field => $value)
+                    // Perform validation for both fields and values
+                    foreach (["field", "value"] as $i)
+                        // Warn user if there is an invalid data
+                        if (isset($regex->$i) && !preg_match($regex->$i, $$i))
+                            $this->warn("validation_failed", [
+                                "filename" => $this->filePath,
+                                "value" => $$i,
+                                "conditions" => implode(PHP_EOL,
+                                    $regex->{$i . "_cond"} ??
+                                    (array)"Not detailed anymore.")
+                            ]);
+
+        $this->change_type();
+    }
+
+    // Perform validation for types, and warn for mistypes
+    public function type_validation($data = null)
+    {        
+        // Getting things ready and get validation data
+        $validationData = $this->prepare_validation("type",
+            self::OBJECT_DATA_TYPE);
+
+        // If the file is optional, don't perform checks
+        if (!$validationData)
+            return false;
+
+        // Prepare data
+        if (!$data)
+            $data = &$this->data;
+        $this->change_type(self::OBJECT_DATA_TYPE);
+        
+        // Iteration over all fields
+        foreach ($validationData as $fieldName => $fieldData) {
+            $fieldType = $fieldData->type ?? "string";
+            $fieldValue = $this->get_field($fieldName, $data, true);
+
+            // Skip if no such field set
+            if ($fieldValue === null)
+                continue;
+
+            // Validate each field by its type
+            $validField = true;
+            switch ($fieldType) {
+                // MAC address
+                case "mac":
+                    if (!filter_var($fieldValue, FILTER_VALIDATE_MAC) ||
+                        preg_match("/[^:xdigit:-]/i"))
+                        $validField = false;
+                    break;
+                
+                // Integer
+                case "int":
+                    if (!filter_var($fieldValue, FILTER_VALIDATE_INT))
+                        $validField = false;
+                    break;
+                
+                // Including only alphabets and numbers
+                case "alphanumeric":
+                    if (preg_match("/[^a-z0-9]/i", $fieldValue))
+                        $validField = false;
+                    break;
+                    
+                // Boolean
+                case "bool":
+                    if (!is_bool($fieldValue))
+                        $validField = false;
+            }
+
+            // Warn user, there is mistyped field!
+            if (!$validField)
+                $this->warn("warn_bad_type", [
+                    "field" => $fieldName,
+                    "filename" => $this->filePath,
+                    "type" => $fieldType,
+                    "value" => json_encode($fieldValue)
+                ]);
         }
         
         $this->change_type();
@@ -201,40 +304,6 @@ class LoadJSON
 
         // Set the property, as the last work
         $ref->{$properties[$propertiesCount - 1]} = $value;
-    }
-    
-    // Handles validations based on regular expressions
-    public function regex_validation()
-    {
-        $data = &$this->data;
-        
-        // Getting things ready and get validation data
-        $validationData = $this->prepare_validation("regex",
-            self::OBJECT_DATA_TYPE);
-
-        // If the file is optional, don't perform checks
-        if (!$validationData)
-            return false;
-
-        // Validates using regular expressions
-        foreach ($validationData as $regex)
-            // Checks for field expression
-            if (preg_match("/[^a-z0-9\._]/i", $regex->field))
-                // Parsing data
-                foreach ($data as $field => $value)
-                    // Perform validation for both fields and values
-                    foreach (["field", "value"] as $i)
-                        // Warn user if there is an invalid data
-                        if (isset($regex->$i) && !preg_match($regex->$i, $$i))
-                            $this->warn("validation_failed", [
-                                "filename" => $this->filePath,
-                                "value" => $$i,
-                                "conditions" => implode(PHP_EOL,
-                                    $regex->{$i . "_cond"} ??
-                                    (array)"Not detailed anymore.")
-                            ]);
-
-        $this->change_type();
     }
         
     // Warn user or exit program with a message

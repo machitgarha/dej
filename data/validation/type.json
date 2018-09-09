@@ -1,56 +1,45 @@
 {
-    "data.json": [
-        {
-            "name": "interface.name",
+    "data.json": {
+        "interface.name": {
             "class": "required"
         },
-        {
-            "name": "interface.mac",
+        "interface.mac": {
             "type": "mac",
             "class": "required"
         },
-        {
-            "name": "save_to.path",
+        "save_to.path": {
             "class": "required"
         },
-        {
-            "name": "executables.screen",
+        "executables.screen": {
             "default_value": "screen",
             "class": "warn"
         },
-        {
-            "name": "executables.tcpdump",
+        "executables.tcpdump": {
             "default_value": "tcpdump",
             "class": "warn"
         },
-        {
-            "name": "packets_count",
+        "packets_count": {
             "default_value": 100,
             "type": "int"
         },
-        {
-            "name": "save_to.format",
+        "save_to.format": {
             "default_value": ".txt"
         },
-        {
-            "name": "backup.dir",
+        "backup.dir": {
             "default_value": "backup",
             "type": "alphanumeric"
         },
-        {
-            "name": "backup.timeout",
+        "backup.timeout": {
             "default_value": 60,
             "type": "int"
         },
-        {
-            "name": "logs.screen",
+        "logs.screen": {
             "default_value": false,
             "type": "bool"
         },
-        {
-            "name": "logs.skipped_packets",
+        "logs.skipped_packets": {
             "default_value": false,
             "type": "bool"
         }
-    ]
+    }
 }
