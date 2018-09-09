@@ -33,7 +33,8 @@ class LoadJSON
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
             . "%conditions%.",
         "warn_bad_type" => "'%field%' field in %filename% is invalid. It must\n"
-            . "be a(n) %type%. Current value: %value%"
+            . "be a(n) %type%. Current value: %value%",
+        "invalid_input" => "%value% is not a valid %type%.\n"
     ];
 
     // Better output for types
@@ -89,13 +90,13 @@ class LoadJSON
         // Update property
         $this->dataType = $type;
     }
-    
+
     // Requirements of working a validation function
     private function prepare_validation(string $validationType,
-        int $returnAs = self::OBJECT_DATA_TYPE)
+        int $returnAs = self::OBJECT_DATA_TYPE, bool $strict = false)
     {
         // If the file is optional, don't continue
-        if ($this->isOptional)
+        if (!$strict && $this->isOptional)
             return false;
         
         // Find validation file
@@ -143,10 +144,10 @@ class LoadJSON
             $defaultValue = $fieldData->default_value ?? null;
 
             // If the field exists, then
-            if (!$this->get_field($fieldName, $data)) {
+            if (!self::get_field($fieldName, $data)) {
                 // If field is not required, set the default value for it
                 if ($fieldClass !== "required")
-                    $this->add_field($fieldName, $defaultValue, $data);
+                    self::add_field($fieldName, $defaultValue, $data);
                 
                 // If field is not optional, generate a message
                 if ($fieldClass !== "optional")
@@ -199,11 +200,12 @@ class LoadJSON
     }
 
     // Perform validation for types, and warn for mistypes
-    public function type_validation($data = null)
+    public function type_validation($data = null, $strict = false,
+        bool $invalidInput = false)
     {        
         // Getting things ready and get validation data
         $validationData = $this->prepare_validation("type",
-            self::OBJECT_DATA_TYPE);
+            self::OBJECT_DATA_TYPE, $strict);
 
         // If the file is optional, don't perform checks
         if (!$validationData)
@@ -217,12 +219,12 @@ class LoadJSON
         // Iteration over all fields
         foreach ($validationData as $fieldName => $fieldData) {
             $fieldType = $fieldData->type ?? "string";
-            $fieldValue = $this->get_field($fieldName, $data, true);
+            $fieldValue = self::get_field($fieldName, $data, true);
 
             // Skip if no such field set
             if ($fieldValue === null)
                 continue;
-
+            
             // Validate each field by its type
             $validField = true;
             switch ($fieldType) {
@@ -232,7 +234,7 @@ class LoadJSON
                         preg_match("/[^\da-f\:]/i", $fieldValue))
                         $validField = false;
                     break;
-                
+
                 // Integer
                 case "int":
                     if (!filter_var($fieldValue, FILTER_VALIDATE_INT))
@@ -253,7 +255,7 @@ class LoadJSON
 
             // Warn user, there is mistyped field!
             if (!$validField)
-                $this->warn("warn_bad_type", [
+                $this->warn($invalidInput ? "invalid_input" : "warn_bad_type", [
                     "field" => $fieldName,
                     "filename" => $this->filePath,
                     "type" => $this->fullTypes[$fieldType],
@@ -265,13 +267,9 @@ class LoadJSON
     }
 
     // Check if a field exist in data or not
-    public function get_field(string $fieldName, $data = null,
-        $getValue = false)
+    public static function get_field(string $fieldName, $data,
+        bool $getValue = false)
     {
-        // Default value
-        if (!$data)
-            $data = $this->data;
-
         // Get its value
         $fieldValue = array_reduce(explode('.', $fieldName),
             function ($object, $property) {
@@ -282,12 +280,8 @@ class LoadJSON
     }
 
     // Adds a field to data with a default value
-    public function add_field(string $fieldName, $value, &$data = null)
-    {
-        // Default value
-        if (!$data)
-            $data = &$this->data;
-        
+    public static function add_field(string $fieldName, $value, &$data)
+    {        
         // If the file is optional
         if (!$data)
             $data = new stdClass();

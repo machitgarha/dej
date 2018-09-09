@@ -51,14 +51,11 @@ if (!in_array($option, $possibleOptions)) {
 }
 
 // Get field's current value
-$currentValue = $dataJson->get_field($option, null, true);
-
-// Check if there is any field exist
-if ($currentValue !== null)
-    echol("Current value is " . json_encode($currentValue) . ".");
+$currentValue = LoadJSON::get_field($option, $dataJson->data, true);
 
 // Fix values
 $fieldType = $types->$option->type ?? "string";
+$arr = null;
 switch ($fieldType) {
     case "bool":
         $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -73,9 +70,14 @@ switch ($fieldType) {
         break;
     
     case "mac":
-        $dataJson->type_validation([$option => $value]);
+        LoadJSON::add_field($option, $value, $arr);
+        $dataJson->type_validation($arr, true, true);
         break;
 }
+
+// Check if there is any field exist
+if ($currentValue !== null)
+    echol("Current value is " . json_encode($currentValue) . ".");
 
 // Check if values are equal, then break if it is
 if ($currentValue === $value) {
@@ -86,7 +88,7 @@ if ($currentValue === $value) {
 echol("Setting $option to " . json_encode($value) . "...");
 
 // Change field's value
-$dataJson->add_field($option, $value);
+LoadJSON::add_field($option, $value, $dataJson->data);
 
 echol("Set!", 2);
 echol("Saving...");
