@@ -8,7 +8,7 @@ $filesPath = [
     "root_permissions.php"
 ];
 foreach ($filesPath as $filePath)
-    require "$incPath/$filePath";
+    require_once "$incPath/$filePath";
 
 echol("Preparing configuration file...");
 
