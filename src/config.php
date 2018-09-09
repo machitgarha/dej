@@ -18,7 +18,6 @@ echol("Loading configuration file...");
 
 // Load configurations
 $dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, true);
-$dataJson->class_validation();
 $configData = $dataJson->data;
 
 // Check if configuration file exists, and if not, create it

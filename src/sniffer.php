@@ -20,7 +20,7 @@ $usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE, true);
 
 // Further operations if file exist
 if ($usersJson->data) {
-    $usersJson->regex_validation();
+    $usersJson->fun_validation();
 
     // Flip array keys and values for better access
     $users = array_combine(

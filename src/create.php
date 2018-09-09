@@ -10,7 +10,7 @@ $filesPath = [
 foreach ($filesPath as $filePath)
     require_once "$incPath/$filePath";
 
-echol("Preparing configuration file...");
+echol("Preparing to create configuration file...");
 
 should_not_be_root();
 
