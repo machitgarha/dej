@@ -26,20 +26,28 @@ class LoadJSON
     
     // Handling error messages
     private $errorMessages = [
-        "file_reading_error" => "Cannot read %filename%.",
+        "file_reading_error" => "Cannot read %filename%.\n%?additional_info%",
         "validation_not_found" => "Cannot validate %filename% file with"
             . " '%validation_type%' validation type.",
         "missing_field" => "Missing %?type% '%field%' field in %filename%.",
         "validation_failed" => "Wrong field was set. '%value%' must:\n"
             . "%conditions%.",
         "warn_bad_type" => "'%field%' field in %filename% is invalid. It must\n"
-            . "be a/an %type%. Current value: %value%"
+            . "be a(n) %type%. Current value: %value%"
+    ];
+
+    // Better output for types
+    private $fullTypes = [
+        "mac" => "colon-styled MAC address",
+        "int" => "integer",
+        "bool" => "boolean",
+        "alphanumeric" => "alphanumeric"
     ];
     
     // Loads JSON file and handles data
     public function __construct(string $filePath,
         int $type = self::OBJECT_DATA_TYPE, bool $isOptional = false,
-        bool $withPrefix = true)
+        bool $withPrefix = true, string $additionalInfo = "")
     {
         // Set properties
         $this->filename = $filePath;
@@ -53,7 +61,8 @@ class LoadJSON
                 return;
             else
                 $this->warn("file_reading_error", [
-                    "filename" => $this->filePath
+                    "filename" => $this->filePath,
+                    "?additional_info" => $additionalInfo
                 ], "exit");
         
         // Get data from JSON file as object (0)
@@ -220,7 +229,7 @@ class LoadJSON
                 // MAC address
                 case "mac":
                     if (!filter_var($fieldValue, FILTER_VALIDATE_MAC) ||
-                        preg_match("/[^:xdigit:-]/i"))
+                        preg_match("/[^\da-f\:]/i", $fieldValue))
                         $validField = false;
                     break;
                 
@@ -247,7 +256,7 @@ class LoadJSON
                 $this->warn("warn_bad_type", [
                     "field" => $fieldName,
                     "filename" => $this->filePath,
-                    "type" => $fieldType,
+                    "type" => $this->fullTypes[$fieldType],
                     "value" => json_encode($fieldValue)
                 ]);
         }
@@ -318,10 +327,12 @@ class LoadJSON
         
         // Preparing output message
         $msg = str_replace(array_keys($bindValues), array_values($bindValues),
-            $this->errorMessages[$messageIndex] . PHP_EOL);
+            $this->errorMessages[$messageIndex]);
         
         // Skip optional output parameters
-        $msg = preg_replace("/%\?.*%\s/", "", $msg);
+        $msg = preg_replace("/\s*%\?.+%/", "", $msg);
+
+        $msg .= PHP_EOL;
         
         // Handles the type of printing message
         switch ($type) {

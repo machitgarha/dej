@@ -88,10 +88,7 @@ elif [ $# -eq 2 ]; then
                     ;;
                 # User wants to create the configuration file
                 create)
-                    printfl "Creating configuration file..."
-                    mkdir config >/dev/null 2>&1
-                    touch config/data.json
-                    printfl "Created successfully."
+                    sh src/php.sh create
                     ;;
                 *)
                     printfl "$badUsageError"

@@ -2,8 +2,14 @@
 
 // Creates a directory, if it doesn't exist
 function directory(string $dirName, int $chmod = 0777) {
-    if (is_dir($dirName) || @mkdir($dirName, $chmod, true))
+    // If directory exists, return false
+    if (is_dir($dirName))
+        return false;
+
+    // If directory created successfully, return true
+    if (@mkdir($dirName, $chmod, true))
         return true;
+    
     exit("Cannot create $dirName directory." . PHP_EOL);
 }
 

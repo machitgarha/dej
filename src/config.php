@@ -86,7 +86,7 @@ echol("Setting it to " . json_encode($value) . "...");
 $dataJson->add_field($option, $value);
 
 echol("Set!", 2);
-echol("Saving the change...");
+echol("Saving...");
 
 // Open the file to save
 $dataJsonFile = @fopen($dataJson->filePath, "w");
