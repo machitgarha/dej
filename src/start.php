@@ -3,12 +3,13 @@
 // Includes
 $incPath = "includes";
 $filesPath = [
-    "load_json.php",
+    "json.php",
     "directory.php",
     "compare_files.php",
     "root_permissions.php",
     "screen.php",
-    "shell.php"
+    "shell.php",
+    "data_validation.php"
 ];
 foreach ($filesPath as $filePath)
     require_once "$incPath/$filePath";
@@ -38,21 +39,26 @@ if (count(search_screens()) > 0) {
 }
 
 // Load configurations
-$dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, false, true,
+$dataJson = new JSON();
+$dataJson->load_file("data.json", false, true,
     "Help: If it doesn't exist, create it by running 'dej config create'.");
-$dataJson->class_validation();
-$dataJson->type_validation();
-$configData = $dataJson->data;
+
+// Data validation
+DataValidation::class_validation($dataJson);
+DataValidation::type_validation($dataJson);
+
+// Save validated data for future usages
+$config = $dataJson->data;
 
 // Perform comparison between files and backup files
-$path = $configData->save_to->path;
-$backupDir = $configData->backup->dir;
+$path = $config->save_to->path;
+$backupDir = $config->backup->dir;
 compare_files($path, $backupDir);
 
 // Load executables
 $php = $argv[1];
-$screen = $configData->executables->screen;
-$tcpdump = $configData->executables->tcpdump;
+$screen = $config->executables->screen;
+$tcpdump = $config->executables->tcpdump;
 
 // Check for installed commands
 $neededExecutables = [
@@ -78,7 +84,7 @@ $filenames = [
 foreach ($filenames as $fname) {
     // Check if logs were enabled for screen or not
     directory($logDir);
-    $logPart = $configData->logs->screen ? "-L -Logfile $logDir/$fname.log": "";
+    $logPart = $config->logs->screen ? "-L -Logfile $logDir/$fname.log": "";
     `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 

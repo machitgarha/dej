@@ -4,49 +4,62 @@
 $incPath = "includes";
 $filesPath = [
     "directory.php",
-    "load_json.php"
+    "json.php",
+    "data_validation.php"
 ];
 foreach ($filesPath as $filePath)
     require_once "$incPath/$filePath";
 
 // Load data config file
-$dataJson = new LoadJSON("data.json");
-$dataJson->class_validation();
-$dataJson->type_validation();
-$configData = $dataJson->data;
+$dataJson = new JSON();
+$dataJson->load_file("data.json");
+
+// Data validation
+DataValidation::class_validation($dataJson, true);
+DataValidation::type_validation($dataJson);
+
+// Save validated data for future usages
+$config = $dataJson->data;
 
 // Load users config file
-$usersJson = new LoadJSON("users.json", LoadJSON::ARRAY_DATA_TYPE, true);
+$usersJson = new JSON([]);
+$usersJson->load_file("users.json", true);
 
-// Further operations if file exist
+// Further operations if filimportante exist
 if ($usersJson->data) {
-    $usersJson->fun_validation();
+    DataValidation::class_validation($usersJson, true);
+    DataValidation::type_validation($usersJson);
 
-    // Flip array keys and values for better access
-    $users = array_combine(
-        array_values($usersJson->data),
-        array_keys($usersJson->data));
+    // Set users by {mac} => {name} pairs in array 
+    $users = [];
+    foreach ($usersJson->data as $user)
+        // Support for a user has more than one mac address
+        if (is_array($user["mac"]))
+            foreach ($user["mac"] as $macAddress)
+                $users[$macAddress] = $user["name"];
+        else
+            $users[$user["mac"]] = $user["name"];
 }
 
 // Interface info
-$interfaceName = $configData->interface->name;
-$interfaceMac = $configData->interface->mac;
+$interfaceName = $config->interface->name;
+$interfaceMac = $config->interface->mac;
 
 // Files path and their formats for saving
-$path = force_end_slash($configData->save_to->path);
-$format = $configData->save_to->format;
+$path = force_end_slash($config->save_to->path);
+$format = $config->save_to->format;
 
 // Count of packets to receive each step
-$packetsCount = $configData->packets_count;
+$packetsCount = $config->packets_count;
 
 // Load executables
-$tcpdump = $configData->executables->tcpdump;
+$tcpdump = $config->executables->tcpdump;
 
 // Set logs configurations
 $logDir = "log";
 directory($logDir);
 $skippedPacketsFile = "$logDir/skipped_packets.log";
-$toLogSkippedPackets = $configData->logs->skipped_packets;
+$toLogSkippedPackets = $config->logs->skipped_packets;
 
 while (true) {
     // Array to save size of transferred packets based on MAC addresses
@@ -110,7 +123,7 @@ function get_info(string $packetData)
         return 0;
 
     // Regular expressions to find MAC addresses and packet size
-    $macAddressRegex = "/([\da-f]{2}[:-]){5}[\da-f]{2}/i";
+    $macAddressRegex = "/([\da-f]{2}:){5}[\da-f]{2}/i";
     $packetSizeRegex = "/(length) \d+/i";
 
     // Find MAC addresses
@@ -144,6 +157,7 @@ function save_to_file(string $macAddress, int $packetsTotalSize)
     // Produces the filename
     directory($path);
     $macFilePath = $path . $macAddress . $format;
+    
     $filePath = $path . ($users[$macAddress] ?? $macAddress) . $format;
 
     // Prevent duplicate files of one device

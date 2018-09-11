@@ -7,9 +7,10 @@ if ($argc !== 3)
 // Includes
 $incPath = "includes";
 $filesPath = [
-    "load_json.php",
+    "json.php",
     "shell.php",
-    "directory.php"
+    "directory.php",
+    "data_validation.php"
 ];
 foreach ($filesPath as $filePath)
     require_once "$incPath/$filePath";
@@ -17,7 +18,8 @@ foreach ($filesPath as $filePath)
 echol("Loading configuration file...");
 
 // Load configurations
-$dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, true);
+$dataJson = new JSON();
+$dataJson->load_file("data.json", true);
 $configData = $dataJson->data;
 
 // Check if configuration file exists, and if not, create it
@@ -30,8 +32,8 @@ else {
 }
 
 // Load all possible options
-$typeJson = new LoadJSON("data/validation/type.json",
-    LoadJSON::OBJECT_DATA_TYPE, false, false);
+$typeJson = new JSON();
+$typeJson->load_file("data/validation/type.json", false, false);
 $types = $typeJson->data->{"data.json"};
 
 // Extract all possible options
@@ -50,11 +52,10 @@ if (!in_array($option, $possibleOptions)) {
 }
 
 // Get field's current value
-$currentValue = LoadJSON::get_field($option, $dataJson->data, true);
+$currentValue = $dataJson->get($option);
 
 // Fix values
 $fieldType = $types->$option->type ?? "string";
-$arr = null;
 switch ($fieldType) {
     case "bool":
         $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -69,8 +70,9 @@ switch ($fieldType) {
         break;
     
     case "mac":
-        LoadJSON::add_field($option, $value, $arr);
-        $dataJson->type_validation($arr, true, true);
+        $json = new JSON([$option => $value]);
+        $json->filename = "data.json";
+        DataValidation::type_validation($json, true);
         break;
 }
 
@@ -87,7 +89,7 @@ if ($currentValue === $value) {
 echol("Setting $option to " . json_encode($value) . "...");
 
 // Change field's value
-LoadJSON::add_field($option, $value, $dataJson->data);
+$dataJson->set($option, $value);
 
 echol("Set!", 2);
 echol("Saving...");
@@ -119,9 +121,10 @@ else
 check:
 // Check for warnings
 ob_start();
-$dataJson = new LoadJSON("data.json");
-$dataJson->class_validation(true);
-$dataJson->type_validation();
+$dataJson = new JSON();
+$dataJson->load_file("data.json");
+DataValidation::class_validation($dataJson, true);
+DataValidation::type_validation($dataJson);
 $warningsOutput = ob_get_clean();
 
 // If at least a warning found, print it

@@ -4,31 +4,36 @@
 $incPath = "includes";
 $filesPath = [
     "directory.php",
-    "load_json.php"
+    "json.php",
+    "data_validation.php"
 ];
 foreach ($filesPath as $filePath)
     require_once "$incPath/$filePath";
 
 // Load configurations
-$dataJson = new LoadJSON("data.json");
-$dataJson->class_validation();
-$dataJson->type_validation();
-$configData = $dataJson->data;
+$dataJson = new JSON();
+$dataJson->load_file("data.json");
+$config = $dataJson->data;
+
+// Validate data
+DataValidation::class_validation($dataJson);
+DataValidation::type_validation($dataJson);
 
 // Create (if needed) and change directory to the path of saved files
-$dirPath = $configData->save_to->path;
+$dirPath = $config->save_to->path;
 directory($dirPath);
 chdir($dirPath);
 
 // Set required variables from data file
-$backupDirName = $configData->backup->dir;
-$backupTimeout = $configData->backup->timeout;
+$backupDirName = $config->backup->dir;
+$backupTimeout = $config->backup->timeout;
 
 // Create backup directory (if needed)
 directory($backupDirName);
 $backupDirName = force_end_slash($backupDirName);
 
 while (true) {
+    echo "Hello";
     // Make a list of the whole files
     $filesDir = new DirectoryIterator(".");
 
