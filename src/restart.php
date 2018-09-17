@@ -1,13 +1,7 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "root_permissions.php",
-    "shell.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 echol("Restarting Dej...");
 

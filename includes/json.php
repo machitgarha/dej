@@ -3,172 +3,165 @@
 class JSON
 {
     // Processed data
-    public $data;
+    public $data = "";
 
-    // Type of data; either object (0) or array (1)
-    public $defaultDataType;
-    const OBJECT_DATA_TYPE = 0;
-    const ARRAY_DATA_TYPE = 1;
-    const DETECT_DATA_TYPE = 2;
-
-    // File path of the JSON file
-    public $prefix = "./config";
-    public $filename;
-    public $filePath;
+    // Data type configurarions
+    private $currentDataType = self::JSON_DATA_TYPE;
+    public $defaultDataType = self::JSON_DATA_TYPE;
+    const JSON_DATA_TYPE = 0;
+    const OBJECT_DATA_TYPE = 1;
+    const ARRAY_DATA_TYPE = 2;
+    const DETECT_DATA_TYPE = 3;
+    const DEFAULT_DATA_TYPE = 4;
 
     // Loads JSON file and handles data
-    function __construct($data = null, int $type = self::DETECT_DATA_TYPE)
+    public function __construct($data = null,
+        int $defaultDataType = self::DETECT_DATA_TYPE, bool $strictTypes = true)
     {
-        // Prevent from data to be none of null, an array or an object
+        switch ($defaultDataType) {
+            case self::JSON_DATA_TYPE:
+            case self::OBJECT_DATA_TYPE:
+            case self::ARRAY_DATA_TYPE:
+            case self::DETECT_DATA_TYPE:
+                break;
+            
+            default:
+                throw new InvalidArgumentException("Unknown default data type passed");
+        }
+
+        if ($data === null)
+            return;
+
+        // Prevent from data to be either a string, an array or an object
+        $isString = is_string($data);
         $isArray = is_array($data);
         $isObject = is_object($data);
-        if (!($data === null || $isArray || $isObject))
-            throw new Exception("Wrong data type.");
+        if (!($isString || $isArray || $isObject) && $strictTypes)
+            throw new InvalidArgumentException("Wrong data type.");
 
-        // Detect data type; when data is null, set type to object
-        if ($type === self::DETECT_DATA_TYPE)
-            $this->defaultDataType = $isArray ? self::ARRAY_DATA_TYPE :
-                self::OBJECT_DATA_TYPE;
-
-        // Save information into the class property
         $this->data = $data;
 
+        // Save current data type
+        $this->currentDataType = $isString ? self::JSON_DATA_TYPE :
+            ($isArray ? self::ARRAY_DATA_TYPE : self::OBJECT_DATA_TYPE);
+
+        // Detect data type; when data is null, set type to object
+        if ($defaultDataType === self::DETECT_DATA_TYPE)
+            $this->defaultDataType = $defaultDataType = $this->currentDataType;
+        else
+            $this->defaultDataType = $defaultDataType;
+
         // Change data type
-        $this->change_type();
+        $this->to($defaultDataType);
     }
 
-    public function load_file(string $filePath,bool $isOptional = false,
-        bool $withPrefix = true, string $additionalInfo = "")
+    // Change the data type
+    public function to(int $type = self::DEFAULT_DATA_TYPE, bool $temp = false)
     {
-        // Set properties
-        $this->filename = $filePath;
-        $this->filePath = $withPrefix ? "{$this->prefix}/$filePath" : $filePath;
-        
-        // Checks for file existance and readability
-        if (!is_readable($this->filePath))
-            if ($isOptional)
-                return;
-            else
-                exit("Cannot read $this->filePath.\n$additionalInfo");
-
-        // Get data from JSON file as object (0)
-        $this->data = json_decode(file_get_contents($this->filePath));
-                
-        // Change data type to its default (i.e. user choice)
-        $this->change_type();
-    }
-    
-    // Changes type of data from object (0) to array (1) and vice verca
-    public function change_type($type = null, bool $temp = true) {
-        // Handling default values
-        if ($type === null)
+        // Use default data type
+        if ($type === self::DEFAULT_DATA_TYPE)
             $type = $this->defaultDataType;
-        
-        // Check if to change it permanently or no
-        if (!$temp)
-            $this->defaultDataType = $type;
 
-        $this->data = json_decode(json_encode($this->data, JSON_FORCE_OBJECT),
-            $type);
+        // Don't change type if currect data type equals the requested type
+        if ($type === $this->currentDataType)
+            return $this->data;
+
+        // To use it in the future
+        $data = $this->data;
+
+        switch ($type) {
+            // Convert to JSON string
+            case self::JSON_DATA_TYPE:
+                $data = json_encode($data);
+                break;
+
+            // Convert to either array or object
+            case self::ARRAY_DATA_TYPE:
+            case self::OBJECT_DATA_TYPE:
+                // If current data is JSON string, simply decode it
+                if ($this->currentDataType === self::JSON_DATA_TYPE)
+                    $data = json_decode($data);
+
+                // Now, perform convertion
+                $data = json_decode(json_encode($data, JSON_FORCE_OBJECT),
+                    (bool)($type - 1));
+                break;
+
+            default:
+                throw new InvalidArgumentException("Wrong type");
+                break;
+        }
+
+        // Change current data
+        if (!$temp) {
+            $this->currentDataType = $type;
+            $this->data = $data;
+        }
+
+        // Return changed data
+        return $data;
     }
 
     // Get field's value, by given parts
-    private function operate_field(array $fieldIndexes, $data = null)
+    private function field(string $fieldName, $data = null)
     {
         // Set default data
         if ($data === null)
             $data = $this->data;
 
-        // Return data if there is no fields to go
-        if (empty($fieldIndexes))
-            return $data;
+        $fieldIndexes = explode(".", $fieldName);
 
         // Find the field to match with field indexes
         return array_reduce($fieldIndexes,
-            // A closure to find the value(s)
-            function ($curItVal, $property) use ($fieldIndexes) {
-                // Cut field indexes for recursion
-                static $cutIndex = 0;
-                $cutIndex++;
-
-                // To continue this iteration or not
-                static $continue = true;
-                if (!$continue)
-                    return $curItVal;
-
-                // * means to iterate over all fields and return all matches
-                if ($property === "*") {
-                    // Cut field indexes for next recursive call,
-                    // i.e. ignore this match for next recursion
-                    $newFieldIndexes = array_slice($fieldIndexes, $cutIndex);
-
-                    // Move next iterations to recursion
-                    $continue = false;
-
-                    // If there is just one value, return it,
-                    // Otherwise, go to iterate it
-                    if (!is_object($curItVal))
-                        return $curItVal;
-
-                    // Recurse all object members (as we are in * property)
-                    $arr = [];
-                    foreach ($curItVal as $value) {
-                        // Search for remain fields in iterated values
-                        $val = $this->operate_field($newFieldIndexes, $value);
-
-                        if ($val === null)
-                            continue;
-
-                        // Handle how to should the output be
-                        if (is_array($val))
-                            $arr = array_merge($arr, $val);
-                        elseif (is_string($val))
-                            $arr[] = (string)$val;
-                        else
-                            $arr[] = (array)$val;
-                    }
-
-                    // Return all matches
-                    return $arr;
-                }
-
-                // Return the property in the current value
+            function ($curItVal, $property) {
                 return $curItVal->$property ?? null;
             }, $data);
+    }
+
+    // Iterates over
+    public function iterate(string $index = "")
+    {
+        // Split object parts
+        $properties = explode(".", $index);
+
+        // Reference to the object
+        $data = $this->to(self::ARRAY_DATA_TYPE, true);
+
+        // Create properties which they consist some other properties
+        if ($index !== "")
+            foreach ($properties as $property) {
+                // Create if not exist
+                if (!isset($data[$property]))
+                    throw new InvalidArgumentException("Invalid index");
+
+                // Update reference to the latest created property
+                $data = $data[$property];
+            }
+
+        if (!is_array($data))
+            throw new TypeError("Reached non-iterable value");
+
+        foreach ($data as $key => $val) {
+            yield $key => (new self(json_encode($val), $this->currentDataType, false))->data;
+        }
     }
 
     // Return a field's value, and can be nested by dots
     public function get(string $fieldName)
     {
-        $this->change_type(self::OBJECT_DATA_TYPE);
+        $data = $this->to(self::OBJECT_DATA_TYPE, true);
 
         // Explode parts by dots
-        $value = $this->operate_field(explode(".", $fieldName));
-
-        $this->change_type();
-
-        return $value;
+        return $this->field($fieldName, $data);
     }
 
     // Check for a field's existance, and can be nested by dots
     public function is_set(string $fieldName)
     {
-        $this->change_type(self::OBJECT_DATA_TYPE);
-
         // Explode parts by dots
-        $fieldParts = explode(".", $fieldName);
-        $value = $this->operate_field($fieldParts);
+        $value = $this->field($fieldName, $this->to(self::OBJECT_DATA_TYPE));
 
-        $this->change_type(self::ARRAY_DATA_TYPE);
-        $data = $this->data;
-
-        $this->change_type();
-
-        // If checking all matches, check if there are any missing matches
-        if (in_array("*", $fieldParts))
-            return count($value) === count($data);
-
-        return !($value === null || $value === []);
+        return $value !== null;
     }
 
     // Set or change a field's value
@@ -178,22 +171,30 @@ class JSON
         $properties = explode(".", $fieldName);
 
         // Reference to the object
+        $this->to(self::ARRAY_DATA_TYPE);
         $ref = &$this->data;
 
         // Create properties which they consist some other properties
-        $propertiesCount = count($properties);
-        for ($i = 0; $i < $propertiesCount - 1; $i++) {
-            $propertyName = $properties[$i];
+        $to = count($properties) - 1;
+        for ($i = 0; $i < $to; $i++) {
+            $property = $properties[$i];
 
             // Create if not exist
-            if (!isset($ref->$propertyName))
-                $ref->$propertyName = new stdClass();
+            if (!isset($ref[$property]))
+                $ref[$property] = [];
 
             // Update reference to the latest created property
-            $ref = &$ref->$propertyName;
+            $ref = &$ref[$property];
         }
 
         // Set the property, as the last work
-        $ref->{$properties[$propertiesCount - 1]} = $value;
+        $ref[$properties[$to]] = $value;
+
+        $this->to();
+    }
+
+    public function __toString()
+    {
+        return $this->to(self::JSON_DATA_TYPE, true);
     }
 }

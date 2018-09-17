@@ -1,18 +1,10 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "directory.php",
-    "json.php",
-    "data_validation.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 // Load data config file
-$dataJson = new JSON();
-$dataJson->load_file("data.json");
+$dataJson = require_json_file("data.json", "config");
 
 // Data validation
 DataValidation::class_validation($dataJson, true);
@@ -22,8 +14,7 @@ DataValidation::type_validation($dataJson);
 $config = $dataJson->data;
 
 // Load users config file
-$usersJson = new JSON([]);
-$usersJson->load_file("users.json", true);
+$usersJson = include_json_file("users.json", "config");
 
 // Further operations if filimportante exist
 if ($usersJson->data) {
@@ -32,13 +23,8 @@ if ($usersJson->data) {
 
     // Set users by {mac} => {name} pairs in array 
     $users = [];
-    foreach ($usersJson->data as $user)
-        // Support for a user has more than one mac address
-        if (is_array($user["mac"]))
-            foreach ($user["mac"] as $macAddress)
-                $users[$macAddress] = $user["name"];
-        else
-            $users[$user["mac"]] = $user["name"];
+    foreach ($usersJson->iterate() as $user)
+        $users[$user->mac] = $user->name;
 }
 
 // Interface info

@@ -43,14 +43,13 @@
         }
     },
     "users.json": {
-        "*.name": {
+        "name": {
             "class": "required",
             "type": "alphanumeric"
         },
-        "*.mac.*": {
+        "mac": {
             "class": "required",
-            "type": "mac",
-            "is_set": "*.mac"
+            "type": "mac"
         }
     }
 }

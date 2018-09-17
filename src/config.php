@@ -4,26 +4,17 @@
 if ($argc !== 3)
     throw new InvalidArgumentException();
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "json.php",
-    "shell.php",
-    "directory.php",
-    "data_validation.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 echol("Loading configuration file...");
 
 // Load configurations
-$dataJson = new JSON();
-$dataJson->load_file("data.json", true);
+$dataJson = include_json_file("data.json", "config");
 $configData = $dataJson->data;
 
 // Check if configuration file exists, and if not, create it
-if ($dataJson->data)
+if ($configData)
     echol("Loaded successfully.", 2);
 else {
     echol("It doesn't exist.");
@@ -32,8 +23,7 @@ else {
 }
 
 // Load all possible options
-$typeJson = new JSON();
-$typeJson->load_file("data/validation/type.json", false, false);
+$typeJson = require_json_file("type.json", "data/validation");
 $types = $typeJson->data->{"data.json"};
 
 // Extract all possible options
@@ -95,15 +85,11 @@ echol("Set!", 2);
 echol("Saving...");
 
 // Open the file to save
-$dataJsonFile = @fopen($dataJson->filePath, "w");
-
-// Warn user if cannot save
-if (!$dataJsonFile)
-    exitl("Error: Cannot open the {$dataJson->filePath} for saving.");
-
-// Write new data to the file with a pretty format
-fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
-fclose($dataJsonFile);
+try {
+    $dataJson->save();
+} catch (Throwable $e) {
+    warn($e->getMessage(), [], "exit");
+}
 
 echol("Saved!", 2);
 
@@ -121,8 +107,7 @@ else
 check:
 // Check for warnings
 ob_start();
-$dataJson = new JSON();
-$dataJson->load_file("data.json");
+$dataJson = require_json_file("data.json", "config");
 DataValidation::class_validation($dataJson, true);
 DataValidation::type_validation($dataJson);
 $warningsOutput = ob_get_clean();

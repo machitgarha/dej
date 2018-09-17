@@ -1,14 +1,7 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "directory.php",
-    "shell.php",
-    "root_permissions.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 echol("Preparing to create configuration file...");
 

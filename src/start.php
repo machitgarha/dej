@@ -1,18 +1,7 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "json.php",
-    "directory.php",
-    "compare_files.php",
-    "root_permissions.php",
-    "screen.php",
-    "shell.php",
-    "data_validation.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 echol("Starting Dej...");
 
@@ -39,9 +28,7 @@ if (count(search_screens()) > 0) {
 }
 
 // Load configurations
-$dataJson = new JSON();
-$dataJson->load_file("data.json", false, true,
-    "Help: If it doesn't exist, create it by running 'dej config create'.");
+$dataJson = require_json_file("data.json", "config");
 
 // Data validation
 DataValidation::class_validation($dataJson);

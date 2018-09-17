@@ -1,18 +1,10 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "directory.php",
-    "json.php",
-    "data_validation.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 // Load configurations
-$dataJson = new JSON();
-$dataJson->load_file("data.json");
+$dataJson = require_json_file("data.json", "config");
 $config = $dataJson->data;
 
 // Validate data
@@ -33,7 +25,6 @@ directory($backupDirName);
 $backupDirName = force_end_slash($backupDirName);
 
 while (true) {
-    echo "Hello";
     // Make a list of the whole files
     $filesDir = new DirectoryIterator(".");
 
