@@ -17,17 +17,19 @@ class DataValidation
     ];
     
     // Requirements of working a validation function
-    private static function prepare_validation(JSONFile $json, string $validationType,
+    private static function prepare_validation(JSON $json, string $validationType,
         int $returnAs = JSON::OBJECT_DATA_TYPE)
     {
+        $sh = new Shell();
+
         // Find validation file
         $validationFile = self::$validationDir . self::$validationFilenames[$validationType];
         
         // Checks for existance and readability
         if (!is_readable($validationFile))
-            self::warn("file_reading_error", [
+            $sh->exit("file_reading_error", [
                 "filename" => $validationFile
-            ], "exit");
+            ]);
 
         // Get validation data
         $validationData = json_decode(file_get_contents($validationFile),
@@ -35,18 +37,20 @@ class DataValidation
 
         // Warn user if data cannot be validated
         if (!$validationData)
-            warn("validation_not_found", [
+            $sh->exit("validation_not_found", [
                 "filename" => $json->filePath,
                 "validation_type" => $validationType
-            ], "exit");
+            ]);
 
         // Convert it to proper type (e.g., object)
         return (new JSON($validationData, $returnAs))->data;
     }
     
     // Handles validation based on field classes (e.g. required)
-    public static function class_validation(JSONFile &$json, bool $justWarning = false)
+    public static function class_validation(JSON &$json, bool $justWarning = false)
     {
+        $sh = new Shell();
+
         // Getting things ready and get validation data
         $validationData = self::prepare_validation($json, "type");
 
@@ -55,7 +59,7 @@ class DataValidation
         $json->to(JSON::OBJECT_DATA_TYPE);
 
         // Iteration over all fields
-        $validate = function (JSON $json) use ($validationData, $justWarning) {
+        $validate = function (JSON $json) use ($validationData, $justWarning, $sh) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -71,12 +75,13 @@ class DataValidation
                         $json->set($fieldName, $defaultValue);
                     
                     // If field is not optional, generate a message
+                    $outputType = (!$justWarning && $fieldClass === "required") ? "exit" : "warn";
                     if ($fieldClass !== "optional")
-                        warn("missing_field", [
+                        $sh->$outputType("missing_field", [
                             "field" => $fieldName,
                             "filename" => $json->filename,
                             "?type" => $fieldClass === "required" ? "required" : ""
-                        ], (!$justWarning && $fieldClass === "required") ? "exit" : "warn");
+                        ]);
                 }
             }
         };
@@ -103,7 +108,9 @@ class DataValidation
 
     // Perform validation for types, and warn for mistypes
     public static function type_validation(JSON $json, bool $invalidInput = false)
-    {        
+    {
+        $sh = new Shell();
+
         // Getting things ready and get validation data
         $validationData = self::prepare_validation($json, "type");
 
@@ -111,7 +118,7 @@ class DataValidation
         $data = &$json->data;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
-        $validate = function (JSON $json) use ($validationData, $invalidInput) {
+        $validate = function (JSON $json) use ($validationData, $invalidInput, $sh) {
             // Iteration over all fields
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
@@ -142,7 +149,7 @@ class DataValidation
                     
                     // Including only alphabets and numbers
                     case "alphanumeric":
-                        if (!preg_match("/^[a-z0-9]+$/i", $fieldValue))
+                        if (!preg_match("/^[\w\-\s\.]+$/i", $fieldValue))
                             $validField = false;
                         break;
                         
@@ -154,7 +161,7 @@ class DataValidation
 
                 // Warn user, there is mistyped field!
                 if (!$validField)
-                    warn($invalidInput ? "invalid_input" : "warn_bad_type", [
+                    $sh->warn($invalidInput ? "invalid_input" : "warn_bad_type", [
                         "field" => $fieldName,
                         "filename" => $json->filename,
                         "type" => self::$fullTypes[$fieldType],

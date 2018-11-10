@@ -4,20 +4,27 @@
 require_once "./includes/autoload.php";
 
 // Load data config file
-$dataJson = require_json_file("data.json", "config");
+try {
+    $dataJson = new JSONFile("data.json", "config");
+    $config = $dataJson->data;
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 
 // Data validation
 DataValidation::class_validation($dataJson, true);
 DataValidation::type_validation($dataJson);
 
-// Save validated data for future usages
-$config = $dataJson->data;
-
 // Load users config file
-$usersJson = include_json_file("users.json", "config");
+try {
+    $usersJson = new JSONFile("users.json", "config");
+    $loaded = true;
+} catch (Throwable $t) {
+    $loaded = false;
+}
 
 // Further operations if filimportante exist
-if ($usersJson->data) {
+if ($loaded) {
     DataValidation::class_validation($usersJson, true);
     DataValidation::type_validation($usersJson);
 

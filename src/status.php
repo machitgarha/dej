@@ -3,7 +3,7 @@
 // Include all include files
 require_once "./includes/autoload.php";
 
-echol("Checking Dej status...");
+$sh->echo("Checking Dej status...");
 
 // Stop if root permissions not granted
 if (!root_permissions())

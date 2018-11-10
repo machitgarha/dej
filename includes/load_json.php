@@ -1,5 +1,5 @@
 <?php
-
+/*
 function require_json_file(string $filename, string $prefixPath) {
     try {
         return new JSONFile($filename, $prefixPath, JSON::OBJECT_DATA_TYPE, true);
@@ -19,4 +19,4 @@ function include_json_file(string $filename, string $prefixPath) {
     } catch (Throwable $e) {
         warn("internal_error");
     }
-}
+}*/

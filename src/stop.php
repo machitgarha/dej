@@ -2,8 +2,9 @@
 
 // Include all include files
 require_once "./includes/autoload.php";
+$sh = new Shell();
 
-echol("Stopping Dej...");
+$sh->echo("Stopping Dej...");
 
 // Stop if root permissions not granted
 if (!root_permissions())
@@ -18,6 +19,6 @@ if (count($screenSessionPids) !== 0) {
     foreach ($screenSessionPids as $screenSessionPid)
         `screen -X -S $screenSessionPid quit`;
     
-    echol("Done!");
+    $sh->echo("Done!");
 } else
-    echol("Not started, nothing to do!");
+    $sh->echo("Not started, nothing to do!");

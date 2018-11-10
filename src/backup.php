@@ -2,10 +2,15 @@
 
 // Include all include files
 require_once "./includes/autoload.php";
+$sh = new Shell();
 
 // Load configurations
-$dataJson = require_json_file("data.json", "config");
-$config = $dataJson->data;
+try {
+    $dataJson = new JSONFile("data.json", "config");
+    $config = $dataJson->data;
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 
 // Validate data
 DataValidation::class_validation($dataJson);

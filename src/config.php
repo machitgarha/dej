@@ -6,25 +6,37 @@ if ($argc !== 3)
 
 // Include all include files
 require_once "./includes/autoload.php";
+$sh = new Shell();
 
-echol("Loading configuration file...");
+$sh->echo("Loading configuration file...");
 
 // Load configurations
-$dataJson = include_json_file("data.json", "config");
-$configData = $dataJson->data;
+$loaded = true;
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (FileLoadingException $e) {
+    $loaded = false;
+} catch (FileEmptyException $e) {
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 
 // Check if configuration file exists, and if not, create it
-if ($configData)
-    echol("Loaded successfully.", 2);
+if ($loaded)
+    $sh->echo("Loaded successfully.", 2);
 else {
-    echol("It doesn't exist.");
+    $sh->echo("The file couldn't be loaded.");
     require "src/create.php";
-    echol();
+    $sh->echo();
 }
 
 // Load all possible options
-$typeJson = require_json_file("type.json", "data/validation");
-$types = $typeJson->data->{"data.json"};
+try {
+    $typeJson = new JSONFile("type.json", "data/validation");
+    $types = $typeJson->data->{"data.json"};
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 
 // Extract all possible options
 $possibleOptions = [];
@@ -37,8 +49,8 @@ $value = $argv[2];
 
 // Break if it is an invalid option
 if (!in_array($option, $possibleOptions)) {
-    echol("There is no $option option exists.");
-    exitl("Check 'dej config list' for more information.");
+    $sh->echo("There is no $option option exists.");
+    $sh->exit("Check 'dej config list' for more information.");
 }
 
 // Get field's current value
@@ -68,46 +80,50 @@ switch ($fieldType) {
 
 // Check if there is any field exist
 if ($currentValue !== null)
-    echol("Current value is " . json_encode($currentValue) . ".");
+    $sh->echo("Current value is " . json_encode($currentValue) . ".");
 
 // Check if values are equal, then break if it is
 if ($currentValue === $value) {
-    echol("Nothing to do!");
+    $sh->echo("Nothing to do!");
     goto check;
 }
 
-echol("Setting $option to " . json_encode($value) . "...");
+$sh->echo("Setting $option to " . json_encode($value) . "...");
 
 // Change field's value
 $dataJson->set($option, $value);
 
-echol("Set!", 2);
-echol("Saving...");
+$sh->echo("Set!", 2);
+$sh->echo("Saving...");
 
 // Open the file to save
 try {
     $dataJson->save();
 } catch (Throwable $e) {
-    warn($e->getMessage(), [], "exit");
+    $sh->exit($e->getMessage());
 }
 
-echol("Saved!", 2);
+$sh->echo("Saved!", 2);
 
-echol("Restarting Dej...");
+$sh->echo("Restarting Dej...");
 
 // Restart Dej to see the effects and show the result
 ob_start();
 require "src/restart.php";
 $restartOutput = ob_get_clean();
 if (preg_match("/(Everything got running!)/", $restartOutput))
-    echol("Restarted successfully!");
+    $sh->echo("Restarted successfully!");
 else
-    echol("Failed. Run 'dej restart' for more information.");
+    $sh->echo("Failed. Run 'dej restart' for more information.");
 
 check:
 // Check for warnings
 ob_start();
-$dataJson = require_json_file("data.json", "config");
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 DataValidation::class_validation($dataJson, true);
 DataValidation::type_validation($dataJson);
 $warningsOutput = ob_get_clean();
@@ -115,7 +131,6 @@ $warningsOutput = ob_get_clean();
 // If at least a warning found, print it
 $warningsCount = preg_match_all("/(warning:)/i", $warningsOutput);
 if (!empty($warningsOutput)) {
-    echol();
-    echol("Found $warningsCount warning(s) in the configuration file.");
-    echol("Try 'dej config check' for more details.");
+    $sh->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
+    $sh->echo("Try 'dej config check' for more details.");
 }

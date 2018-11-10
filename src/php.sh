@@ -25,6 +25,6 @@ if [ -n "$havePhp" ]; then
 else
     # Warn user for which PHP not exists
     echo "Cannot run PHP. Simply, install PHP, or change the executable path"
-    echo "defined at the beginning of 'src/php_check.sh' file. Then, try again."
+    echo "defined at the beginning of 'src/php.sh' file. Then, try again."
     echo "\nPHP executable has been set to: $phpExecutable"
 fi

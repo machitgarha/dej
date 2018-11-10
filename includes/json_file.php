@@ -61,7 +61,7 @@ class JSONFile extends JSON
         $file = fopen($filePath, "r");
         if (!$file)
             throw new FileOpeningException("Cannot open '$filePath' for reading");
-        $data = fread($file, filesize($filePath));
+        $data = @fread($file, filesize($filePath));
         fclose($file);
 
         // To prevent saving as a pretty-printed data
@@ -69,7 +69,7 @@ class JSONFile extends JSON
     }
 
     // Save the file
-    public function save($saveOptions = null)
+    public function save($saveOptions = JSON_PRETTY_PRINT)
     {
         // Check if the file can be read
         $this->check("write");

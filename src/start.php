@@ -2,8 +2,9 @@
 
 // Include all include files
 require_once "./includes/autoload.php";
+$sh = new Shell();
 
-echol("Starting Dej...");
+$sh->echo("Starting Dej...");
 
 // Stop if root permissions not granted
 if (!root_permissions())
@@ -20,21 +21,23 @@ if (count(search_screens()) > 0) {
 
     // If user wants to cancel, cancel!
     if ($response === "c")
-        exitl("Canceled!");
+        $sh->exit("Canceled!");
 
     // Check if user wanted to stop or not, if yes, continue
     if ($response !== "n")
-        echol(`php -f src/stop.php` . "Starting Dej...");
+        $sh->echo(`php -f src/stop.php` . "Starting Dej...");
 }
 
 // Load configurations
-$dataJson = require_json_file("data.json", "config");
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (Throwable $t) {
+    $sh->exit("internal_error", []);
+}
 
 // Data validation
 DataValidation::class_validation($dataJson);
 DataValidation::type_validation($dataJson);
-
-// Save validated data for future usages
 $config = $dataJson->data;
 
 // Perform comparison between files and backup files
@@ -54,10 +57,9 @@ $neededExecutables = [
 ];
 foreach ($neededExecutables as $neededExecutable)
     if (!`which {$neededExecutable[1]}`)
-        exitl("You must have {$neededExecutable[0]} command installed," .
-            " i.e., the specified executable file cannot be used (" .
-            "{$neededExecutable[1]}). Fix it by editing executables " .
-            "field in config/data.json.");
+        $sh->exit("You must have {$neededExecutable[0]} command installed, i.e., the specified" .
+            "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
+            "executables field in config/data.json.");
 
 // Names of directories and files
 $sourceDir = "src";
@@ -75,4 +77,4 @@ foreach ($filenames as $fname) {
     `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
-echol("Everything got running!");
+$sh->echo("Everything got running!");
