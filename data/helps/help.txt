@@ -1,11 +1,5 @@
-Dej is a command-line tool which can sniff all transmitted packets on an
-interface and save results inside files. Devices separated by MAC addresses.
-For instance, you can run Dej on your WiFi-related-interface to see how much
-network data each device used by your WiFi (in fact, Dej was created mainly
-for this purpose).
-Dej uses PHP, tcpdump and screen to run, so you must have them installed.
-Because tcpdump can’t be ran without root permissions, you must give root
-permissions to Dej (e.g. run as sudo).
+Dej is a command-line tool which can sniff all transmitted packets on an interface and save results inside files. Devices separated by MAC addresses. For instance, you can run Dej on your WiFi-related-interface to see how much network data each device used by your WiFi (in fact, Dej was created mainly for this purpose).
+Dej uses PHP, tcpdump and screen to run, so you must have them installed. Because tcpdump can’t be ran without root permissions, you must give root permissions to Dej (e.g. run as sudo).
 
 Available commands:
 dej start

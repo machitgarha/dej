@@ -4,18 +4,7 @@ class Shell
 {
     private $messages;
     public $lineLimit;
-/*
-    private static $messages = [
-        "file_reading_error" => "Cannot read %filename%.%+%%?additional_info%",
-        "validation_not_found" => "Cannot validate %filename% file with '%validation_type%'" .
-            "validation type.",
-        "missing_field" => "Missing %?type% '%field%' field in %filename%.",
-        "validation_failed" => "Wrong field was set. '%value%' must %conditions%.",
-        "warn_bad_type" => "'%field%' field in %filename% is invalid. It must be a(n) %type%. " .
-            "Current value: %value%",
-        "invalid_input" => "%value% is not a valid %type%."
-    ];
-*/
+
     public function __construct(int $lineLimit = 80)
     {
         // Error messages to use
