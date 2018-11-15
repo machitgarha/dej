@@ -2,7 +2,6 @@
 
 // Include all include files
 require_once "./includes/autoload.php";
-$sh = new Shell();
 
 $sh->echo("Starting Dej...");
 
@@ -31,13 +30,17 @@ if (count(search_screens()) > 0) {
 // Load configurations
 try {
     $dataJson = new JSONFile("data.json", "config");
-} catch (Throwable $t) {
-    $sh->exit("internal_error", []);
+} catch (Throwable $e) {
+    $sh->error($e);
 }
 
 // Data validation
-DataValidation::class_validation($dataJson);
-DataValidation::type_validation($dataJson);
+try {
+    DataValidation::class_validation($dataJson);
+    DataValidation::type_validation($dataJson);
+} catch (Throwable $e) {
+    $sh->error($e);
+}
 $config = $dataJson->data;
 
 // Perform comparison between files and backup files
@@ -57,7 +60,7 @@ $neededExecutables = [
 ];
 foreach ($neededExecutables as $neededExecutable)
     if (!`which {$neededExecutable[1]}`)
-        $sh->exit("You must have {$neededExecutable[0]} command installed, i.e., the specified" .
+        $sh->error("You must have {$neededExecutable[0]} command installed, i.e., the specified" .
             "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
             "executables field in config/data.json.");
 

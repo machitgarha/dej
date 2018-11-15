@@ -27,9 +27,7 @@ class DataValidation
         
         // Checks for existance and readability
         if (!is_readable($validationFile))
-            $sh->exit("file_reading_error", [
-                "filename" => $validationFile
-            ]);
+            $sh->error();
 
         // Get validation data
         $validationData = json_decode(file_get_contents($validationFile),
@@ -37,19 +35,17 @@ class DataValidation
 
         // Warn user if data cannot be validated
         if (!$validationData)
-            $sh->exit("validation_not_found", [
-                "filename" => $json->filePath,
-                "validation_type" => $validationType
-            ]);
+            $sh->error();
 
         // Convert it to proper type (e.g., object)
         return (new JSON($validationData, $returnAs))->data;
     }
     
     // Handles validation based on field classes (e.g. required)
-    public static function class_validation(JSON &$json, bool $justWarning = false)
+    public static function class_validation(JSON &$json, bool $onlyWarn = false)
     {
         $sh = new Shell();
+        $foundWarning = false;
 
         // Getting things ready and get validation data
         $validationData = self::prepare_validation($json, "type");
@@ -59,7 +55,7 @@ class DataValidation
         $json->to(JSON::OBJECT_DATA_TYPE);
 
         // Iteration over all fields
-        $validate = function (JSON $json) use ($validationData, $justWarning, $sh) {
+        $validate = function (JSON $json) use ($validationData, $onlyWarn, $sh, $foundWarning) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -73,22 +69,29 @@ class DataValidation
                     // If field is not required, set the default value for it
                     if ($fieldClass !== "required")
                         $json->set($fieldName, $defaultValue);
-                    
-                    // If field is not optional, generate a message
-                    $outputType = (!$justWarning && $fieldClass === "required") ? "exit" : "warn";
-                    if ($fieldClass !== "optional")
-                        $sh->$outputType("missing_field", [
-                            "field" => $fieldName,
-                            "filename" => $json->filename,
-                            "?type" => $fieldClass === "required" ? "required" : ""
-                        ]);
+
+                    $data = [
+                        "field_name" => $fieldName,
+                        "file_path" => $json->filePath
+                    ];
+                    if ($fieldClass === "required")
+                        $data = array_merge($data, ["?type" => "required"]);
+                    if ($fieldClass !== "optional") {
+                        $foundWarning = true;
+                        if ($onlyWarn)
+                            $sh->warn(new MissingFieldException($data));
+                        elseif ($fieldClass === "required")
+                            throw new MissingFieldException($data);
+                    }
                 }
             }
+
+            return $foundWarning;
         };
 
         switch ($json->filename) {
             case "data.json":
-                $validate($json);
+                return $validate($json);
                 break;
             
             case "users.json":
@@ -100,7 +103,7 @@ class DataValidation
                 break;
 
             default:
-                throw new Exception("Invalid filename");
+                throw new FileNameInvalidException([], true);
         }
 
         $json->to();
@@ -110,6 +113,7 @@ class DataValidation
     public static function type_validation(JSON $json, bool $invalidInput = false)
     {
         $sh = new Shell();
+        $foundWarning = false;
 
         // Getting things ready and get validation data
         $validationData = self::prepare_validation($json, "type");
@@ -118,7 +122,7 @@ class DataValidation
         $data = &$json->data;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
-        $validate = function (JSON $json) use ($validationData, $invalidInput, $sh) {
+        $validate = function (JSON $json) use ($validationData, $invalidInput, $sh, $foundWarning) {
             // Iteration over all fields
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
@@ -160,19 +164,21 @@ class DataValidation
                 }
 
                 // Warn user, there is mistyped field!
-                if (!$validField)
-                    $sh->warn($invalidInput ? "invalid_input" : "warn_bad_type", [
-                        "field" => $fieldName,
-                        "filename" => $json->filename,
+                if (!$validField) {
+                    $foundWarning = true;
+                    $sh->warn(new InvalidFieldValueException([
                         "type" => self::$fullTypes[$fieldType],
                         "value" => json_encode($fieldValue)
-                    ]);
+                    ]));
+                }
             }
+
+            return $foundWarning;
         };
 
         switch ($json->filename) {
             case "data.json":
-                $validate($json);
+                return $validate($json);
                 break;
             
             case "users.json":
@@ -184,7 +190,7 @@ class DataValidation
                 break;
 
             default:
-                throw new Exception("Invalid filename");
+                throw new FileNameInvalidException([], true);
         }
         
         $json->to();

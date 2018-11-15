@@ -2,7 +2,6 @@
 
 // Include all include files
 require_once "./includes/autoload.php";
-$sh = new Shell();
 
 $sh->echo("Restarting Dej...");
 

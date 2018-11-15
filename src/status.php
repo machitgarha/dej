@@ -15,14 +15,14 @@ $screensCount = count($screenSessionPids);
 
 switch ($screensCount) {
     case 0:
-        exitl("Not running.");
+        $sh->exit("Not running.");
 
     case 1:
-        exitl("W: Partially running.");
+        $sh->warn("Partially running.");
     
     case 2:
-        exitl("Running!");
+        $sh->exit("Running!");
 
     default:
-        exitl("W: Running more than once.");
+        $sh->warn("Running more than once.");
 }

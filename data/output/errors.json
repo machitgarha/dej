@@ -1,0 +1,8 @@
+{
+    "InternalError": "Internal error happened.",
+    "FileExistenceException": "'%file_path%' doesn't exist.",
+    "FileLoadingError": "Cannot load %file_path%.",
+    "MissingFieldException": "Missing %?type% '%field_name%' field in '%file_path%'.",
+    "WrongFieldValueError": "Wrong '%field_name%' field: %value%",
+    "InvalidFieldValueException": "%value% is not a valid %type%."
+}

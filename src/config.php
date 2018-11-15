@@ -6,7 +6,6 @@ if ($argc !== 3)
 
 // Include all include files
 require_once "./includes/autoload.php";
-$sh = new Shell();
 
 $sh->echo("Loading configuration file...");
 
@@ -14,11 +13,8 @@ $sh->echo("Loading configuration file...");
 $loaded = true;
 try {
     $dataJson = new JSONFile("data.json", "config");
-} catch (FileLoadingException $e) {
-    $loaded = false;
-} catch (FileEmptyException $e) {
-} catch (Throwable $t) {
-    $sh->exit("internal_error", []);
+} catch (Throwable $e) {
+    $sh->error($e);
 }
 
 // Check if configuration file exists, and if not, create it
@@ -34,8 +30,8 @@ else {
 try {
     $typeJson = new JSONFile("type.json", "data/validation");
     $types = $typeJson->data->{"data.json"};
-} catch (Throwable $t) {
-    $sh->exit("internal_error", []);
+} catch (Throwable $e) {
+    $sh->error($e);
 }
 
 // Extract all possible options
@@ -100,12 +96,10 @@ $sh->echo("Saving...");
 try {
     $dataJson->save();
 } catch (Throwable $e) {
-    $sh->exit($e->getMessage());
+    $sh->error($e);
 }
 
 $sh->echo("Saved!", 2);
-
-$sh->echo("Restarting Dej...");
 
 // Restart Dej to see the effects and show the result
 ob_start();
@@ -121,8 +115,8 @@ check:
 ob_start();
 try {
     $dataJson = new JSONFile("data.json", "config");
-} catch (Throwable $t) {
-    $sh->exit("internal_error", []);
+} catch (Throwable $e) {
+    $sh->warn($e);
 }
 DataValidation::class_validation($dataJson, true);
 DataValidation::type_validation($dataJson);

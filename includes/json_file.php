@@ -37,15 +37,21 @@ class JSONFile extends JSON
 
         // Check file existance
         if (!file_exists($filePath))
-            throw new FileExistanceException("File '$filePath' doesn't exist");
+            throw new FileExistenceException([
+                "file_path" => $filePath
+            ]);
 
         // Check for readability
         if ($for === "read" && !is_readable($filePath))
-            throw new FileReadingException("Cannot read from '$filePath'");
+            throw new FileReadingException([
+                "file_path" => $filePath
+            ]);
         
         // Check for writability
         if ($for === "write" && !is_writable($filePath))
-            throw new FileWritingException("Cannot write into '$filePath'");
+            throw new FileWritingException([
+                "file_path" => $filePath
+            ]);
     
         return true;
     }
@@ -60,7 +66,9 @@ class JSONFile extends JSON
         $filePath = $this->filePath;
         $file = fopen($filePath, "r");
         if (!$file)
-            throw new FileOpeningException("Cannot open '$filePath' for reading");
+            throw new FileOpeningException([
+                "file_path" => $filePath
+            ]);
         $data = @fread($file, filesize($filePath));
         fclose($file);
 

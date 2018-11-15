@@ -2,11 +2,10 @@
 
 class Shell
 {
+    private $messages;
     public $lineLimit;
-    public $showStatus;
-
+/*
     private static $messages = [
-        "internal_error" => "Interal error occured.",
         "file_reading_error" => "Cannot read %filename%.%+%%?additional_info%",
         "validation_not_found" => "Cannot validate %filename% file with '%validation_type%'" .
             "validation type.",
@@ -16,14 +15,14 @@ class Shell
             "Current value: %value%",
         "invalid_input" => "%value% is not a valid %type%."
     ];
-
-    public function __construct(int $lineLimit = 80, bool $showStatus = true)
+*/
+    public function __construct(int $lineLimit = 80)
     {
+        // Error messages to use
+        $this->messages = new JSONFile("errors.json", "data/output");
+
         // Determines whether to limit all output lines or not
         $this->lineLimit = $lineLimit;
-
-        // Must status be shown before the message?
-        $this->showStatus = $showStatus;
     }
 
     // Output a string with some lines before and after
@@ -47,43 +46,60 @@ class Shell
     }
 
     // Warn user about something
-    public function warn(string $output, array $bindValues = null, bool $noNewLineAtEnd = false)
+    public function warn($error = null, array $options = [])
     {
-        // Bind values, if pointed to in-class messages
-        if ($bindValues !== null)
-            $output = $this->bind_values($output, $bindValues);
-
-        // Output it
-        $this->echo(($this->showStatus ? "Warning: " : "") . $output, $noNewLineAtEnd ? 0 : 1);
+        $this->prepare_output("Warning", $error, $options);
     }
 
     // Outputs an error and exits the program
-    public function exit(string $output, array $bindValues = null)
+    public function error($error = null, array $options = [])
     {
-        // Bind values, if pointed to in-class messages
-        if ($bindValues !== null)
-            $output = $this->bind_values($output, $bindValues);
-
-        $this->echo(($this->showStatus ? "Error: " : "") . $output);
+        $this->prepare_output("Error", $error, $options);
         exit();
     }
 
-    private function bind_values(string $messageIndex, array $bindData): string
+    public function exit(string $message = null, array $options = [])
     {
-        // Preparing to bind values
-        $toBind = [];
-        foreach ($bindData as $key => $val)
-            $toBind["%$key%"] = $val;
+        $this->prepare_output("exit", $message, $options);
+        exit();
+    }
 
-        // Preparing output message
-        $message = str_replace(array_keys($toBind), array_values($toBind),
-            self::$messages[$messageIndex]);
+    private function prepare_output(string $type, $error, array $options)
+    {
+        $output = $this->bind_values($error);
+
+        // To put the status in the beginning or not
+        $messagePrefix = "";
+        if ($type !== "exit")
+            $messagePrefix = "$type: ";
+
+        // Handling empty lines after and before
+        $linesAfter = $options["lines_after"] ?? 1;
+        $linesBefore = $options["lines_before"] ?? 0;
+
+        $this->echo($messagePrefix . $output, $linesAfter, $linesBefore);
+    }
+
+    private function bind_values($error): string
+    {
+        if (is_string($error))
+            return $error;
+
+        // Bind values, if it was a ParamException
+        if (!($error instanceof ParamException))
+            return "Unknown error.";
         
-        // Replace enters
-        $message = str_replace("%+%", PHP_EOL, $message);
+        $messageIndex = $error->getMessage();
+        if (!$this->messages->is_set($messageIndex) || $error->isInternal())
+            return "Unknown error.";
 
-        // Skip optional output parameters
-        return preg_replace("/\s*%\?.+%/", "", $message);
+        // Preparing to bind values
+        $message = $this->messages->get($messageIndex);
+        foreach ($error->getParams() as $key => $val)
+            $message = str_replace("%$key%", $val, $message);
+
+        // Skip optional output paramleters
+        return preg_replace("/\s*%\?[a-z_]+%/i", "", $message);
     }
 
     // Changing the format of the message not to be more than $lineSize
@@ -154,59 +170,3 @@ class Shell
         return implode(PHP_EOL, $messageLines);
     }
 }
-/*
-// Prints an output with a new line at the end
-function echol(string $str = "", int $newLinesCount = 1) {
-    echo $str;
-    for ($i = 0; $i < $newLinesCount; $i++)
-        echo PHP_EOL;
-}
-
-// Prints an output with a new line at the end and exits
-function exitl(string $str) {
-    exit($str . PHP_EOL);
-}
-
-// Warn user, if needed, exit executing
-function warn(string $messageIndex, array $bindValues, string $type = "warn") {
-    // Handling error messages
-    $errorMessages = [
-        "internal_error" => "Interal error occured.",
-        "file_reading_error" => "Cannot read %filename%.\n%?additional_info%",
-        "validation_not_found" => "Cannot validate %filename% file with '%validation_type%'\n" .
-            "validation type.",
-        "missing_field" => "Missing %?type% '%field%' field in %filename%.",
-        "validation_failed" => "Wrong field was set. '%value%' must:\n%conditions%.",
-        "warn_bad_type" => "'%field%' field in %filename% is invalid. It must\n"
-            . "be a(n) %type%. Current value: %value%",
-        "invalid_input" => "%value% is not a valid %type%.\n"
-    ];
-
-    // Preparing to bind values
-    $bindArr = $bindValues;
-    $bindValues = [];
-    foreach ($bindArr as $key => $val)
-        if (!empty($val))
-            $bindValues["%$key%"] = $val;
-
-    // Preparing output message
-    $msg = str_replace(array_keys($bindValues), array_values($bindValues),
-        $errorMessages[$messageIndex] ?? $messageIndex);
-
-    // Skip optional output parameters
-    $msg = preg_replace("/\s*%\?.+%/", "", $msg);
-
-    $msg .= PHP_EOL;
-
-    // Handles the type of printing message
-    switch ($type) {
-        // Exit program
-        case "exit":
-            exit("Error: $msg");
-        
-        // Warn user
-        case "warn":
-            echo "Warning: $msg";
-            break;
-    }
-}*/

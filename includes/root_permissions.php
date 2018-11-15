@@ -12,7 +12,7 @@ function root_permissions(bool $quiet = false) {
     // If root permissions not set
     if (trim(`whoami`) !== "root") {
         if (!$quiet)
-            $shell->echo("Root permissions needed.");
+            $shell->error("Root permissions needed.");
         return false;
     }
 

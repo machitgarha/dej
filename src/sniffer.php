@@ -6,14 +6,14 @@ require_once "./includes/autoload.php";
 // Load data config file
 try {
     $dataJson = new JSONFile("data.json", "config");
-    $config = $dataJson->data;
-} catch (Throwable $t) {
-    $sh->exit("internal_error", []);
+} catch (Throwable $e) {
+    $sh->error($e);
 }
 
 // Data validation
-DataValidation::class_validation($dataJson, true);
+DataValidation::class_validation($dataJson);
 DataValidation::type_validation($dataJson);
+$config = $dataJson->data;
 
 // Load users config file
 try {

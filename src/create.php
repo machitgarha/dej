@@ -15,10 +15,10 @@ if (directory($configDir))
 $configFilePath = "$configDir/data.json";
 
 if (file_exists($configFilePath))
-    exitl("Configuration file exists.");
+    $sh->error("Configuration file exists.");
 
 // Create configuration file, if it does not exist
 if (touch($configFilePath))
     $sh->echo("Created $configFilePath successfully.");
 else
-    exitl("Cannot create configuration file ($configFilePath).");
+    $sh->error("Cannot create configuration file ($configFilePath).");
