@@ -68,9 +68,8 @@ switch ($fieldType) {
         break;
     
     case "mac":
-        $json = new JSON([$option => $value]);
-        $json->filename = "data.json";
-        DataValidation::type_validation($json, true);
+        if (!preg_match("/^([\da-f]{2}:){5}([\da-f]{2})$/i", $value))
+            $sh->error("Wrong MAC address was given.");
         break;
 }
 

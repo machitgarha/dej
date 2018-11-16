@@ -80,4 +80,11 @@ foreach ($filenames as $fname) {
     `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
 }
 
-$sh->echo("Everything got running!");
+`sleep 1`;
+$screenCount = count(search_screens());
+if ($screenCount === 2)
+    $sh->echo("Done!");
+elseif ($screenCount < 2)
+    $sh->error("Something went wrong. Try again!");
+else
+    $sh->warn("Too much instances are running.");
