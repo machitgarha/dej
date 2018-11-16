@@ -43,21 +43,21 @@ try {
     $sh->echo("Installing...");
 
     // The temporary file path to install
-    $dejInstallationFilePath = force_end_slash($installPath) . "dej";
+    $dej = force_end_slash($installPath) . "dej";
     
     // Prevent from overwriting an older version
-    $isInstalled = file_exists($dejInstallationFilePath);
+    $isInstalled = file_exists($dej);
 
     // Move the temporary file, if not installed
     if (!$isInstalled)
-        copy($tmpFile, $dejInstallationFilePath);
+        copy($tmpFile, $dej);
     unlink($tmpFile);
 
     if ($isInstalled)
         $sh->error("Already installed.");
 
     // Grant right permissions
-    chmod($dejInstalledFile, 0755);
+    chmod($dej, 0755);
 
     $sh->echo("Completed. Type 'dej help' for more information.");
 } catch (Throwable $e) {
