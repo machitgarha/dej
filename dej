@@ -2,9 +2,8 @@
 
 # You may copy this file, but moving it causes problems.
 
-# Source directory
-src="./"
-cd $src;
+# SOURCE
+cd "./";
 
 # Prints a message with a new line at end
 printfl () {
