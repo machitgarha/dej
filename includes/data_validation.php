@@ -95,10 +95,11 @@ class DataValidation
                 break;
             
             case "users.json":
-                foreach ($json->iterate() as $userData) {
+                foreach ($json->iterate() as $key => $userData) {
                     $userDataJson = new JSON($userData);
-                    $userDataJson->filename = $json->filename;
-                    $validate($userDataJson);
+                    $userDataJson->filePath = $json->filePath;
+                    if ($validate($userDataJson))
+                        $json->set($key, null);
                 }
                 break;
 

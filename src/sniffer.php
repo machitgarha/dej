@@ -11,27 +11,28 @@ try {
 }
 
 // Data validation
-DataValidation::class_validation($dataJson);
-DataValidation::type_validation($dataJson);
+try {
+    DataValidation::class_validation($dataJson);
+    DataValidation::type_validation($dataJson);
+} catch (Throwable $e) {
+    $sh->error($e);
+}
 $config = $dataJson->data;
 
 // Load users config file
 try {
     $usersJson = new JSONFile("users.json", "config");
-    $loaded = true;
-} catch (Throwable $t) {
-    $loaded = false;
-}
 
-// Further operations if filimportante exist
-if ($loaded) {
     DataValidation::class_validation($usersJson, true);
     DataValidation::type_validation($usersJson);
 
     // Set users by {mac} => {name} pairs in array 
     $users = [];
     foreach ($usersJson->iterate() as $user)
-        $users[$user->mac] = $user->name;
+        if ($user !== null)
+            $users[$user->mac] = $user->name;
+} catch (Throwable $e) {
+    $sh->warn($e);
 }
 
 // Interface info
