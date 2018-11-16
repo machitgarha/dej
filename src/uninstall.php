@@ -18,6 +18,16 @@ try {
     if (empty($installationPath))
         $sh->error("Not installed");
 
+    // Get agreement
+    $sh->echo("Are you sure? [y(es)/N(o)] ", 0);
+    $cliInput = fopen("php://stdin", "r");
+    // Analyze user input
+    $response = strtolower(trim(fgetc($cliInput)));
+    fclose($cliInput);
+    // Abort
+    if ($response !== "y")
+        $shell->exit("Canceled!");
+
     $sh->echo("Uninstalling...");
 
     // Grant right permissions to be able to remove it
