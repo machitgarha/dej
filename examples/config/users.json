@@ -1,10 +1,27 @@
-{
-    "my_laptop": "b0:47:bf:46:c5:56",
-    "my_mobile": "1c:8c:d8:b5:6f:e5",
-    "my-friend-1": "f2:9a:91:c5:0f:28",
-    "my-friend-2": "48:3a:34:9d:d4:a9",
-    "my-brother": "d7:39:de:b0:0c:80",
-    "User 1": "f8:9c:eb:da:ee:42",
-    "User 2": "01:5e:29:45:ae:85",
-    "User 3": "90:45:84:e6:cf:f4"
-}
+[
+    {
+        "name": "my_laptop",
+        "mac": "b0:47:bf:46:c5:56"
+    }, {
+        "name": "my_mobile",
+        "mac": "1c:8c:d8:b5:6f:e5"
+    }, {
+        "name": "my-friend-1",
+        "mac": "f2:9a:91:c5:0f:28"
+    }, {
+        "name": "my-friend-2",
+        "mac": "48:3a:34:9d:d4:a9"
+    }, {
+        "name": "my-brother",
+        "mac": "d7:39:de:b0:0c:80"
+    }, {
+        "name": "User 1",
+        "mac": "f8:9c:eb:da:ee:42"
+    }, {
+        "name": "User 2",
+        "mac": "01:5e:29:45:ae:85"
+    }, {
+        "name": "User 3",
+        "mac": "90:45:84:e6:cf:f4"
+    }
+]
