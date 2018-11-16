@@ -1,16 +1,12 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "root_permissions.php",
-    "shell.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
-echol("Restarting Dej...");
+$sh->echo("Restarting Dej...");
 
 // If root permissions set, begin for restarting
-if (root_permissions())
-    echo `./dej stop` . `./dej start`;
+if (root_permissions()) {
+    echo `./dej stop`;
+    echo `./dej start`;
+}

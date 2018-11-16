@@ -1,28 +1,32 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "directory.php",
-    "load_json.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
 // Load configurations
-$dataJson = new LoadJSON("data.json");
-$dataJson->class_validation();
-$dataJson->type_validation();
-$configData = $dataJson->data;
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (Throwable $e) {
+    $sh->error($e);
+}
+
+// Data validation
+try {
+    DataValidation::class_validation($dataJson);
+    DataValidation::type_validation($dataJson);
+} catch (Throwable $e) {
+    $sh->error($e);
+}
+$config = $dataJson->data;
 
 // Create (if needed) and change directory to the path of saved files
-$dirPath = $configData->save_to->path;
+$dirPath = $config->save_to->path;
 directory($dirPath);
 chdir($dirPath);
 
 // Set required variables from data file
-$backupDirName = $configData->backup->dir;
-$backupTimeout = $configData->backup->timeout;
+$backupDirName = $config->backup->dir;
+$backupTimeout = $config->backup->timeout;
 
 // Create backup directory (if needed)
 directory($backupDirName);
@@ -33,7 +37,8 @@ while (true) {
     $filesDir = new DirectoryIterator(".");
 
     // Create the timestamp file (to see when backup was made)
-    fwrite($f = fopen($backupDirName . "update_time", "w"), time());
+    $now = (new DateTime(`date`))->format("Y-m-d H:i:s");
+    fwrite($f = fopen($backupDirName . "update_time", "w"), $now);
     fclose($f);
 
     // Make backup from the files

@@ -12,7 +12,7 @@ printfl () {
 }
 
 # Helps path
-helps="data/helps"
+help="src/help.php"
 
 # Errors while entering commands
 moreInfo="Try 'dej --help' for more information."
@@ -45,7 +45,7 @@ elif [ $# -eq 1 ]; then
             sh src/php.sh $1
             ;;
         help|-h|--help)
-            printfl "`cat $helps/help.txt`";
+            php $help "help";
             ;;
         config|users)
             printfl "$badUsageError"
@@ -60,21 +60,13 @@ elif [ $# -eq 2 ]; then
     case $1 in
         # User wants help on specific command
         help|-h|--help)
-            case $2 in
-                # Print help for each command
-                start|stop|restart|status|config)
-                    printfl "`cat $helps/$2.txt`"
-                    ;;
-                *)
-                    printfl "$unknownCommandError"
-                    ;;
-            esac
+            php $help $2
             ;;
         config)
             case $2 in
                 # User wants a list of available fields
                 list)
-                    printfl "`cat $helps/config_list.txt`"
+                    php $help "config_list"
                     ;;
                 # User wants to create the configuration file
                 create|check)

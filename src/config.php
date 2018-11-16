@@ -4,36 +4,35 @@
 if ($argc !== 3)
     throw new InvalidArgumentException();
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "load_json.php",
-    "shell.php",
-    "directory.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
-echol("Loading configuration file...");
+$sh->echo("Loading configuration file...");
 
 // Load configurations
-$dataJson = new LoadJSON("data.json", LoadJSON::OBJECT_DATA_TYPE, true);
-$dataJson->class_validation();
-$configData = $dataJson->data;
+$loaded = true;
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (Throwable $e) {
+    $sh->error($e);
+}
 
 // Check if configuration file exists, and if not, create it
-if ($dataJson->data)
-    echol("Loaded successfully.", 2);
+if ($loaded)
+    $sh->echo("Loaded successfully.", 2);
 else {
-    echol("It doesn't exist.");
+    $sh->echo("The file couldn't be loaded.");
     require "src/create.php";
-    echol();
+    $sh->echo();
 }
 
 // Load all possible options
-$typeJson = new LoadJSON("data/validation/type.json",
-    LoadJSON::OBJECT_DATA_TYPE, false, false);
-$types = $typeJson->data->{"data.json"};
+try {
+    $typeJson = new JSONFile("type.json", "data/validation");
+    $types = $typeJson->data->{"data.json"};
+} catch (Throwable $e) {
+    $sh->error($e);
+}
 
 // Extract all possible options
 $possibleOptions = [];
@@ -46,16 +45,15 @@ $value = $argv[2];
 
 // Break if it is an invalid option
 if (!in_array($option, $possibleOptions)) {
-    echol("There is no $option option exists.");
-    exitl("Check 'dej config list' for more information.");
+    $sh->echo("There is no $option option exists.");
+    $sh->exit("Check 'dej config list' for more information.");
 }
 
 // Get field's current value
-$currentValue = LoadJSON::get_field($option, $dataJson->data, true);
+$currentValue = $dataJson->get($option);
 
 // Fix values
 $fieldType = $types->$option->type ?? "string";
-$arr = null;
 switch ($fieldType) {
     case "bool":
         $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
@@ -70,65 +68,62 @@ switch ($fieldType) {
         break;
     
     case "mac":
-        LoadJSON::add_field($option, $value, $arr);
-        $dataJson->type_validation($arr, true, true);
+        if (!preg_match("/^([\da-f]{2}:){5}([\da-f]{2})$/i", $value))
+            $sh->error("Wrong MAC address was given.");
         break;
 }
 
 // Check if there is any field exist
 if ($currentValue !== null)
-    echol("Current value is " . json_encode($currentValue) . ".");
+    $sh->echo("Current value is " . json_encode($currentValue) . ".");
 
 // Check if values are equal, then break if it is
 if ($currentValue === $value) {
-    echol("Nothing to do!");
+    $sh->echo("Nothing to do!");
     goto check;
 }
 
-echol("Setting $option to " . json_encode($value) . "...");
+$sh->echo("Setting $option to " . json_encode($value) . "...");
 
 // Change field's value
-LoadJSON::add_field($option, $value, $dataJson->data);
+$dataJson->set($option, $value);
 
-echol("Set!", 2);
-echol("Saving...");
+$sh->echo("Set!", 2);
+$sh->echo("Saving...");
 
 // Open the file to save
-$dataJsonFile = @fopen($dataJson->filePath, "w");
+try {
+    $dataJson->save();
+} catch (Throwable $e) {
+    $sh->error($e);
+}
 
-// Warn user if cannot save
-if (!$dataJsonFile)
-    exitl("Error: Cannot open the {$dataJson->filePath} for saving.");
-
-// Write new data to the file with a pretty format
-fwrite($dataJsonFile, json_encode($dataJson->data, JSON_PRETTY_PRINT));
-fclose($dataJsonFile);
-
-echol("Saved!", 2);
-
-echol("Restarting Dej...");
+$sh->echo("Saved!", 2);
 
 // Restart Dej to see the effects and show the result
 ob_start();
 require "src/restart.php";
 $restartOutput = ob_get_clean();
 if (preg_match("/(Everything got running!)/", $restartOutput))
-    echol("Restarted successfully!");
+    $sh->echo("Restarted successfully!");
 else
-    echol("Failed. Run 'dej restart' for more information.");
+    $sh->echo("Failed. Run 'dej restart' for more information.");
 
 check:
 // Check for warnings
 ob_start();
-$dataJson = new LoadJSON("data.json");
-$dataJson->class_validation(true);
-$dataJson->type_validation();
+try {
+    $dataJson = new JSONFile("data.json", "config");
+} catch (Throwable $e) {
+    $sh->warn($e);
+}
+DataValidation::class_validation($dataJson, true);
+DataValidation::type_validation($dataJson);
 $warningsOutput = ob_get_clean();
 
 // If at least a warning found, print it
 $warningsCount = preg_match_all("/(warning:)/i", $warningsOutput);
 if (!empty($warningsOutput)) {
-    echol();
-    echol("Found $warningsCount warning(s) in the configuration file.");
-    echol("Try 'dej config check' for more details.");
+    $sh->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
+    $sh->echo("Try 'dej config check' for more details.");
 }

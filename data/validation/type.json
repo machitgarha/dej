@@ -41,5 +41,15 @@
             "default_value": false,
             "type": "bool"
         }
+    },
+    "users.json": {
+        "name": {
+            "class": "required",
+            "type": "alphanumeric"
+        },
+        "mac": {
+            "class": "required",
+            "type": "mac"
+        }
     }
 }

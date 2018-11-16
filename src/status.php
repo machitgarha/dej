@@ -1,16 +1,9 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "root_permissions.php",
-    "screen.php",
-    "shell.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
-echol("Checking Dej status...");
+$sh->echo("Checking Dej status...");
 
 // Stop if root permissions not granted
 if (!root_permissions())
@@ -22,14 +15,14 @@ $screensCount = count($screenSessionPids);
 
 switch ($screensCount) {
     case 0:
-        exitl("Not running.");
+        $sh->exit("Not running.");
 
     case 1:
-        exitl("W: Partially running.");
+        $sh->warn("Partially running.");
     
     case 2:
-        exitl("Running!");
+        $sh->exit("Running!");
 
     default:
-        exitl("W: Running more than once.");
+        $sh->warn("Running more than once.");
 }

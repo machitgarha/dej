@@ -1,16 +1,9 @@
 <?php
 
-// Includes
-$incPath = "includes";
-$filesPath = [
-    "root_permissions.php",
-    "screen.php",
-    "shell.php"
-];
-foreach ($filesPath as $filePath)
-    require_once "$incPath/$filePath";
+// Include all include files
+require_once "./includes/autoload.php";
 
-echol("Stopping Dej...");
+$sh->echo("Stopping Dej...");
 
 // Stop if root permissions not granted
 if (!root_permissions())
@@ -25,6 +18,6 @@ if (count($screenSessionPids) !== 0) {
     foreach ($screenSessionPids as $screenSessionPid)
         `screen -X -S $screenSessionPid quit`;
     
-    echol("Done!");
+    $sh->echo("Done!");
 } else
-    echol("Not started, nothing to do!");
+    $sh->echo("Not started, nothing to do!");
