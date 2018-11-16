@@ -1,4 +1,4 @@
 #!/bin/sh
 
-# Install Dej
+# Uninstall Dej
 sh src/php.sh uninstall

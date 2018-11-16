@@ -7,7 +7,16 @@ try {
     // Force to grant root permissions
     root_permissions();
 
-    $sh->echo("Preparing to install Dej...");
+    $sh->echo("Preparing...");
+
+    $forceMode = false;
+    $updateMode = false;
+    if (isset($argv[1])) {
+        if (in_array($argv[1], ["--force", "--update"]))
+            $forceMode = true;
+        if ($argv[1] === "--update")
+            $updateMode = true;
+    }
 
     // Data path
     $dataPath = __DIR__ . "/../";
@@ -40,26 +49,28 @@ try {
     $dejTmpFile = new SplFileObject($tmpFile, "w");
     $dejTmpFile->fwrite($newFileContents);
 
-    $sh->echo("Installing...");
+    $sh->echo($updateMode ? "Updating..." : "Installing...");
 
     // The temporary file path to install
     $dej = force_end_slash($installPath) . "dej";
     
     // Prevent from overwriting an older version
-    $isInstalled = file_exists($dej);
+    $toInstall = !file_exists($dej) || $forceMode;
 
     // Move the temporary file, if not installed
-    if (!$isInstalled)
+    if ($toInstall)
         copy($tmpFile, $dej);
     unlink($tmpFile);
 
-    if ($isInstalled)
+    if (!$toInstall)
         $sh->error("Already installed.");
 
     // Grant right permissions
     chmod($dej, 0755);
 
-    $sh->echo("Completed. Type 'dej help' for more information.");
+    $sh->echo("Completed.");
+    if (!$updateMode)
+        $sh->echo("Type 'dej help' for more information.");
 } catch (Throwable $e) {
     $sh->error($e);
 }

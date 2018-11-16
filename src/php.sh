@@ -20,7 +20,7 @@ if [ -n "$havePhp" ]; then
     else
         fileName="$1"
         shift
-        $phpExecutable -f src/$fileName.php "$@"
+        $phpExecutable src/$fileName.php "$@"
     fi
 else
     # Warn user for which PHP not exists
