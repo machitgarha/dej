@@ -1,9 +1,7 @@
 #!/bin/sh
 
-# You may copy this file, but moving it causes problems.
-
+# Don't move or edit this file manually!
 # SOURCE
-cd "./";
 
 # Prints a message with a new line at end
 printfl () {
