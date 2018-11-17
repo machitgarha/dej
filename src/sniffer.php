@@ -3,28 +3,27 @@
 // Include all include files
 require_once "./includes/autoload.php";
 
-// Load data config file
+
+// Load configurations and validate it
 try {
     $dataJson = new JSONFile("data.json", "config");
+
+    $validation = new DataValidation($dataJson);
+    $validation->class_validation();
+    $validation->type_validation();
+
+    $config = $dataJson->data;
 } catch (Throwable $e) {
     $sh->error($e);
 }
 
-// Data validation
-try {
-    DataValidation::class_validation($dataJson);
-    DataValidation::type_validation($dataJson);
-} catch (Throwable $e) {
-    $sh->error($e);
-}
-$config = $dataJson->data;
-
-// Load users config file
+// Load users config file and validate it
 try {
     $usersJson = new JSONFile("users.json", "config");
 
-    DataValidation::class_validation($usersJson, true);
-    DataValidation::type_validation($usersJson);
+    $validation = new DataValidation($usersJson);
+    $validation->class_validation(true);
+    $validation->type_validation();
 
     // Set users by {mac} => {name} pairs in array 
     $users = [];

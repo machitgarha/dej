@@ -2,60 +2,47 @@
 
 class DataValidation
 {
+    private $json;
+
     // Holding directory and names of validation files
-    private static $validationDir = "./data/validation/";
-    private static $validationFilenames = [
-        "type" => "type.json"
-    ];
+    private $validationDir = "./data/validation/";
+    private $validationData;
 
     // Better output for types
-    private static $fullTypes = [
+    private $fullTypes = [
         "mac" => "colon-styled MAC address",
         "int" => "integer",
         "bool" => "boolean",
         "alphanumeric" => "alphanumeric"
     ];
-    
-    // Requirements of working a validation function
-    private static function prepare_validation(JSON $json, string $validationType,
-        int $returnAs = JSON::OBJECT_DATA_TYPE)
+
+    // Prepare things
+    public function __construct(JSON &$json)
     {
-        $sh = new Shell();
+        $this->json = $json;
 
-        // Find validation file
-        $validationFile = self::$validationDir . self::$validationFilenames[$validationType];
-        
-        // Checks for existance and readability
-        if (!is_readable($validationFile))
-            $sh->error();
+        $this->sh = new Shell();
 
-        // Get validation data
-        $validationData = json_decode(file_get_contents($validationFile),
-            true)[$json->filename] ?? null;
+        // Open validation file
+        $validationJson = new JSONFile("type.json", $this->validationDir);
 
-        // Warn user if data cannot be validated
-        if (!$validationData)
-            $sh->error();
-
-        // Convert it to proper type (e.g., object)
-        return (new JSON($validationData, $returnAs))->data;
+        // Save validation data
+        $this->validationData = $validationJson->data->{$this->json->filename};
     }
-    
+
     // Handles validation based on field classes (e.g. required)
-    public static function class_validation(JSON &$json, bool $onlyWarn = false)
+    public function class_validation(bool $onlyWarn = false)
     {
-        $sh = new Shell();
         $foundWarning = false;
 
-        // Getting things ready and get validation data
-        $validationData = self::prepare_validation($json, "type");
-
-        // Prepare data
-        $data = &$json->data;
+        // Initialize variables
+        $json = &$this->json;
+        $sh = $this->sh;
+        $validationData = $this->validationData;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
         // Iteration over all fields
-        $validate = function (JSON $json) use ($validationData, $onlyWarn, $sh, $foundWarning) {
+        $validate = function (JSON &$json) use ($validationData, $onlyWarn, $sh, $foundWarning) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -111,19 +98,18 @@ class DataValidation
     }
 
     // Perform validation for types, and warn for mistypes
-    public static function type_validation(JSON $json, bool $invalidInput = false)
+    public function type_validation(bool $invalidInput = false)
     {
-        $sh = new Shell();
         $foundWarning = false;
 
-        // Getting things ready and get validation data
-        $validationData = self::prepare_validation($json, "type");
-
-        // Prepare data
-        $data = &$json->data;
+        // Initialize variables
+        $json = &$this->json;
+        $sh = $this->sh;
+        $validationData = $this->validationData;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
-        $validate = function (JSON $json) use ($validationData, $invalidInput, $sh, $foundWarning) {
+        $validate = function (JSON &$json) use ($validationData, $invalidInput, $sh, $foundWarning)
+        {
             // Iteration over all fields
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)

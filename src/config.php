@@ -104,8 +104,10 @@ echo `./dej restart`;
 ob_start();
 try {
     $dataJson = new JSONFile("data.json", "config");
-    DataValidation::class_validation($dataJson, true);
-    DataValidation::type_validation($dataJson);
+
+    $validation = new DataValidation($dataJson);
+    $validation->class_validation(true);
+    $validation->type_validation();
 } catch (Throwable $e) {
     $sh->warn($e);
 }

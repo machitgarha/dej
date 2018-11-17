@@ -109,6 +109,7 @@ class JSON
         if ($data === null)
             $data = $this->data;
 
+        // Explode parts by dots
         $fieldIndexes = explode(".", $fieldName);
 
         // Find the field to match with field indexes

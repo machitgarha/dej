@@ -27,21 +27,18 @@ if (count(search_screens()) > 0) {
         $sh->echo(`php -f src/stop.php` . "Starting Dej...");
 }
 
-// Load configurations
+// Load configurations and validate it
 try {
     $dataJson = new JSONFile("data.json", "config");
-} catch (Throwable $e) {
-    $sh->error($e);
-}
 
-// Data validation
-try {
-    DataValidation::class_validation($dataJson);
-    DataValidation::type_validation($dataJson);
+    $validation = new DataValidation($dataJson);
+    $validation->class_validation();
+    $validation->type_validation();
+
+    $config = $dataJson->data;
 } catch (Throwable $e) {
     $sh->error($e);
 }
-$config = $dataJson->data;
 
 // Perform comparison between files and backup files
 $path = $config->save_to->path;

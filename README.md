@@ -29,4 +29,4 @@ You can uninstall by running:
 ```
 # dej uninstall
 ```
-__Note__: Don't forget to confirm to uninstallation.
+__Note__: Don't forget to confirm uninstallation.
