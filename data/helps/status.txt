@@ -3,6 +3,6 @@ Prints Dej running status (needs root permissions).
 
 Possible values are:
 'Not running.': You could run it using 'dej start'.
-'W: Partially running.': Some files are running, some of them are not You should restart dej by 'dej restart' and then run 'dej status' to check if it's running properly. If the problem persists, you should check your configuration files (exist in ./config/), especially data.json.
+'Warning: Partially running.': Some files are running, some of them are not You should restart dej by 'dej restart' and then run 'dej status' to check if it's running properly. If the problem persists, you should check your configuration files (exist in ./config/), especially data.json.
 'Running': You could stop it using 'dej stop'.
-'W: Running more than once.': Keep in mind, you should start Dej only once. The output usually means you have ran it more than once. You should restart Dej using 'dej restart' in this case.
+'Warning: Running more than once.': Keep in mind, you should start Dej only once. The output usually means you have ran it more than once. You should restart Dej using 'dej restart' in this case.
