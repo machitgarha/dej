@@ -7,7 +7,7 @@ dej stop
 dej restart
 dej status
 dej help [command]
-dej config {option} {value}
+dej config [option] [value]
 dej config list
 dej config create
 dej config check

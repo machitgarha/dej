@@ -1,4 +1,4 @@
-You can set update an option using: 'dej config {option} {value}'
+You can set update an option using: 'dej config [option] [value]'
 
 Help: * means required, + means should-set, every field which is not required has a default value.
 - interface.name (*): Interface name of your device you want to sniff.
