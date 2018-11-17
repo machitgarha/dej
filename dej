@@ -12,11 +12,7 @@ printfl () {
 help="src/help.php"
 
 # Errors while entering commands
-moreInfo="Try 'dej --help' for more information."
-
-commandExpectedError=\
-"You must specify a command.
-$moreInfo"
+moreInfo="Try 'dej help' for more information."
 
 badUsageError=\
 "Bad usage.
@@ -26,78 +22,61 @@ unknownCommandError=\
 "Unknown command
 $moreInfo"
 
-tooManyArgsError=\
-"Too many arguments supplied!
-$moreInfo"
-
 # No arguments supplied
 if [ $# -eq 0 ]; then
-    printfl "$commandExpectedError"
+    php $help "help";
 
 # An arguments supplied
-elif [ $# -eq 1 ]; then
+else
     case $1 in
         # Start PHP process for each command
         start|stop|status|restart)
+            if [ $# -gt 1 ]; then
+                printfl "$badUsageError"
+                exit
+            fi
             sh src/php.sh $1
             ;;
         help|-h|--help)
-            php $help "help";
-            ;;
-        config|users)
-            printfl "$badUsageError"
-            ;;
-        *)
-            printfl "$unknownCommandError"
-            ;;
-    esac
-
-# Two arguments supplied
-elif [ $# -eq 2 ]; then
-    case $1 in
-        # User wants help on specific command
-        help|-h|--help)
-            php $help $2
-            ;;
-        config)
-            case $2 in
-                # User wants a list of available fields
-                list)
-                    php $help "config_list"
+            case $# in
+                1)
+                    php $help "help"
                     ;;
-                # User wants to create the configuration file
-                create|check)
-                    sh src/php.sh $2
+                2)
+                    php $help $2
                     ;;
                 *)
                     printfl "$badUsageError"
                     ;;
             esac
             ;;
-        start|stop|restart|status)
-            printfl "$badUsageError"
-            ;;
-        *)
-            printfl "$unknownCommandError"
-            ;;
-    esac
-
-# Three arguments supplied
-elif [ $# -eq 3 ]; then
-    case $1 in
-        --help|start|stop|restart|status)
-            printfl "$badUsageError"
-            ;;
-        # Change the configuration file (i.e. config/data.json)
         config)
-            sh src/php.sh config $2 $3
+            case $# in
+                2)
+                    case $2 in
+                        # User wants a list of available fields
+                        list)
+                            php $help "config_list"
+                            ;;
+                        # User wants to create the configuration file
+                        create|check)
+                            sh src/php.sh $2
+                            ;;
+                        *)
+                            printfl "$badUsageError"
+                            ;;
+                    esac
+                    ;;
+                3)
+                    sh src/php.sh config $2 $3
+                    ;;
+                *)
+                    printfl "$badUsageError"
+                    ;;
+            esac
             ;;
         *)
             printfl "$unknownCommandError"
             ;;
     esac
-
-# Too many arguments (> 3)
-else
-    printfl "$tooManyArgsError"
 fi
