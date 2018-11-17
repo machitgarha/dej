@@ -22,6 +22,11 @@ try {
     $dataPath = __DIR__ . "/../";
     chdir($dataPath);
 
+    // Update repository automatically
+    `git pull`;
+    if (trim(`git pull`) !== "Already up to date.")
+        $sh->warn("Cannot update Git repository.");
+
     // Extract $PATH info and set installation path
     $defaultInstallPath = "/usr/local/bin";
     $paths = explode(":", `echo \$PATH`);
@@ -31,8 +36,6 @@ try {
     $installPath = $paths[0];
     if (in_array($defaultInstallPath, $paths))
         $installPath = $defaultInstallPath;
-
-    $sh->echo("Preparing command file...");
 
     // Edit the source line of the Dej file to match with the current path
     $dejFile = new SplFileObject("dej", "r");
