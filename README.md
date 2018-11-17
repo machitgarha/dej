@@ -17,3 +17,9 @@ Really simple. First, clone the project (or download it). Then go to the project
 ```
 # sh install.sh
 ```
+
+### Updating
+Simple, too. After installation, you can do:
+```
+# dej update
+```
