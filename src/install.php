@@ -37,7 +37,7 @@ try {
     $dejFileContentLines = explode(PHP_EOL, $dejFile->fread($dejFile->getSize()));
     foreach ($dejFileContentLines as $key => $line)
         if ($line === "# SOURCE") {
-            $dejFileContentLines[$key + 1] = "cd \"$dataPath\"";
+            $dejFileContentLines[$key + 1] = "src=\"$dataPath\"";
             break;
         }
     
