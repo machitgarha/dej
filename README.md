@@ -13,7 +13,7 @@ You need PHP7, tcpdump and screen tools to be able to run Dej. Their installatio
 Also, you need to run some commands as root.
 
 ### Installing
-Really simple. First, clone the project (or download it). Then go to the project directory, and just run (as root):
+Really simple. First, clone the project (or download it). Then go to the project directory, and just run:
 ```
 # sh install.sh
 ```
@@ -23,3 +23,10 @@ Simple, too. After installation, you can do:
 ```
 # dej update
 ```
+
+### Uninstalling
+You can uninstall by running:
+```
+# dej uninstall
+```
+__Note__: Don't forget to confirm to uninstallation.
