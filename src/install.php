@@ -45,11 +45,9 @@ try {
 
     // Update repository automatically
     if ($updateMode) {
-        ob_start();
-        `git pull`;
-        if (trim(`git pull`) !== "Already up to date.")
+        exec("git pull");
+        if (trim(exec("git pull")) !== "Already up to date.")
             $sh->warn("Cannot update Git repository.");
-        ob_get_clean();
     }
 
     // Create a temporary command file matching new changes
