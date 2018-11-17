@@ -8,8 +8,8 @@ printfl () {
     printf "$1\n"
 }
 
-# Helps path
-help="src/help.php"
+# Helps PHP file path to output helps
+helpHandler="src/help.php"
 
 # Errors while entering commands
 moreInfo="Try 'dej help' for more information."
@@ -18,47 +18,45 @@ badUsageError=\
 "Bad usage.
 $moreInfo"
 
-unknownCommandError=\
-"Unknown command
-$moreInfo"
-
-# No arguments supplied
+# Show help if no argument supplied
 if [ $# -eq 0 ]; then
-    php $help "help";
+    php $helpHandler "help"
 
-# An arguments supplied
+# One or more arguments
 else
+    # Check for the command
     case $1 in
-        # Start PHP process for each command
+
+        # Changing or wanting Dej status
         start|stop|status|restart)
-            if [ $# -gt 1 ]; then
+            if [ $# -eq 1 ]; then
+                sh src/php.sh $1
+            else
                 printfl "$badUsageError"
-                exit
             fi
-            sh src/php.sh $1
             ;;
+
+        # Needing help
         help|-h|--help)
-            case $# in
-                1)
-                    php $help "help"
-                    ;;
-                2)
-                    php $help $2
-                    ;;
-                *)
-                    printfl "$badUsageError"
-                    ;;
-            esac
+            # General help
+            if [ $# -eq 1 ]; then
+                php $helpHandler "help"
+            # Specific help 
+            else
+                php $helpHandler $2
+            fi
             ;;
+
+        # Dej configuration
         config)
             case $# in
                 2)
                     case $2 in
-                        # User wants a list of available fields
+                        # List of available fields
                         list)
-                            php $help "config_list"
+                            php $helpHandler "config_list"
                             ;;
-                        # User wants to create the configuration file
+                        # Creating the configuration file or validating it
                         create|check)
                             sh src/php.sh $2
                             ;;
@@ -67,6 +65,7 @@ else
                             ;;
                     esac
                     ;;
+                # Changing a configuration
                 3)
                     sh src/php.sh config $2 $3
                     ;;
@@ -75,8 +74,11 @@ else
                     ;;
             esac
             ;;
+
+        # Unknown command
         *)
-            printfl "$unknownCommandError"
+            printfl "Unknown command '$1'."
+            printfl "$moreInfo"
             ;;
     esac
 fi
