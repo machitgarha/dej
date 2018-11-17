@@ -22,11 +22,6 @@ try {
     $dataPath = __DIR__ . "/../";
     chdir($dataPath);
 
-    // Update repository automatically
-    `git pull`;
-    if (trim(`git pull`) !== "Already up to date.")
-        $sh->warn("Cannot update Git repository.");
-
     // Extract $PATH info and set installation path
     $defaultInstallPath = "/usr/local/bin";
     $paths = explode(":", `echo \$PATH`);
@@ -45,14 +40,21 @@ try {
             $dejFileContentLines[$key + 1] = "cd \"$dataPath\"";
             break;
         }
+    
+    $sh->echo($updateMode ? "Updating..." : "Installing...");
+
+    // Update repository automatically
+    if ($updateMode) {
+        `git pull`;
+        if (trim(`git pull`) !== "Already up to date.")
+            $sh->warn("Cannot update Git repository.");
+    }
 
     // Create a temporary command file matching new changes
     $tmpFile = "dej" . time() . ".tmp";
     $newFileContents = implode(PHP_EOL, $dejFileContentLines);
     $dejTmpFile = new SplFileObject($tmpFile, "w");
     $dejTmpFile->fwrite($newFileContents);
-
-    $sh->echo($updateMode ? "Updating..." : "Installing...");
 
     // The temporary file path to install
     $dej = force_end_slash($installPath) . "dej";
