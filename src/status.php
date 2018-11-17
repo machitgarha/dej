@@ -3,17 +3,12 @@
 // Include all include files
 require_once "./includes/autoload.php";
 
-$sh->echo("Checking Dej status...");
-
 // Stop if root permissions not granted
 if (!root_permissions())
     return;
 
 // Search for Dej screens
-$screenSessionPids = search_screens();
-$screensCount = count($screenSessionPids);
-
-switch ($screensCount) {
+switch (count(search_screens())) {
     case 0:
         $sh->exit("Not running.");
 
