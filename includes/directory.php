@@ -1,7 +1,10 @@
 <?php
 
+$shell = new Shell();
+
 // Creates a directory, if it doesn't exist
 function directory(string $dirName, int $chmod = 0777) {
+    global $shell;
     // If directory exists, return false
     if (is_dir($dirName))
         return false;
@@ -10,7 +13,7 @@ function directory(string $dirName, int $chmod = 0777) {
     if (@mkdir($dirName, $chmod, true))
         return true;
     
-    exit("Cannot create $dirName directory." . PHP_EOL);
+    $sh->error("Cannot create $dirName directory.");
 }
 
 // Force to a path to use or not to use a slash at the end of it
