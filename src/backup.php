@@ -37,7 +37,11 @@ while (true) {
     $filesDir = new DirectoryIterator(".");
 
     // Create the timestamp file (to see when backup was made)
-    $now = (new DateTime(`date`))->format("Y-m-d H:i:s");
+    try {
+        $now = (new DateTime(`date`))->format("Y-m-d H:i:s");
+    } catch (Throwable $e) {
+        $now = time();
+    }
     fwrite($f = fopen($backupDirName . "update_time", "w"), $now);
     fclose($f);
 

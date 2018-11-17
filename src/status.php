@@ -19,6 +19,7 @@ switch ($screensCount) {
 
     case 1:
         $sh->warn("Partially running.");
+        break;
     
     case 2:
         $sh->exit("Running!");
