@@ -16,7 +16,7 @@ fi
 # Run PHP files, if PHP is present
 if [ -n "$havePhp" ]; then
     if [ "$1" = "start" ]; then
-        $phpExecutable -f src/$1.php $phpExecutable
+        $phpExecutable src/$1.php $phpExecutable
     else
         fileName="$1"
         shift

@@ -5,8 +5,16 @@ require_once "./includes/autoload.php";
 
 $sh->echo("Restarting Dej...");
 
-// If root permissions set, begin for restarting
+// Restart when permissions granted
 if (root_permissions()) {
+    ob_start();
     echo `./dej stop`;
     echo `./dej start`;
+    $output = ob_get_clean();
+
+    // Check for errors
+    if (preg_match("/(Error)/", $output))
+        $sh->error();
+    else
+        $sh->echo("Done!");
 }

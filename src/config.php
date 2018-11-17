@@ -1,29 +1,34 @@
 <?php
 
-// Break if incorrect number of arguments supplied
-if ($argc !== 3)
-    throw new InvalidArgumentException();
-
 // Include all include files
 require_once "./includes/autoload.php";
 
-$sh->echo("Loading configuration file...");
+// Break if incorrect number of arguments supplied
+if ($argc !== 3)
+    $sh->error();
+
+$sh->echo("Preparing...");
 
 // Load configurations
 $loaded = true;
 try {
     $dataJson = new JSONFile("data.json", "config");
-} catch (Throwable $e) {
-    $sh->error($e);
+
+// If file doesn't exist, attemp to create it
+} catch (FileExistenceException $e) {
+    // Create the configuration file
+    `./dej config create`;
+
+    // Load it
+    try {
+        $dataJson = new JSONFile("data.json", "config");
+    } catch (Throwable $e) {
+        $sh->error($e);
+    }
 }
 
-// Check if configuration file exists, and if not, create it
-if ($loaded)
-    $sh->echo("Loaded successfully.", 2);
-else {
-    $sh->echo("The file couldn't be loaded.");
-    require "src/create.php";
-    $sh->echo();
+catch (Throwable $e) {
+    $sh->error($e);
 }
 
 // Load all possible options
@@ -43,11 +48,15 @@ foreach ($types as $fieldName => $fieldData)
 $option = $argv[1];
 $value = $argv[2];
 
+$sh->echo("Done!", 2);
+
 // Break if it is an invalid option
 if (!in_array($option, $possibleOptions)) {
-    $sh->echo("There is no $option option exists.");
-    $sh->exit("Check 'dej config list' for more information.");
+    $sh->echo("There is no '$option' option exists.");
+    $sh->exit("Run 'dej config list' for more info.");
 }
+
+$sh->echo("Updating...");
 
 // Get field's current value
 $currentValue = $dataJson->get($option);
@@ -73,23 +82,8 @@ switch ($fieldType) {
         break;
 }
 
-// Check if there is any field exist
-if ($currentValue !== null)
-    $sh->echo("Current value is " . json_encode($currentValue) . ".");
-
-// Check if values are equal, then break if it is
-if ($currentValue === $value) {
-    $sh->echo("Nothing to do!");
-    goto check;
-}
-
-$sh->echo("Setting $option to " . json_encode($value) . "...");
-
 // Change field's value
 $dataJson->set($option, $value);
-
-$sh->echo("Set!", 2);
-$sh->echo("Saving...");
 
 // Open the file to save
 try {
@@ -98,27 +92,23 @@ try {
     $sh->error($e);
 }
 
-$sh->echo("Saved!", 2);
+$sh->echo("Done!");
+if ($currentValue !== null && $currentValue !== $value)
+    $sh->echo(json_encode($currentValue) . " -> " . json_encode($value));
+$sh->echo();
 
 // Restart Dej to see the effects and show the result
-ob_start();
-require "src/restart.php";
-$restartOutput = ob_get_clean();
-if (preg_match("/(Everything got running!)/", $restartOutput))
-    $sh->echo("Restarted successfully!");
-else
-    $sh->echo("Failed. Run 'dej restart' for more information.");
+echo `./dej restart`;
 
-check:
 // Check for warnings
 ob_start();
 try {
     $dataJson = new JSONFile("data.json", "config");
+    DataValidation::class_validation($dataJson, true);
+    DataValidation::type_validation($dataJson);
 } catch (Throwable $e) {
     $sh->warn($e);
 }
-DataValidation::class_validation($dataJson, true);
-DataValidation::type_validation($dataJson);
 $warningsOutput = ob_get_clean();
 
 // If at least a warning found, print it

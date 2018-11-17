@@ -24,7 +24,7 @@ function root_permissions(bool $quiet = false) {
 function should_not_be_root() {
     global $shell;
     if (root_permissions(true)) {
-        echo "You should not run as root. Continue? [Y(es)/n(o)] ";
+        $shell->echo("You should not run as root. Continue? [Y(es)/n(o)] ", 0);
         $cliInput = fopen("php://stdin", "r");
 
         // Analyze user input
