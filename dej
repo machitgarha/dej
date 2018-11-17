@@ -27,15 +27,6 @@ else
     # Check for the command
     case $1 in
 
-        # Changing or wanting Dej status
-        start|stop|status|restart)
-            if [ $# -eq 1 ]; then
-                sh src/php.sh $1
-            else
-                printfl "$badUsageError"
-            fi
-            ;;
-
         # Needing help
         help|-h|--help)
             # General help
@@ -45,6 +36,20 @@ else
             else
                 php $helpHandler $2
             fi
+            ;;
+
+        # Changing or wanting Dej status
+        start|stop|status|restart)
+            if [ $# -eq 1 ]; then
+                sh src/php.sh $1
+            else
+                printfl "$badUsageError"
+            fi
+            ;;
+
+        # Update or uninstall Dej
+        update|uninstall)
+            sh $1.sh
             ;;
 
         # Dej configuration
