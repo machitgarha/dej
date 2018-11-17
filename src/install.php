@@ -45,8 +45,10 @@ try {
 
     // Update repository automatically
     if ($updateMode) {
-        exec("git pull");
-        if (trim(exec("git pull")) !== "Already up to date.")
+        // Prevent from bad outputs
+        $gitPull = "git pull >/dev/null";
+        `$gitPull`;
+        if (trim(`$gitPull`) !== "Already up to date.")
             $sh->warn("Cannot update Git repository.");
     }
 
