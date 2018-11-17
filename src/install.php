@@ -45,10 +45,13 @@ try {
 
     // Update repository automatically
     if ($updateMode) {
-        // Prevent from bad outputs
-        $gitPull = "git pull >/dev/null";
+        // Prevent from Git outputs, write the output to a file, instead
+        $outputFile = "./config/git.txt";
+        $gitPull = "git pull >$outputFile 2>&1";
         `$gitPull`;
-        if (trim(`$gitPull`) !== "Already up to date.")
+        `$gitPull`;
+        $result = file_get_contents($outputFile);
+        if (trim($result) !== "Already up to date.")
             $sh->warn("Cannot update Git repository.");
     }
 
