@@ -70,12 +70,11 @@ while (true) {
     // Extracts data from each packet
     foreach ($packetsData as $packetData) {
         // Extract data
-        list($macAddresses, $packetSize) = get_info($packetData);
+        list($macAddresses, $packetSize, $ethertype) = getPacketInfo($packetData);
 
         // Skip if there aren't two MAC addresses
-        if (count((array)$macAddresses) < 2 || $packetSize === 0) {
-            log_packets($logFile, (array)$macAddresses, (int)$packetSize,
-                $packetData);
+        if (count((array)$macAddresses) < 2 || $packetSize === 0 || $ethertype === "arp") {
+            logPackets($logFile, (array)$macAddresses, (int)$packetSize, $packetData);
             continue;
         }
 
@@ -96,42 +95,47 @@ while (true) {
 
     // Saves the sent/received packets to files
     foreach ($devicesInfo as $addr => $size)
-        save_to_file($addr, $size);
+        saveToFile($addr, $size);
 }
 
 // Extracts useful info from a packet info
-function get_info(string $packetData)
+function getPacketInfo(string $packetData)
 {
     // Prevents emptiness of packet info
     if (empty($packetData))
         return 0;
 
-    // Regular expressions to find MAC addresses and packet size
+    // Regular expressions to find MAC addresses and packet size and packet type
     $macAddressRegex = "/([\da-f]{2}:){5}[\da-f]{2}/i";
     $packetSizeRegex = "/(length) \d+/i";
+    $ethertypeRegex = "/(ethertype) \S+/i";
 
     // Find MAC addresses
-    $macAddresses = [];
     preg_match_all($macAddressRegex, $packetData, $macAddresses, 1);
 
     // Find packet size
-    $packetSize = [];
     preg_match($packetSizeRegex, $packetData, $packetSize);
     $packetSize = explode(" ", $packetSize[0])[1];
+
+    // Find ethertype
+    preg_match($ethertypeRegex, $packetData, $ethertype);
+    $ethertype = explode(" ", $ethertype[0])[1];
 
     /*
      * Returns all extracted data as an array.
      * The first index contains the MAC addresses,
-     * and the last index is the packet size (in bytes).
+     * the second index is the packet size (in bytes),
+     * and the last one is the ethertype.
      */
     return [
         $macAddresses[0],
-        (int)$packetSize
+        (int)$packetSize,
+        strtolower($ethertype)
     ];
 }
 
 // Saves extracted data into files, named by MAC addresses
-function save_to_file(string $macAddress, int $packetsTotalSize)
+function saveToFile(string $macAddress, int $packetsTotalSize)
 {
     global $users, $path, $format;
 
@@ -193,7 +197,7 @@ function format(string $num, bool $addColons = true) {
 }
 
 // Log skipped packets
-function log_packets($file, array $macAddresses, int $packetSize,
+function logPackets($file, array $macAddresses, int $packetSize,
     string $packetData) {
     global $toLogSkippedPackets;
     

@@ -1,10 +1,9 @@
 <?php
 
-$shell = new Shell();
-
 // Check for root permissions
 function rootPermissions(bool $quiet = false) {
-    global $shell;
+    $shell = new Shell();
+
     if (`which whoami` === null && !$quiet)
         $shell->warn("We cannot detect if root permissions granted or not. Please make sure you " .
             "granted, otherwise, files won't run successfully and you may have problems.", 2);
