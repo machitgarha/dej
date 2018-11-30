@@ -8,7 +8,6 @@ $sh->echo("Loading configuration file...");
 // Load configuration file and also validator
 try {
     $dataJson = new JSONFile("data.json", "config");
-    $validator = new DataValidation($dataJson);
 } catch (Throwable $e) {
     $sh->error($e);
 }
@@ -18,18 +17,15 @@ $sh->echo("Loaded successfully.", 2);
 // Check for missing fields
 $sh->echo("Checking for missing important fields...");
 
-$foundMissingField = $validator->classValidation(true);
-
-// Output missing fields, if exist
-if (!$foundMissingField)
+$validated = (new DataValidation($dataJson))->classValidation();
+if (empty($validated->getWarnings(true)))
     $sh->echo("All important fields have been set!");
-$sh->echo();
+$validated->output(true);
 
 // Check for bad field values (e.g. bad MAC address for interface.mac)
-$sh->echo("Checking for invalid field values...");
+$sh->echo("Checking for invalid field values...", 1, 1);
 
-$foundInvalidFields = $validator->typeValidation();
-
-// Output missing fields, if exist
-if (!$foundInvalidFields)
+$validated = (new DataValidation($dataJson))->typeValidation();
+if (empty($validated->getWarnings(true)))
     $sh->echo("Looks good!");
+$validated->output(true);

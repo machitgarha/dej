@@ -53,6 +53,7 @@ try {
         $result = file_get_contents($outputFile);
         if (trim($result) !== "Already up to date.")
             $sh->warn("Cannot update Git repository.");
+        unlink($outputFile);
     }
 
     // Create a temporary command file matching new changes

@@ -4,6 +4,9 @@ class DataValidation
 {
     private $json;
 
+    private $warnings = [];
+    private $errors = [];
+
     // Holding directory and names of validation files
     private $validationDir = "./data/validation/";
     private $validationData;
@@ -17,11 +20,9 @@ class DataValidation
     ];
 
     // Prepare things
-    public function __construct(JSON &$json)
+    public function __construct(JSON $json)
     {
         $this->json = $json;
-
-        $this->sh = new Shell();
 
         // Open validation file
         $validationJson = new JSONFile("type.json", $this->validationDir);
@@ -31,18 +32,15 @@ class DataValidation
     }
 
     // Handles validation based on field classes (e.g. required)
-    public function classValidation(bool $onlyWarn = false)
+    public function classValidation(): DataValidation
     {
-        $foundWarning = false;
-
         // Initialize variables
-        $json = &$this->json;
-        $sh = $this->sh;
         $validationData = $this->validationData;
+        $json = $this->json;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
         // Iteration over all fields
-        $validate = function (JSON &$json) use ($validationData, $onlyWarn, $sh, $foundWarning) {
+        $validate = function (JSON $json) use ($validationData) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -62,23 +60,16 @@ class DataValidation
                         "file_path" => $json->filePath
                     ];
                     if ($fieldClass === "required")
-                        $data = array_merge($data, ["?type" => "required"]);
-                    if ($fieldClass !== "optional") {
-                        $foundWarning = true;
-                        if ($onlyWarn)
-                            $sh->warn(new MissingFieldException($data));
-                        elseif ($fieldClass === "required")
-                            throw new MissingFieldException($data);
-                    }
+                        $data["?type"] = "required";
+                    if ($fieldClass !== "optional")
+                        $this->pushError(new MissingFieldException($data));
                 }
             }
-
-            return $foundWarning;
         };
 
         switch ($json->filename) {
             case "data.json":
-                return $validate($json);
+                $validate($json);
                 break;
             
             case "users.json":
@@ -98,21 +89,18 @@ class DataValidation
                 throw new FileNameInvalidException([], true);
         }
 
-        $json->to();
+        return $this;
     }
 
     // Perform validation for types, and warn for mistypes
-    public function typeValidation(bool $invalidInput = false)
+    public function typeValidation(): DataValidation
     {
-        $foundWarning = false;
-
         // Initialize variables
-        $json = &$this->json;
-        $sh = $this->sh;
         $validationData = $this->validationData;
+        $json = $this->json;
         $json->to(JSON::OBJECT_DATA_TYPE);
 
-        $validate = function (JSON &$json) use ($validationData, $invalidInput, $sh, $foundWarning)
+        $validate = function (JSON &$json) use ($validationData)
         {
             // Iteration over all fields
             foreach ($validationData as $fieldName => $field) {
@@ -155,21 +143,17 @@ class DataValidation
                 }
 
                 // Warn user, there is mistyped field!
-                if (!$validField) {
-                    $foundWarning = true;
-                    $sh->warn(new InvalidFieldValueException([
+                if (!$validField)
+                    $this->pushWarning(new InvalidFieldValueException([
                         "type" => $this->fullTypes[$fieldType],
                         "value" => json_encode($fieldValue)
                     ]));
-                }
             }
-
-            return $foundWarning;
         };
 
         switch ($json->filename) {
             case "data.json":
-                return $validate($json);
+                $validate($json);
                 break;
             
             case "users.json":
@@ -187,6 +171,49 @@ class DataValidation
                 throw new FileNameInvalidException([], true);
         }
         
-        $json->to();
+        return $this;
     }
+
+    public function return(bool $onlyWarnings = false): JSON
+    {
+        $this->output($onlyWarnings);
+        $this->json->to();
+        return $this->json;
+    }
+
+    public function returnData(bool $onlyWarnings = false)
+    {
+        return $this->return($onlyWarnings)->data;        
+    }
+
+    private function pushWarning($warning)
+    {
+        $this->warnings[] = $warning;
+    }
+
+    private function pushError($error)
+    {
+        $this->errors[] = $error;
+    }
+
+    public function getWarnings(bool $getErrors = true): array
+    {
+        $warnings = $this->warnings;
+        if ($getErrors)
+            $warnings = array_merge($warnings, $this->errors);
+
+        return $warnings;
+    }
+
+    public function output(bool $onlyWarnings = false)
+    {
+        $sh = new Shell();
+
+        $errorsOutputType = $onlyWarnings ? "warn" : "error";
+        foreach ($this->errors as $error)
+            $sh->$errorsOutputType($error);
+
+        foreach ($this->warnings as $warning)
+            $sh->warn($warning);
+    } 
 }

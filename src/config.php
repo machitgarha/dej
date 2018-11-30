@@ -101,21 +101,18 @@ $sh->echo();
 echo `./dej restart`;
 
 // Check for warnings
-ob_start();
 try {
-    $dataJson = new JSONFile("data.json", "config");
-
-    $validation = new DataValidation($dataJson);
-    $validation->classValidation(true);
-    $validation->typeValidation();
+    $warnings = (new DataValidation(new JSONFile("data.json", "config")))
+        ->classValidation()
+        ->typeValidation()
+        ->getWarnings();
 } catch (Throwable $e) {
-    $sh->warn($e);
+    $sh->error($e);
 }
-$warningsOutput = ob_get_clean();
 
 // If at least a warning found, print it
-$warningsCount = preg_match_all("/(warning:)/i", $warningsOutput);
-if (!empty($warningsOutput)) {
+$warningsCount = count($warnings);
+if ($warningsCount !== 0) {
     $sh->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
     $sh->echo("Try 'dej config check' for more details.");
 }

@@ -5,29 +5,24 @@ require_once "./includes/autoload.php";
 
 // Load configurations and validate it
 try {
-    $dataJson = new JSONFile("data.json", "config");
-
-    $validation = new DataValidation($dataJson);
-    $validation->classValidation();
-    $validation->typeValidation();
-
-    $config = $dataJson->data;
+    $config = (new DataValidation(new JSONFile("data.json", "config")))
+        ->classValidation()
+        ->typeValidation()
+        ->returnData();
 } catch (Throwable $e) {
     $sh->error($e);
 }
 
 // Load users config file and validate it
 try {
-    $usersJson = new JSONFile("users.json", "config");
-
-    $validation = new DataValidation($usersJson);
-    $validation->classValidation(true);
-    $validation->typeValidation();
-
     // Set users by {mac} => {name} pairs in array 
-    $users = (new MAC($usersJson))->get();
+    $users = MAC::extractMacAsKeys((new DataValidation(new JSONFile("users.json", "config")))
+        ->classValidation()
+        ->typeValidation()
+        ->return()
+    );
 } catch (Throwable $e) {
-    $sh->warn($e);
+    $sh->error($e);
 }
 
 // Interface info

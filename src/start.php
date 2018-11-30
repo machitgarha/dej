@@ -29,13 +29,10 @@ if (count(searchScreens()) > 0) {
 
 // Load configurations and validate it
 try {
-    $dataJson = new JSONFile("data.json", "config");
-
-    $validation = new DataValidation($dataJson);
-    $validation->classValidation();
-    $validation->typeValidation();
-
-    $config = $dataJson->data;
+    $config = (new DataValidation(new JSONFile("data.json", "config")))
+        ->classValidation()
+        ->typeValidation()
+        ->returnData();
 } catch (Throwable $e) {
     $sh->error($e);
 }

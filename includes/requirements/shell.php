@@ -63,8 +63,8 @@ class Shell
             $messagePrefix = "$type: ";
 
         // Handling empty lines after and before
-        $linesAfter = $options["lines_after"] ?? 1;
-        $linesBefore = $options["lines_before"] ?? 0;
+        $linesAfter = $options["linesAfter"] ?? 1;
+        $linesBefore = $options["linesBefore"] ?? 0;
 
         $this->echo($messagePrefix . $output, $linesAfter, $linesBefore);
     }
@@ -76,7 +76,7 @@ class Shell
 
         // Bind values, if it was a ParamException
         if (!($error instanceof ParamException))
-            return "Unknown error.";
+            return "Unknown error." . $error;
         
         $messageIndex = $error->getMessage();
         if (!$this->messages->isSet($messageIndex) || $error->isInternal())

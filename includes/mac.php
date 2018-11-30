@@ -2,20 +2,15 @@
 
 class MAC
 {
-    private $usersData;
-
-    public function __construct(JSON $usersData)
+    public static function extractMacAsKeys(JSON $usersData): array
     {
-        $this->usersData = $usersData;
-    }
+        $usersData->to(JSON::ARRAY_DATA_TYPE);
 
-    public function get()
-    {
         $users = [];
-        foreach ($this->usersData->iterate() as $user)
+        foreach ($usersData->iterate() as $user)
             if ($user !== null)
-                foreach ((array)$user->mac as $mac)
-                    $users[$mac] = $user->name;    
+                foreach ((array)$user["mac"] as $mac)
+                    $users[$mac] = $user["name"];    
         
         return $users;
     }
