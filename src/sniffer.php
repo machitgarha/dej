@@ -73,7 +73,7 @@ while (true) {
         list($macAddresses, $packetSize) = get_info($packetData);
 
         // Skip if there aren't two MAC addresses
-        if (count((array)$macAddresses) !== 2 || $packetSize === 0) {
+        if (count((array)$macAddresses) < 2 || $packetSize === 0) {
             log_packets($logFile, (array)$macAddresses, (int)$packetSize,
                 $packetData);
             continue;
