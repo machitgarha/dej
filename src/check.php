@@ -18,7 +18,7 @@ $sh->echo("Loaded successfully.", 2);
 // Check for missing fields
 $sh->echo("Checking for missing important fields...");
 
-$foundMissingField = $validator->class_validation(true);
+$foundMissingField = $validator->classValidation(true);
 
 // Output missing fields, if exist
 if (!$foundMissingField)
@@ -28,7 +28,7 @@ $sh->echo();
 // Check for bad field values (e.g. bad MAC address for interface.mac)
 $sh->echo("Checking for invalid field values...");
 
-$foundInvalidFields = $validator->type_validation();
+$foundInvalidFields = $validator->typeValidation();
 
 // Output missing fields, if exist
 if (!$foundInvalidFields)

@@ -1,7 +1,7 @@
 <?php
 
 // Search for Dej screens and return their full session name
-function search_screens(): array {
+function searchScreens(): array {
     // Wipe all dead screens
     `screen -wipe`;
 

@@ -31,31 +31,31 @@ class Shell
             $output .= PHP_EOL;
 
         // Output with limited lines
-        echo $this->limit_lines($output, $this->lineLimit);
+        echo $this->limitLines($output, $this->lineLimit);
     }
 
     // Warn user about something
     public function warn($error = null, array $options = [])
     {
-        $this->prepare_output("Warning", $error, $options);
+        $this->prepareOutput("Warning", $error, $options);
     }
 
     // Outputs an error and exits the program
     public function error($error = null, array $options = [])
     {
-        $this->prepare_output("Error", $error, $options);
+        $this->prepareOutput("Error", $error, $options);
         exit();
     }
 
     public function exit(string $message = null, array $options = [])
     {
-        $this->prepare_output("exit", $message, $options);
+        $this->prepareOutput("exit", $message, $options);
         exit();
     }
 
-    private function prepare_output(string $type, $error, array $options)
+    private function prepareOutput(string $type, $error, array $options)
     {
-        $output = $this->bind_values($error);
+        $output = $this->bindValues($error);
 
         // To put the status in the beginning or not
         $messagePrefix = "";
@@ -69,7 +69,7 @@ class Shell
         $this->echo($messagePrefix . $output, $linesAfter, $linesBefore);
     }
 
-    private function bind_values($error): string
+    private function bindValues($error): string
     {
         if (is_string($error))
             return $error;
@@ -79,7 +79,7 @@ class Shell
             return "Unknown error.";
         
         $messageIndex = $error->getMessage();
-        if (!$this->messages->is_set($messageIndex) || $error->isInternal())
+        if (!$this->messages->isSet($messageIndex) || $error->isInternal())
             return "Unknown error.";
 
         // Preparing to bind values
@@ -92,7 +92,7 @@ class Shell
     }
 
     // Changing the format of the message not to be more than $lineSize
-    public function limit_lines(string $message, int $lineSize = 80): string
+    public function limitLines(string $message, int $lineSize = 80): string
     {
         if ($lineSize <= 0)
             return $message;

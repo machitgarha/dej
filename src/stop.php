@@ -6,11 +6,11 @@ require_once "./includes/autoload.php";
 $sh->echo("Stopping Dej...");
 
 // Stop if root permissions not granted
-if (!root_permissions())
+if (!rootPermissions())
     return;
 
 // Search for Dej screens
-$screenSessionPids = search_screens();
+$screenSessionPids = searchScreens();
 
 // Check if there are some screens to stop
 if (count($screenSessionPids) !== 0) {

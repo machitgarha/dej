@@ -6,11 +6,11 @@ require_once "./includes/autoload.php";
 $sh->echo("Starting Dej...");
 
 // Stop if root permissions not granted
-if (!root_permissions())
+if (!rootPermissions())
     return;
 
 // If there are some screens running, prompt user
-if (count(search_screens()) > 0) {
+if (count(searchScreens()) > 0) {
     // Prompt user to stop started screens or not
     echo "Already running. Stop? [Y(es)/n(o)/c(ancel)] ";
     $cliInput = fopen("php://stdin", "r");
@@ -32,8 +32,8 @@ try {
     $dataJson = new JSONFile("data.json", "config");
 
     $validation = new DataValidation($dataJson);
-    $validation->class_validation();
-    $validation->type_validation();
+    $validation->classValidation();
+    $validation->typeValidation();
 
     $config = $dataJson->data;
 } catch (Throwable $e) {
@@ -78,7 +78,7 @@ foreach ($filenames as $fname) {
 }
 
 `sleep 1`;
-$screenCount = count(search_screens());
+$screenCount = count(searchScreens());
 if ($screenCount === 2)
     $sh->echo("Done!");
 elseif ($screenCount < 2)

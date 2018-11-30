@@ -6,7 +6,7 @@ require_once "./includes/autoload.php";
 $sh->echo("Restarting Dej...");
 
 // Restart when permissions granted
-if (root_permissions()) {
+if (rootPermissions()) {
     ob_start();
     echo `./dej stop`;
     echo `./dej start`;

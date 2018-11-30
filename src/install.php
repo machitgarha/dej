@@ -5,7 +5,7 @@ require_once "./includes/autoload.php";
 
 try {
     // Force to grant root permissions
-    root_permissions();
+    rootPermissions();
 
     $sh->echo("Preparing...");
 
@@ -62,7 +62,7 @@ try {
     $dejTmpFile->fwrite($newFileContents);
 
     // The temporary file path to install
-    $dej = force_end_slash($installPath) . "dej";
+    $dej = forceEndSlash($installPath) . "dej";
     
     // Prevent from overwriting an older version
     $toInstall = !file_exists($dej) || $forceMode;

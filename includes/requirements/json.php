@@ -157,7 +157,7 @@ class JSON
     }
 
     // Check for a field's existance, and can be nested by dots
-    public function is_set(string $fieldName)
+    public function isSet(string $fieldName)
     {
         // Explode parts by dots
         $value = $this->field($fieldName, $this->to(self::OBJECT_DATA_TYPE));

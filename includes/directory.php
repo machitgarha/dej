@@ -17,7 +17,7 @@ function directory(string $dirName, int $chmod = 0777) {
 }
 
 // Force to a path to use or not to use a slash at the end of it
-function force_end_slash(string $path, bool $useSlash = true) : string {
+function forceEndSlash(string $path, bool $useSlash = true): string {
     // To compare
     $lastChar = substr($path, -1);
     $isLastCharSlash = $lastChar === "/" || $lastChar === "\\";

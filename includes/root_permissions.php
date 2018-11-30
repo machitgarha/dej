@@ -3,7 +3,7 @@
 $shell = new Shell();
 
 // Check for root permissions
-function root_permissions(bool $quiet = false) {
+function rootPermissions(bool $quiet = false) {
     global $shell;
     if (`which whoami` === null && !$quiet)
         $shell->warn("We cannot detect if root permissions granted or not. Please make sure you " .
@@ -18,20 +18,4 @@ function root_permissions(bool $quiet = false) {
 
     // Either root permissions granted or we cannot detect
     return true;
-}
-
-// You should not run this command as root, if running as root, warn user
-function should_not_be_root() {
-    global $shell;
-    if (root_permissions(true)) {
-        $shell->echo("You should not run as root. Continue? [Y(es)/n(o)] ", 0);
-        $cliInput = fopen("php://stdin", "r");
-
-        // Analyze user input
-        $response = strtolower(trim(fgetc($cliInput)));
-        fclose($cliInput);
-
-        if ($response === "n")
-            $shell->exit("Canceled!");
-    }
 }

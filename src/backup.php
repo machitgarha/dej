@@ -8,8 +8,8 @@ try {
     $dataJson = new JSONFile("data.json", "config");
 
     $validation = new DataValidation($dataJson);
-    $validation->class_validation();
-    $validation->type_validation();
+    $validation->classValidation();
+    $validation->typeValidation();
 
     $config = $dataJson->data;
 } catch (Throwable $e) {
@@ -27,7 +27,7 @@ $backupTimeout = $config->backup->timeout;
 
 // Create backup directory (if needed)
 directory($backupDirName);
-$backupDirName = force_end_slash($backupDirName);
+$backupDirName = forceEndSlash($backupDirName);
 
 while (true) {
     // Make a list of the whole files

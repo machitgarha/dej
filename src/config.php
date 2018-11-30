@@ -106,8 +106,8 @@ try {
     $dataJson = new JSONFile("data.json", "config");
 
     $validation = new DataValidation($dataJson);
-    $validation->class_validation(true);
-    $validation->type_validation();
+    $validation->classValidation(true);
+    $validation->typeValidation();
 } catch (Throwable $e) {
     $sh->warn($e);
 }

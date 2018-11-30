@@ -31,7 +31,7 @@ class DataValidation
     }
 
     // Handles validation based on field classes (e.g. required)
-    public function class_validation(bool $onlyWarn = false)
+    public function classValidation(bool $onlyWarn = false)
     {
         $foundWarning = false;
 
@@ -52,7 +52,7 @@ class DataValidation
                 $defaultValue = $field->default_value ?? null;
 
                 // If it wasn't set, perform fixings/warnings
-                if (!$json->is_set($fieldName)) {
+                if (!$json->isSet($fieldName)) {
                     // If field is not required, set the default value for it
                     if ($fieldClass !== "required")
                         $json->set($fieldName, $defaultValue);
@@ -102,7 +102,7 @@ class DataValidation
     }
 
     // Perform validation for types, and warn for mistypes
-    public function type_validation(bool $invalidInput = false)
+    public function typeValidation(bool $invalidInput = false)
     {
         $foundWarning = false;
 

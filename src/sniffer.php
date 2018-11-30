@@ -8,8 +8,8 @@ try {
     $dataJson = new JSONFile("data.json", "config");
 
     $validation = new DataValidation($dataJson);
-    $validation->class_validation();
-    $validation->type_validation();
+    $validation->classValidation();
+    $validation->typeValidation();
 
     $config = $dataJson->data;
 } catch (Throwable $e) {
@@ -21,8 +21,8 @@ try {
     $usersJson = new JSONFile("users.json", "config");
 
     $validation = new DataValidation($usersJson);
-    $validation->class_validation(true);
-    $validation->type_validation();
+    $validation->classValidation(true);
+    $validation->typeValidation();
 
     // Set users by {mac} => {name} pairs in array 
     $users = (new MAC($usersJson))->get();
@@ -35,7 +35,7 @@ $interfaceName = $config->interface->name;
 $interfaceMac = $config->interface->mac;
 
 // Files path and their formats for saving
-$path = force_end_slash($config->save_to->path);
+$path = forceEndSlash($config->save_to->path);
 $format = $config->save_to->format;
 
 // Count of packets to receive each step

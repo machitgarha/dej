@@ -5,7 +5,7 @@ require_once "./includes/autoload.php";
 
 try {
     // Force to grant root permissions
-    root_permissions();
+    rootPermissions();
 
     $sh->echo("Preparing to uninstall Dej...");
 
