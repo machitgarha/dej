@@ -3,7 +3,6 @@
 // Include all include files
 require_once "./includes/autoload.php";
 
-
 // Load configurations and validate it
 try {
     $dataJson = new JSONFile("data.json", "config");
@@ -26,10 +25,7 @@ try {
     $validation->type_validation();
 
     // Set users by {mac} => {name} pairs in array 
-    $users = [];
-    foreach ($usersJson->iterate() as $user)
-        if ($user !== null)
-            $users[$user->mac] = $user->name;
+    $users = (new MAC($usersJson))->get();
 } catch (Throwable $e) {
     $sh->warn($e);
 }

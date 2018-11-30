@@ -82,12 +82,16 @@ class DataValidation
                 break;
             
             case "users.json":
-                foreach ($json->iterate() as $key => $userData) {
-                    $userDataJson = new JSON($userData);
-                    $userDataJson->filePath = $json->filePath;
-                    if ($validate($userDataJson))
-                        $json->set($key, null);
-                }
+                foreach ($json->iterate() as $key => $userData)
+                    foreach ((array)$userData->mac as $userMac) {
+                        $userDataJson = new JSON([
+                            "name" => $userData->name,
+                            "mac" => $userMac
+                        ]);
+                        $userDataJson->filePath = $json->filePath;
+                        if ($validate($userDataJson))
+                            $json->set($key, null);
+                    }
                 break;
 
             default:
@@ -154,7 +158,7 @@ class DataValidation
                 if (!$validField) {
                     $foundWarning = true;
                     $sh->warn(new InvalidFieldValueException([
-                        "type" => self::$fullTypes[$fieldType],
+                        "type" => $this->fullTypes[$fieldType],
                         "value" => json_encode($fieldValue)
                     ]));
                 }
@@ -169,11 +173,14 @@ class DataValidation
                 break;
             
             case "users.json":
-                foreach ($json->iterate() as $userData) {
-                    $userDataJson = new JSON($userData);
-                    $userDataJson->filename = $json->filename;
-                    $validate($userDataJson);
-                }
+                foreach ($json->iterate() as $userData)
+                    foreach ((array) $userData->mac as $userMac) {
+                        $user = new JSON([
+                            "name" => $userData->name,
+                            "mac" => $userMac
+                        ]);
+                        $validate($user);
+                    }
                 break;
 
             default:
