@@ -5,15 +5,10 @@
 src="./"
 
 # Check if source directory exists
-symLink="sym"
-ln -s "$src" "$symLink"
-# If directory lost, alert user
-if [ ! -d "$symLink" ]; then
+if [ ! -d "$src" ]; then
     echo "Cannot find source directory. Try reinstalling Dej."
-    rm -r "$symLink"
     exit
 fi
-rm -r "$symLink"
 cd $src
 
 # Prints a message with a new line at end
