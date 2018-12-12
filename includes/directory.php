@@ -13,7 +13,7 @@ function directory(string $dirName, int $chmod = 0777) {
     if (@mkdir($dirName, $chmod, true))
         return true;
     
-    $sh->error("Cannot create $dirName directory.");
+    $shell->error("Cannot create $dirName directory.");
 }
 
 // Force to a path to use or not to use a slash at the end of it
