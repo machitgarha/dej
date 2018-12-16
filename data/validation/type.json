@@ -18,10 +18,6 @@
             "default_value": "tcpdump",
             "class": "warn"
         },
-        "packets_count": {
-            "default_value": 100,
-            "type": "int"
-        },
         "save_to.format": {
             "default_value": ".txt"
         },
@@ -40,6 +36,12 @@
         "logs.skipped_packets": {
             "default_value": false,
             "type": "bool"
+        },
+        "logs.path": {
+            "default_value": "logs"
+        },
+        "logs.tcpdump": {
+            "default_value": "tcpdump"
         }
     },
     "users.json": {

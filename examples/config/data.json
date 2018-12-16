@@ -3,7 +3,6 @@
         "name": "wlan0",
         "mac": "00:00:00:00:00:00"
     },
-    "packets_count": 100,
     "save_to": {
         "path": "/path/to/dir",
         "format": ".txt"
@@ -13,6 +12,8 @@
         "timeout": 20
     },
     "logs": {
+        "path": "logs",
+        "tcpdump": "tcpdump",
         "screen": false,
         "skipped_packets": false
     },

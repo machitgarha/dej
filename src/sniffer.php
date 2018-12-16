@@ -3,19 +3,14 @@
 // Include all include files
 require_once "./includes/autoload.php";
 
-// Load configurations and validate it
 try {
+    // Load configurations and validate it
     $config = (new DataValidation(new JSONFile("data.json", "config")))
         ->classValidation()
         ->typeValidation()
         ->returnData();
-} catch (Throwable $e) {
-    $sh->error($e);
-}
 
-// Load users config file and validate it
-try {
-    // Set users by {mac} => {name} pairs in array 
+    // Load users config file and validate it
     $users = MAC::extractMacAsKeys((new DataValidation(new JSONFile("users.json", "config")))
         ->classValidation()
         ->typeValidation()
@@ -25,43 +20,41 @@ try {
     $sh->error($e);
 }
 
+$toLogSkippedPackets = $config->logs->skipped_packets;
+
 // Interface info
-$interfaceName = $config->interface->name;
 $interfaceMac = $config->interface->mac;
 
 // Files path and their formats for saving
 $path = forceEndSlash($config->save_to->path);
 $format = $config->save_to->format;
 
-// Count of packets to receive each step
-$packetsCount = $config->packets_count;
-
-// Load executables
-$tcpdump = $config->executables->tcpdump;
-
 // Set logs configurations
-$logDir = "log";
-directory($logDir);
-$skippedPacketsFile = "$logDir/skipped_packets.log";
-$toLogSkippedPackets = $config->logs->skipped_packets;
+$logsPath = forceEndSlash($config->logs->path);
+$skippedPacketsFile = $logsPath . "skipped_packets.log";
+$tcpdumpLog = $logsPath . $config->logs->tcpdump;
 
+$i = 0;
 while (true) {
+    // Wait until TCPDump ends its work with the current file
+    $tcpdumpFile = $tcpdumpLog . ($i === 0 ?: $i);
+    $tcpdumpFileNext = $tcpdumpLog . ($i + 1);
+    if (!file_exists($tcpdumpFileNext)) {
+        sleep(1);
+        continue;
+    }
+
+    /*
+    * -e: To get MAC address and use them
+    * -t: Removing timestamp from the output
+    * -r: Read from the file
+    */
+    $output = `tcpdump -e -t -r $tcpdumpFile`;
+
     // Array to save size of transferred packets based on MAC addresses
     $devicesInfo = [];
 
-    /*
-     * Uses TCPDump to sniff network packets.
-     * Official TCPDump site: www.tcpdump.org
-     * -e: To get MAC address and use them
-     * -i: Sniffing this interface
-     * -t: Removing timestamp from the output
-     * -c: Count of packets getting in each step
-     */
-    $cmd = "$tcpdump -e -i $interfaceName "
-        . "-t -c $packetsCount --immediate-mode";
-    $output = `$cmd`;
-
-    // Splits each packet from the output
+    // Splits each packet from the temporary file
     $packetsData = explode(PHP_EOL, $output);
 
     // Open the log file
@@ -79,8 +72,7 @@ while (true) {
         }
 
         // Manipulate remote device's MAC address
-        $remoteMac = $macAddresses[$macAddresses[0] === $interfaceMac
-            ? 1 : 0];
+        $remoteMac = $macAddresses[$macAddresses[0] === $interfaceMac ? 1 : 0];
 
         // Update devices info array
         if (isset($devicesInfo[$remoteMac]))
@@ -96,11 +88,16 @@ while (true) {
     // Saves the sent/received packets to files
     foreach ($devicesInfo as $addr => $size)
         saveToFile($addr, $size);
+
+    // Remove the current file
+    unlink($tcpdumpFile);
+
+    // Go to the next file
+    $i++;
 }
 
 // Extracts useful info from a packet info
-function getPacketInfo(string $packetData)
-{
+function getPacketInfo(string $packetData) {
     // Prevents emptiness of packet info
     if (empty($packetData))
         return 0;
@@ -115,10 +112,14 @@ function getPacketInfo(string $packetData)
 
     // Find packet size
     preg_match($packetSizeRegex, $packetData, $packetSize);
+    if (empty($packetSize))
+        return 0;
     $packetSize = explode(" ", $packetSize[0])[1];
 
     // Find ethertype
     preg_match($ethertypeRegex, $packetData, $ethertype);
+    if (empty($ethertype))
+        return 0;
     $ethertype = explode(" ", $ethertype[0])[1];
 
     /*
@@ -135,15 +136,13 @@ function getPacketInfo(string $packetData)
 }
 
 // Saves extracted data into files, named by MAC addresses
-function saveToFile(string $macAddress, int $packetsTotalSize)
-{
+function saveToFile(string $macAddress, int $packetsTotalSize) {
     global $users, $path, $format;
 
     // Convert it to float, bytes and kilobytes are decimal
     $packetsTotalSize /= 10 ** 6;
 
     // Produces the filename
-    directory($path);
     $macFilePath = $path . $macAddress . $format;
     
     $filePath = $path . ($users[$macAddress] ?? $macAddress) . $format;
@@ -197,8 +196,7 @@ function format(string $num, bool $addColons = true) {
 }
 
 // Log skipped packets
-function logPackets($file, array $macAddresses, int $packetSize,
-    string $packetData) {
+function logPackets($file, array $macAddresses, int $packetSize, string $packetData) {
     global $toLogSkippedPackets;
     
     // Return if logging skipped packets is disabled or if the file is wrong
