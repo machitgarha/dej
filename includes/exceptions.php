@@ -5,18 +5,21 @@ class ParamException extends Exception
     private $params;
     private $isInternal;
 
-    public function __construct(array $params = [], bool $isInternal = false) {
+    public function __construct(array $params = [], bool $isInternal = false)
+    {
         $this->params = $params;
         $this->isInternal = $isInternal;
 
         parent::__construct(get_class($this));
     }
 
-    public function getParams() {
+    public function getParams()
+    {
         return $this->params;
     }
 
-    public function isInternal() {
+    public function isInternal()
+    {
         return $this->isInternal;
     }
 }

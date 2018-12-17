@@ -4,14 +4,22 @@ class Shell
 {
     private $messages;
     public $lineLimit;
+    public $showErrorMessage;
 
-    public function __construct(int $lineLimit = 80)
+    public function __construct(bool $showErrorMessage = false, int $lineLimit = 80)
     {
-        // Error messages to use
-        $this->messages = new JSONFile("errors.json", "data/output");
+        try {
+            // Error messages to use
+            $this->messages = new JSONFile("errors.json", "data/output");
+        } catch (Throwable $e) {
+            exit("Error: Unknown error." . PHP_EOL);
+        }
 
         // Determines whether to limit all output lines or not
         $this->lineLimit = $lineLimit;
+
+        // Determines whether to show the full output or not
+        $this->showErrorMessage = $showErrorMessage;
     }
 
     // Output a string with some lines before and after
@@ -74,13 +82,24 @@ class Shell
         if (is_string($error))
             return $error;
 
-        // Bind values, if it was a ParamException
+        // Return error message, based on showErrorMessage property
+        $showErrorMessage = $this->showErrorMessage;
+        $getErrorMessage = function (string $errorMessage = null) use ($showErrorMessage) {
+            $defaultErrorMsg = "Unknown error.";
+            return $showErrorMessage ? ($errorMessage ?? $defaultErrorMsg) : $defaultErrorMsg;
+        };
+
+        // If it wasn't an instance of ParamException
         if (!($error instanceof ParamException))
-            return "Unknown error." . $error;
-        
+            if ($error instanceof Throwable)
+                return $getErrorMessage($error->getMessage());
+            else
+                return $getErrorMessage();
+
+        // If the message index not exists or it is an internal error, don't bind values
         $messageIndex = $error->getMessage();
         if (!$this->messages->isSet($messageIndex) || $error->isInternal())
-            return "Unknown error.";
+            return $getErrorMessage($messageIndex);
 
         // Preparing to bind values
         $message = $this->messages->get($messageIndex);
