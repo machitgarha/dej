@@ -67,7 +67,7 @@ else
                     case $2 in
                         # List of available fields
                         list)
-                            php $helpHandler "config_list"
+                            php $helpHandler "config-list"
                             ;;
                         # Creating the configuration file or validating it
                         create|check)
