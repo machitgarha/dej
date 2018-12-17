@@ -42,6 +42,9 @@ $logsPath = forceEndSlash($config->logs->path);
 $skippedPacketsFile = $logsPath . "skipped_packets.log";
 $tcpdumpLog = $logsPath . $config->logs->tcpdump;
 
+// TCPDump executable file
+$tcpdump = $config->executables->tcpdump;
+
 $i = 0;
 while (true) {
     // Wait until TCPDump ends its work with the current file
@@ -57,7 +60,7 @@ while (true) {
     * -t: Removing timestamp from the output
     * -r: Read from the file
     */
-    $output = `tcpdump -e -t -r $tcpdumpFile`;
+    $output = `$tcpdump -e -t -r $tcpdumpFile`;
 
     // Array to save size of transferred packets based on MAC addresses
     $devicesInfo = [];
