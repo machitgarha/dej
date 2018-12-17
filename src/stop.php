@@ -14,18 +14,16 @@ $screenSessionPids = searchScreens();
 // Check if there are some screens to stop
 if (count($screenSessionPids) === 0)
     $sh->exit("Not running.");
-    
+
+$sh->echo("This could take a while.");
+
 // Stop TCPDump first
 `screen -X -S tcpdump.dej quit`;
 
-// Stop the sniffer, and let it do the last step
-try {
-    $shmStop = new SharedMemory(0x019, 1);
-    $shmStop->write(1);
-} catch (Throwable $e) {
-    $sh->error($e);
-}
-while ($shmStop->read() == 1)
+// Send signal to stop sniffer, and wait while for the process to end
+$stopFile = "config/stop"; 
+touch($stopFile);
+while (file_exists($stopFile))
     sleep(1);
 
 // Stop the backup process
