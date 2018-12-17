@@ -6,8 +6,7 @@ require_once "./includes/autoload.php";
 $sh->echo("Starting Dej...");
 
 // Stop if root permissions not granted
-if (!rootPermissions())
-    return;
+rootPermissions();
 
 // If there are some screens running, prompt user
 if (count(searchScreens()) > 0) {
@@ -46,7 +45,10 @@ compare_files($path, $backupDir);
 $php = $argv[1];
 $screen = $config->executables->screen;
 $tcpdump = $config->executables->tcpdump;
+
+// Logs directory, and create it if not found
 $logsDir = forceEndSlash($config->logs->path);
+directory($logsDir);
 
 // Check for installed commands
 $neededExecutables = [
@@ -54,7 +56,7 @@ $neededExecutables = [
     ["tcpdump", $tcpdump]
 ];
 foreach ($neededExecutables as $neededExecutable)
-    if (!`which {$neededExecutable[1]}`)
+    if (empty(`which {$neededExecutable[1]}`))
         $sh->error("You must have {$neededExecutable[0]} command installed, i.e., the specified" .
             "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
             "executables field in config/data.json.");
@@ -70,10 +72,9 @@ $filenames = [
 // Run each file with a logger
 foreach ($filenames as $filename) {
     // Check if logs were enabled for screen or not
-    directory($logsDir);
     $filePath = $logsDir . $filename;
-    $logPart = $config->logs->screen ? "-L -Logfile $filePath" : "";
-    `$screen -S dej -d -m $logPart $php -f $sourceDir/$fname.php`;
+    $logPart = $config->logs->screen ? "-L -Logfile $filePath.log" : "";
+    `$screen -S $filename.dej -d -m $logPart $php $sourceDir/$filename.php`;
 }
 
 sleep(1);

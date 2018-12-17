@@ -4,8 +4,7 @@
 require_once "./includes/autoload.php";
 
 // Stop if root permissions not granted
-if (!rootPermissions())
-    return;
+rootPermissions();
 
 // Search for Dej screens
 switch (count(searchScreens())) {

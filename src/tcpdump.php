@@ -18,7 +18,7 @@ $interfaceName = $config->interface->name;
 // File path to save
 $logsPath = forceEndSlash($config->logs->path);
 directory($logsPath);
-$tcpdumpLogFilePath = $logsPath . $config->logs->tcpdump;
+$tcpdumpLog = $logsPath . $config->logs->tcpdump;
 
 // TCPDump executable file
 $tcpdump = $config->executables->tcpdump;
@@ -28,4 +28,4 @@ $tcpdump = $config->executables->tcpdump;
 * -i: Sniffing the selected interface
 * -w: Write to the file
 */
-`$tcpdump -i $interfaceName -C 1 -w $tcpdumpLogFilePath`;
+`$tcpdump -i $interfaceName -C 1 -w $tcpdumpLog`;

@@ -16,6 +16,15 @@ try {
         ->typeValidation()
         ->return()
     );
+
+    /*
+     * Shared memory to end up with the last file.
+     * By running 'dej stop', first the TCPDump file will stop. Then, this file should be stopped,
+     * however, instead of killing the process, let it to do the last step with the last created
+     * TCPDump file.
+    */
+    $shmStop = new SharedMemory(0x019, 1);
+    $shmStop->write(0);
 } catch (Throwable $e) {
     $sh->error($e);
 }
@@ -37,9 +46,9 @@ $tcpdumpLog = $logsPath . $config->logs->tcpdump;
 $i = 0;
 while (true) {
     // Wait until TCPDump ends its work with the current file
-    $tcpdumpFile = $tcpdumpLog . ($i === 0 ?: $i);
+    $tcpdumpFile = $tcpdumpLog . ($i === 0 ? "" : $i);
     $tcpdumpFileNext = $tcpdumpLog . ($i + 1);
-    if (!file_exists($tcpdumpFileNext)) {
+    if ($shmStop->read() == 0 && !file_exists($tcpdumpFileNext)) {
         sleep(1);
         continue;
     }
@@ -91,6 +100,12 @@ while (true) {
 
     // Remove the current file
     unlink($tcpdumpFile);
+
+    // End the process
+    if ($shmStop->read() == 1) {
+        $shmStop->write(0);
+        exit;
+    }
 
     // Go to the next file
     $i++;
