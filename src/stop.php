@@ -15,7 +15,7 @@ $screenSessionPids = searchScreens();
 if (count($screenSessionPids) === 0)
     $sh->exit("Not running.");
 
-$sh->echo("This could take a while.");
+$sh->echo("This may take a while.");
 
 // Stop TCPDump first
 `screen -X -S tcpdump.dej quit`;
