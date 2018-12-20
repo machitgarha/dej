@@ -40,7 +40,7 @@ $format = $config->save_to->format;
 // Set logs configurations
 $logsPath = forceEndSlash($config->logs->path);
 $skippedPacketsFile = $logsPath . "skipped_packets.log";
-$tcpdumpLog = $logsPath . $config->logs->tcpdump;
+$tcpdumpLog = forceEndSlash($logsPath . $config->logs->tcpdump) . "tcpdump";
 
 // TCPDump executable file
 $tcpdump = $config->executables->tcpdump;
