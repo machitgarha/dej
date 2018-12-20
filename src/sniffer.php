@@ -47,10 +47,20 @@ $tcpdump = $config->executables->tcpdump;
 
 $i = 0;
 while (true) {
-    // Wait until TCPDump ends its work with the current file
     $tcpdumpFile = $tcpdumpLog . ($i === 0 ? "" : $i);
     $tcpdumpFileNext = $tcpdumpLog . ($i + 1);
-    if (!file_exists($stopFile) && !file_exists($tcpdumpFileNext)) {
+
+    // Check if 'dej stop' request was sent
+    $isStopSignalSent = file_exists($stopFile);
+    /*
+     * Check if the next (TCPDump log) file exists and make sure that processing current file
+     * finished or not. Checking the file size of the next file is to make sure that the current
+     * file released and it's ready to be sniffed.
+     */
+    $processingCurrentFile = !(file_exists($tcpdumpFileNext) && filesize($tcpdumpFileNext) > 50000);
+
+    // Should we start sniffing the current file?
+    if (!$isStopSignalSent && $processingCurrentFile) {
         sleep(1);
         continue;
     }
