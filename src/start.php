@@ -62,12 +62,12 @@ foreach ($neededExecutables as $neededExecutable)
             "executables field in config/data.json.");
 
 // Remove the TCPDump log files to prevent conflicts
-$tcpdumpLog = $logsPath . $config->logs->tcpdump;
+$tcpdumpLog = $logsDir . $config->logs->tcpdump;
 directory($tcpdumpLog);
 $tcpdumpLogs = new DirectoryIterator($tcpdumpLog);
 foreach ($tcpdumpLogs as $file)
     if ($file->isFile())
-        unlink($file);
+        unlink($file->getPathname());
 
 // Names of directories and files
 $sourceDir = "src";
