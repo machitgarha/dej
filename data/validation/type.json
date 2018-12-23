@@ -39,9 +39,6 @@
         },
         "logs.path": {
             "default_value": "logs"
-        },
-        "logs.tcpdump": {
-            "default_value": "tcpdump"
         }
     },
     "users.json": {
