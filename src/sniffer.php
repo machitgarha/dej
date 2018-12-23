@@ -52,15 +52,23 @@ while (true) {
 
     // Check if 'dej stop' request was sent
     $isStopSignalSent = file_exists($stopFile);
-    /*
-     * Check if the next (TCPDump log) file exists and make sure that processing current file
-     * finished or not. Checking the file size of the next file is to make sure that the current
-     * file released and it's ready to be sniffed.
-     */
-    $processingCurrentFile = !(file_exists($tcpdumpFileNext) && filesize($tcpdumpFileNext) > 50000);
+    
+    // Check for the next file to be exist
+    $nextFileExists = file_exists($tcpdumpFileNext);
 
-    // Should we start sniffing the current file?
-    if (!$isStopSignalSent && $processingCurrentFile) {
+    // Check the next file's size
+    $isNextFileBig = $nextFileExists ? (filesize($tcpdumpFileNext) > 50000) : false;
+
+    // Clear file cache to prevent from an endless loop in an $i value
+    clearstatcache();
+
+    /*
+     * In two conditions, the packets are ready to be sniffed:
+     * If the stop signal (i.e. 'dej stop') was sent, or
+     * If the next TCPDump log file exists and is big enough to make us sure that processing the
+     * current file has been done.
+     */
+    if (!($isStopSignalSent || ($nextFileExists && $isNextFileBig))) {
         sleep(1);
         continue;
     }
