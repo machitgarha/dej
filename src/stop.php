@@ -17,14 +17,15 @@ if (count($screenSessionPids) === 0)
 
 $sh->echo("This may take a while.");
 
-// Stop TCPDump first
+// Stop TCPDump and the reader instances
 `screen -X -S tcpdump.dej quit`;
+`screen -X -S reader.dej quit`;
 
-// Send signal to stop sniffer, and wait while for the process to end
+// Send signal to stop sniffer, and wait for the process to end
 $stopFile = "config/stop"; 
 touch($stopFile);
 while (file_exists($stopFile))
-    sleep(1);
+    usleep(200 * 1000);
 
 // Stop the backup process
 `screen -X -S backup.dej quit`;

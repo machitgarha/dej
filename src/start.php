@@ -61,7 +61,7 @@ foreach ($neededExecutables as $neededExecutable)
             "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
             "executables field in config/data.json.");
 
-// Remove the TCPDump log files to prevent conflicts
+// Remove previous TCPDump log files to prevent conflicts
 $tcpdumpLog = $logsDir . $config->logs->tcpdump;
 directory($tcpdumpLog);
 $tcpdumpLogs = new DirectoryIterator($tcpdumpLog);
@@ -73,6 +73,7 @@ foreach ($tcpdumpLogs as $file)
 $sourceDir = "src";
 $filenames = [
     "tcpdump",
+    "reader",
     "sniffer",
     "backup"
 ];

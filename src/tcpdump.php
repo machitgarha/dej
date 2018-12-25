@@ -18,7 +18,6 @@ $interfaceName = $config->interface->name;
 // File path to save
 $logsPath = forceEndSlash($config->logs->path);
 directory($logsPath);
-$tcpdumpLog = $logsPath . $config->logs->tcpdump;
 
 // TCPDump executable file
 $tcpdump = $config->executables->tcpdump;
@@ -30,4 +29,4 @@ $tcpdump = $config->executables->tcpdump;
 * Use the loop for when the device is not set up
 */
 while (true)
-    `$tcpdump -i $interfaceName -C 1 -w $tcpdumpLog/tcpdump`;
+    `$tcpdump -i $interfaceName -C 1 -w ${logsPath}tcpdump/tcpdump`;
