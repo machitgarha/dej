@@ -21,22 +21,15 @@ $tcpdump = $config->executables->tcpdump;
 
 $i = 0;
 while (true) {
+    // Read raw packets if the current file is done, otherwise, wait for it
+    list($processingCurrentFile, $resetIndex) = checkNextFile($i);
+
+    // Set up files
     $tcpdumpFile = "tcpdump" . ($i === 0 ? "" : $i);
-    $tcpdumpFileNext = "tcpdump" . ($i + 1);
     $packetsFile = "packets" . $i;
     $packetsDoneFile = "packets-done" . $i;
-    
-    // Check for the next file to be exist
-    $nextFileExists = file_exists($tcpdumpFileNext);
 
-    // Check the next file's size
-    $isNextFileBig = $nextFileExists ? (filesize($tcpdumpFileNext) > 50000) : false;
-
-    // Clear file cache to prevent from an endless loop in an $i value
-    clearstatcache();
-
-    // Read raw packets if the current file is done, otherwise, wait for it
-    if (!($nextFileExists && $isNextFileBig)) {
+    if (!$processingCurrentFile) {
         sleep(1);
         continue;
     }
@@ -57,9 +50,47 @@ while (true) {
     // Run commands in the background
     `($readerCmd) > /dev/null 2>/dev/null &`; 
 
-    // Sleep to prevent from so much concurrent processes 
+    // Sleep to prevent from so many concurrent processes 
     usleep(500 * 1000);
 
     // Go to the next file
     $i++;
+
+    // Reset index is for when TCPDump process has been restarted
+    if ($resetIndex)
+        $i = 0;
+}
+
+// Checks whether working with current file is done or not
+function checkNextFile(int &$index): array {
+    // Set up files
+    $tcpdumpFile = "tcpdump" . ($index === 0 ? "" : $index);
+    $tcpdumpFileNext = "tcpdump" . ($index + 1);
+
+    // Clear cached data about file information
+    clearstatcache();
+
+    // Check for the next file to be exist
+    $nextFileExists = file_exists($tcpdumpFileNext);
+    /*
+     * Check if TCPDump process has been restarted or not. For example, if the interface goes down,
+     * a new TCPDump process will be invoked.
+     */
+    if (!$nextFileExists && $tcpdumpFile !== "tcpdump" && file_exists("tcpdump")
+        && !file_exists("packets0")) {
+        $tcpdumpFileNext = "tcpdump";
+        $nextFileExists = true;
+    }
+    // Check the next file's size
+    $isNextFileBig = $nextFileExists ? (filesize($tcpdumpFileNext) > 50000) : false;
+
+    // If TCPDump restarted, reset the index
+    $resetIndex = false;
+    if ($tcpdumpFileNext === "tcpdump" && $isNextFileBig)
+        $resetIndex = true;
+
+    return [
+        $isNextFileBig, // Processing the current file?
+        $resetIndex
+     ];
 }

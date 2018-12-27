@@ -62,7 +62,7 @@ foreach ($neededExecutables as $neededExecutable)
             "executables field in config/data.json.");
 
 // Remove previous TCPDump log files to prevent conflicts
-$tcpdumpLog = $logsDir . $config->logs->tcpdump;
+$tcpdumpLog = $logsDir . "tcpdump";
 directory($tcpdumpLog);
 $tcpdumpLogs = new DirectoryIterator($tcpdumpLog);
 foreach ($tcpdumpLogs as $file)
@@ -72,9 +72,9 @@ foreach ($tcpdumpLogs as $file)
 // Names of directories and files
 $sourceDir = "src";
 $filenames = [
+    "sniffer",
     "tcpdump",
     "reader",
-    "sniffer",
     "backup"
 ];
 
@@ -88,9 +88,9 @@ foreach ($filenames as $filename) {
 
 sleep(1);
 $screenCount = count(searchScreens());
-if ($screenCount === 3)
+if ($screenCount === 4)
     $sh->echo("Done!");
-elseif ($screenCount < 3)
+elseif ($screenCount < 4)
     $sh->error("Something went wrong. Try again!");
 else
     $sh->warn("Too much instances are running.");

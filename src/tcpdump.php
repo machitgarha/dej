@@ -29,4 +29,4 @@ $tcpdump = $config->executables->tcpdump;
 * Use the loop for when the device is not set up
 */
 while (true)
-    `$tcpdump -i $interfaceName -C 1 -w ${logsPath}tcpdump/tcpdump`;
+    echo `$tcpdump -i $interfaceName -C 1 -w ${logsPath}tcpdump/tcpdump`;

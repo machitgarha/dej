@@ -13,10 +13,11 @@ switch (count(searchScreens())) {
 
     case 1:
     case 2:
+    case 3:
         $sh->warn("Partially running.");
         break;
     
-    case 3:
+    case 4:
         $sh->exit("Running!");
 
     default:
