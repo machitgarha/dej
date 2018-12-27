@@ -11,19 +11,14 @@ rootPermissions();
 // If there are some screens running, prompt user
 if (count(searchScreens()) > 0) {
     // Prompt user to stop started screens or not
-    echo "Already running. Stop? [Y(es)/n(o)/c(ancel)] ";
+    echo "Already running. Restart? [N(o)/y(es)] ";
     $cliInput = fopen("php://stdin", "r");
     // Analyze user input
     $response = strtolower(trim(fgetc($cliInput)));
     fclose($cliInput);
 
-    // If user wants to cancel, cancel!
-    if ($response === "c")
-        $sh->exit("Canceled!");
-
-    // Check if user wanted to stop or not, if yes, continue
-    if ($response !== "n")
-        $sh->echo(`php -f src/stop.php` . "Starting Dej...");
+    // Do what user wants
+    $sh->exit($response === "y" ? trim(`php src/restart.php`) : "Aborted.");
 }
 
 try {
