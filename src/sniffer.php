@@ -39,52 +39,48 @@ $format = $config->save_to->format;
 
 // Set logs configurations
 $logsPath = forceEndSlash($config->logs->path);
+$tcpdumpLogsPath = $logsPath . "tcpdump/";
 $skippedPacketsFile = $logsPath . "skipped_packets.log";
-$tcpdumpLog = forceEndSlash($logsPath . $config->logs->tcpdump) . "tcpdump";
 
 // TCPDump executable file
 $tcpdump = $config->executables->tcpdump;
 
-$i = 0;
 while (true) {
-    $tcpdumpFile = $tcpdumpLog . ($i === 0 ? "" : $i);
-    $tcpdumpFileNext = $tcpdumpLog . ($i + 1);
+    // Search for all done packet files
+    $donePacketsFiles = glob($tcpdumpLogsPath . "packets-done*");
 
-    // Check if 'dej stop' request was sent
-    $isStopSignalSent = file_exists($stopFile);
-    
-    // Check for the next file to be exist
-    $nextFileExists = file_exists($tcpdumpFileNext);
+    // Find the first ready packets file to be sniffed
+    if (count($donePacketsFiles) > 0) {
+        preg_match("#\d+$#i", $donePacketsFiles[0], $sniffIndexResult);
+        $sniffIndex = $sniffIndexResult[0];
+    } else
+        $sniffIndex = null;
 
-    // Check the next file's size
-    $isNextFileBig = $nextFileExists ? (filesize($tcpdumpFileNext) > 50000) : false;
+    // Stop the process if 'dej stop' request was sent
+    if (file_exists($stopFile)) {
+        unlink($stopFile);
+        break;
+    }        
 
-    // Clear file cache to prevent from an endless loop in an $i value
-    clearstatcache();
-
-    /*
-     * In two conditions, the packets are ready to be sniffed:
-     * If the stop signal (i.e. 'dej stop') was sent, or
-     * If the next TCPDump log file exists and is big enough to make us sure that processing the
-     * current file has been done.
-     */
-    if (!($isStopSignalSent || ($nextFileExists && $isNextFileBig))) {
+    // Wait until reading raw packets
+    if ($sniffIndex === null) {
         sleep(1);
         continue;
     }
 
-    /*
-    * -e: To get MAC address and use them
-    * -t: Removing timestamp from the output
-    * -r: Read from the file
-    */
-    $output = `$tcpdump -e -t -r $tcpdumpFile`;
+    // Set up files
+    $i = (int)$sniffIndex;
+    // Files to remove
+    $tcpdumpFile = $tcpdumpLogsPath . "tcpdump" . ($i === 0 ? "" : $i);
+    $packetsDoneFile = $tcpdumpLogsPath . "packets-done" . $i;
+    // Packets file to sniff
+    $packetsFile = $tcpdumpLogsPath . "packets" . $i;
 
     // Array to save size of transferred packets based on MAC addresses
     $devicesInfo = [];
 
     // Splits each packet from the temporary file
-    $packetsData = explode(PHP_EOL, $output);
+    $packetsData = explode(PHP_EOL, file_get_contents($packetsFile));
 
     // Open the log file
     $logFile = $toLogSkippedPackets ? fopen($skippedPacketsFile, "a") : false;
@@ -118,17 +114,10 @@ while (true) {
     foreach ($devicesInfo as $addr => $size)
         saveToFile($addr, $size);
 
-    // Remove the current file
+    // Remove files
     unlink($tcpdumpFile);
-
-    // End the process
-    if (file_exists($stopFile)) {
-        unlink($stopFile);
-        exit;
-    }
-
-    // Go to the next file
-    $i++;
+    unlink($packetsFile);
+    unlink($packetsDoneFile);
 }
 
 // Extracts useful info from a packet info

@@ -11,19 +11,14 @@ rootPermissions();
 // If there are some screens running, prompt user
 if (count(searchScreens()) > 0) {
     // Prompt user to stop started screens or not
-    echo "Already running. Stop? [Y(es)/n(o)/c(ancel)] ";
+    echo "Already running. Restart? [N(o)/y(es)] ";
     $cliInput = fopen("php://stdin", "r");
     // Analyze user input
     $response = strtolower(trim(fgetc($cliInput)));
     fclose($cliInput);
 
-    // If user wants to cancel, cancel!
-    if ($response === "c")
-        $sh->exit("Canceled!");
-
-    // Check if user wanted to stop or not, if yes, continue
-    if ($response !== "n")
-        $sh->echo(`php -f src/stop.php` . "Starting Dej...");
+    // Do what user wants
+    $sh->exit($response === "y" ? trim(`php src/restart.php`) : "Aborted.");
 }
 
 try {
@@ -61,8 +56,8 @@ foreach ($neededExecutables as $neededExecutable)
             "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
             "executables field in config/data.json.");
 
-// Remove the TCPDump log files to prevent conflicts
-$tcpdumpLog = $logsDir . $config->logs->tcpdump;
+// Remove previous TCPDump log files to prevent conflicts
+$tcpdumpLog = $logsDir . "tcpdump";
 directory($tcpdumpLog);
 $tcpdumpLogs = new DirectoryIterator($tcpdumpLog);
 foreach ($tcpdumpLogs as $file)
@@ -72,8 +67,9 @@ foreach ($tcpdumpLogs as $file)
 // Names of directories and files
 $sourceDir = "src";
 $filenames = [
-    "tcpdump",
     "sniffer",
+    "tcpdump",
+    "reader",
     "backup"
 ];
 
@@ -87,9 +83,9 @@ foreach ($filenames as $filename) {
 
 sleep(1);
 $screenCount = count(searchScreens());
-if ($screenCount === 3)
+if ($screenCount === 4)
     $sh->echo("Done!");
-elseif ($screenCount < 3)
+elseif ($screenCount < 4)
     $sh->error("Something went wrong. Try again!");
 else
     $sh->warn("Too much instances are running.");

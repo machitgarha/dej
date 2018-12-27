@@ -13,7 +13,6 @@
     },
     "logs": {
         "path": "logs",
-        "tcpdump": "tcpdump",
         "screen": false,
         "skipped_packets": false
     },
