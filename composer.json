@@ -1,0 +1,24 @@
+{
+    "name": "dej/dej",
+    "description": "A CLI tool to sniff packets transmitting over an interface",
+    "authors": [
+        {
+            "name": "Mohammad Amin Chitgarha",
+            "email": "machitgarha@outlook.com",
+            "role": "Creator"
+        }
+    ],
+    "license": "MIT",
+    "readme": "README.md",
+    "type": "application",
+    "require": {
+        "symfony/console": "^4.2",
+        "machitgarha/json": "^0.3.1",
+        "machitgarha/json-file": "^0.2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dej\\": "src"
+        }
+    }
+}
