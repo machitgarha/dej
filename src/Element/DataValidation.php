@@ -1,5 +1,7 @@
 <?php
 
+namespace Dej\Element;
+
 class DataValidation
 {
     private $json;
