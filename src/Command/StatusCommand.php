@@ -7,11 +7,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends RootCommand
 {
-    private const SCREEN_NUMBER = 4;
-    public const STATUS_STOPPED = 0;
-    public const STATUS_RUNNING = 1;
-    public const STATUS_PARTIAL = 2;
-    public const STATUS_OVERFLOW = 3;
+    const SCREEN_NUMBER = 4;
+    const STATUS_STOPPED = 0;
+    const STATUS_RUNNING = 1;
+    const STATUS_PARTIAL = 2;
+    const STATUS_OVERFLOW = 3;
 
     protected function configure()
     {
@@ -61,7 +61,7 @@ class StatusCommand extends RootCommand
 
     public static function getStatus()
     {
-        $screensCount = $this->getRunningScreensCount();
+        $screensCount = self::getRunningScreensCount();
 
         if ($screensCount === 0)
             return self::STATUS_STOPPED;
