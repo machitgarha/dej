@@ -11,6 +11,7 @@ class StatusCommand extends RootCommand
     public const STATUS_STOPPED = 0;
     public const STATUS_RUNNING = 1;
     public const STATUS_PARTIAL = 2;
+    public const STATUS_OVERFLOW = 3;
 
     protected function configure()
     {
@@ -20,16 +21,26 @@ class StatusCommand extends RootCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Search for Dej screens
-        $screensCount = $this->getRunningScreensCount();
-        if ($screensCount === 0)
-            $this->sh->exit("Not running.");
-        if ($screensCount > 0 && $screensCount < self::SCREEN_NUMBER)
-            $this->sh->warn("Partially running.");
-        if ($screensCount === self::SCREEN_NUMBER)            
-            $this->sh->exit("Running!");
+        switch (self::getStatus()) {
+            case self::STATUS_STOPPED:
+                $this->sh->exit("Not running.");
+                break;
+            
+            case self::STATUS_PARTIAL:
+                $this->sh->warn("Partially running.");
+                break;
+            
+            case self::STATUS_RUNNING:
+                $this->sh->exit("Running!");
+                break;
+
+            default:
+                $this->sh->warn("Too many running instances");
+                break;
+        }           
     }
 
-    public static function getRunningScreens(): array
+    protected static function getRunningScreens(): array
     {
         // Wipes all dead screens
         `screen -wipe`;
@@ -48,8 +59,20 @@ class StatusCommand extends RootCommand
         return count(self::getRunningScreens());
     }
 
-    public static function isRunning(): bool
+    public static function getStatus()
     {
-        return self::getRunningScreensCount() === self::SCREEN_NUMBER;
+        $screensCount = $this->getRunningScreensCount();
+
+        if ($screensCount === 0)
+            return self::STATUS_STOPPED;
+
+        if ($screensCount > 0 && $screensCount < self::SCREEN_NUMBER)
+            return self::STATUS_PARTIAL;
+
+        if ($screensCount === self::SCREEN_NUMBER)          
+            return self::STATUS_RUNNING;
+
+        if ($screensCount > self::SCREEN_NUMBER)
+            return self::STATUS_OVERFLOW;
     }
 }
