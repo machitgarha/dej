@@ -14,7 +14,9 @@
     "require": {
         "symfony/console": "^4.2",
         "machitgarha/json": "^0.3.1",
-        "machitgarha/json-file": "^0.2.0"
+        "machitgarha/json-file": "^0.2.0",
+        "webmozart/path-util": "^2.3",
+        "machitgarha/pusheh": "^0.2.0"
     },
     "autoload": {
         "psr-4": {
