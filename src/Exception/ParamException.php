@@ -1,6 +1,8 @@
 <?php
 
-class ParamException extends Exception
+namespace Dej\Exception;
+
+class ParamException extends \Exception
 {
     private $params;
     private $isInternal;
