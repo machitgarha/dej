@@ -4,7 +4,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Command\Command;
 
-abstract class RootCommand extends BasicCommand
+abstract class RootCommand extends BaseCommand
 {
     public function __construct(string $name = null)
     {

@@ -5,7 +5,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Command\Command;
 use Dej\Element\Shell;
 
-abstract class BasicCommand extends Command
+abstract class BaseCommand extends Command
 {
     public function __construct(string $name = null)
     {
