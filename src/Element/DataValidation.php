@@ -2,15 +2,21 @@
 
 namespace Dej\Element;
 
+use MAChitgarha\Component\JSONFile;
+use Webmozart\PathUtil\Path;
+use MAChitgarha\Component\JSON;
+use Dej\Exception\ParamException;
+
 class DataValidation
 {
+    /** @var JSONFile */
     private $json;
 
     private $warnings = [];
     private $errors = [];
 
     // Holding directory and names of validation files
-    private $validationDir = "./data/validation/";
+    private $validationDir = __DIR__ . "/../../data/validation/";
     private $validationData;
 
     // Better output for types
@@ -22,15 +28,16 @@ class DataValidation
     ];
 
     // Prepare things
-    public function __construct(JSON $json)
+    public function __construct(JSONFile $json)
     {
         $this->json = $json;
 
         // Open validation file
-        $validationJson = new JSONFile("type.json", $this->validationDir);
+        $validationJson = new JSONFile(Path::join($this->validationDir, "type.json"));
 
         // Save validation data
-        $this->validationData = $validationJson->data->{$this->json->filename};
+        $escapedFilename = str_replace(".", "\.", $json->getFilename());
+        $this->validationData = $validationJson->get($escapedFilename);
     }
 
     // Handles validation based on field classes (e.g. required)
@@ -38,11 +45,10 @@ class DataValidation
     {
         // Initialize variables
         $validationData = $this->validationData;
-        $json = $this->json;
-        $json->to(JSON::OBJECT_DATA_TYPE);
+        $json = $this->json->getDataAsObject();
 
         // Iteration over all fields
-        $validate = function (JSON $json) use ($validationData) {
+        $validate = function (JSONFile $json) use ($validationData) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -59,23 +65,23 @@ class DataValidation
 
                     $data = [
                         "field_name" => $fieldName,
-                        "file_path" => $json->filePath
+                        "file_path" => $json->getFilename()
                     ];
                     if ($fieldClass === "required")
                         $data["?type"] = "required";
                     if ($fieldClass !== "optional")
-                        $this->pushError(new MissingFieldException($data));
+                        $this->pushError(new ParamException($data));
                 }
             }
         };
 
-        switch ($json->filename) {
+        switch ($this->json->getFilename()) {
             case "data.json":
-                $validate($json);
+                $validate($this->json);
                 break;
             
             case "users.json":
-                foreach ($json->iterate() as $key => $userData)
+                foreach ($this->json->iterate() as $key => $userData)
                     foreach ((array)$userData->mac as $userMac) {
                         $userDataJson = new JSON([
                             "name" => $userData->name,
@@ -88,7 +94,7 @@ class DataValidation
                 break;
 
             default:
-                throw new FileNameInvalidException([], true);
+                throw new ParamException([], true);
         }
 
         return $this;
@@ -99,8 +105,7 @@ class DataValidation
     {
         // Initialize variables
         $validationData = $this->validationData;
-        $json = $this->json;
-        $json->to(JSON::OBJECT_DATA_TYPE);
+        $json = $this->json->getDataAsObject();
 
         $validate = function (JSON &$json) use ($validationData)
         {
@@ -146,20 +151,20 @@ class DataValidation
 
                 // Warn user, there is mistyped field!
                 if (!$validField)
-                    $this->pushWarning(new InvalidFieldValueException([
+                    $this->pushWarning(new ParamException([
                         "type" => $this->fullTypes[$fieldType],
                         "value" => json_encode($fieldValue)
                     ]));
             }
         };
 
-        switch ($json->filename) {
+        switch ($this->json->getFilename()) {
             case "data.json":
-                $validate($json);
+                $validate($this->json);
                 break;
             
             case "users.json":
-                foreach ($json->iterate() as $userData)
+                foreach ($this->json->iterate() as $userData)
                     foreach ((array) $userData->mac as $userMac) {
                         $user = new JSON([
                             "name" => $userData->name,
@@ -179,13 +184,7 @@ class DataValidation
     public function return(bool $onlyWarnings = false): JSON
     {
         $this->output($onlyWarnings);
-        $this->json->to();
         return $this->json;
-    }
-
-    public function returnData(bool $onlyWarnings = false)
-    {
-        return $this->return($onlyWarnings)->data;        
     }
 
     private function pushWarning($warning)
@@ -217,5 +216,10 @@ class DataValidation
 
         foreach ($this->warnings as $warning)
             $sh->warn($warning);
-    } 
+    }
+
+    public static function new(JSONFile $json): self
+    {
+        return new self($json);
+    }
 }
