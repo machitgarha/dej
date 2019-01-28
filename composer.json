@@ -16,7 +16,8 @@
         "machitgarha/json": "^0.3.2",
         "machitgarha/json-file": "^0.2.0",
         "webmozart/path-util": "^2.3",
-        "machitgarha/pusheh": "^0.2.0"
+        "machitgarha/pusheh": "^0.2.0",
+        "symfony/process": "^4.2"
     },
     "autoload": {
         "psr-4": {
