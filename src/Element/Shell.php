@@ -2,6 +2,9 @@
 
 namespace Dej\Element;
 
+use MAChitgarha\Component\JSONFile;
+use Webmozart\PathUtil\Path;
+
 class Shell
 {
     private $messages;
@@ -12,7 +15,7 @@ class Shell
     {
         try {
             // Error messages to use
-            $this->messages = new JSONFile("errors.json", "data/output");
+            $this->messages = new JSONFile(Path::join(__DIR__, "/../../data/output/errors.json"));
         } catch (Throwable $e) {
             exit("Error: Unknown error." . PHP_EOL);
         }
@@ -145,7 +148,7 @@ class Shell
                     $lastSpacePos >= strlen($indent))
                         $cutIndex = $lastSpacePos;
                 
-                // No whitespaces? We must cut the string
+                // No white-spaces? We must cut the string
                 else
                     $cutIndex = $lineSize;
 
@@ -155,7 +158,7 @@ class Shell
                 // Add the line
                 $messageLines[] = $line;
 
-                // Remove current string from the messag, and if there is a new line, remove it too
+                // Remove current string from the message, and if there is a new line, remove it too
                 $message = substr($message, strlen($line));
             }
         };
