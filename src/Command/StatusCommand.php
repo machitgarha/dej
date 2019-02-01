@@ -49,7 +49,11 @@ class StatusCommand extends RootCommand
         $screens = `screen -ls`;
 
         // Search for Dej screens
-        preg_match_all("/[0-9]*\.dej/", $screens, $matches, PREG_PATTERN_ORDER);
+        preg_match_all("/[0-9a-z]*\.dej/i", $screens, $matches, PREG_PATTERN_ORDER);
+
+        array_walk($matches[0], function (&$val) {
+            $val = strtolower(str_replace(".dej", "", $val));
+        });
 
         return $matches[0];
     }
@@ -74,5 +78,10 @@ class StatusCommand extends RootCommand
 
         if ($screensCount > self::SCREEN_NUMBER)
             return self::STATUS_OVERFLOW;
+    }
+
+    public static function isRunning(string $process)
+    {
+        return in_array(strtolower($process), self::getRunningScreens());
     }
 }
