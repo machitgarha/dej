@@ -51,7 +51,7 @@ class StartCommand extends RootCommand
         // Perform comparison between files and backup files
         $path = $config->get("save_to.path");
         $backupDir = $config->get("backup.dir");
-        compare_files($path, $backupDir);
+        $this->compareFiles($path, $backupDir);
 
         // Load executables
         $php = $this->phpExecutable;
@@ -113,7 +113,7 @@ class StartCommand extends RootCommand
 
         // Get files info
         Pusheh::createDirRecursive($path);
-        $files = new DirectoryIterator($path);
+        $files = new \DirectoryIterator($path);
 
         // Add path to backup directory
         $backupDir = "$path/$backupDir";
@@ -127,7 +127,7 @@ class StartCommand extends RootCommand
 
             // Check for a broken file, and replace it, if needed
             if (is_dir($backupDir) && file_exists($backupFilePath) &&
-            get_num($backupFilePath) > get_num($filePath)) {
+            $getNum($backupFilePath) > $getNum($filePath)) {
                 // Remove the broken file
                 unlink($filePath);
 

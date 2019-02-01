@@ -25,7 +25,7 @@ $interfaceName = $config->get("interface.name");
 
 // File path to save
 $logsPath = $config->get("logs.path");
-Pusheh::createDirRecursive($logsPath);
+Pusheh::createDirRecursive(Path::join($logsPath, "tcpdump"));
 
 // TCPDump executable file
 $tcpdump = $config->get("executables.tcpdump");
@@ -38,7 +38,7 @@ $tcpdump = $config->get("executables.tcpdump");
 * Use the loop for when the device is not set up
 */
 while (true) {
-    $tcpdumpLogsPath = Path::join($logsPath, "tcpdump/tcpdump");
+    $tcpdumpLogsPath = Path::join($logsPath, "tcpdump", "tcpdump");
     $cmd = "$tcpdump -i $interfaceName -C 1 -w $tcpdumpLogsPath";
     $tcpdumpProcess = Process::fromShellCommandline($cmd);
     $tcpdumpProcess->setTimeout(null)->run(function ($type, $out) {
