@@ -48,7 +48,7 @@ class DataValidation
         $json = $this->json->getDataAsObject();
 
         // Iteration over all fields
-        $validate = function (JSONFile $json) use ($validationData) {
+        $validate = function (JSON $json) use ($validationData) {
             foreach ($validationData as $fieldName => $field) {
                 // Get its value (it may be null, it will be checked in the closure)
                 $fieldValue = $json->get($fieldName);
@@ -87,7 +87,9 @@ class DataValidation
                             "name" => $userData->name,
                             "mac" => $userMac
                         ]);
-                        $userDataJson->filePath = $json->filePath;
+                        $userDataJson->getFilename = function () {
+                            return $this->json->getFilename();
+                        };
                         if ($validate($userDataJson))
                             $json->set($key, null);
                     }

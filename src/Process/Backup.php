@@ -1,30 +1,36 @@
 <?php
 
-// Include all include files
-require_once "./includes/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
+
+use Dej\Element\Shell;
+use Dej\Element\DataValidation;
+use MAChitgarha\Component\JSONFile;
+use MAChitgarha\Component\Pusheh;
+use Webmozart\PathUtil\Path;
+
+$sh = new Shell();
 
 // Load configurations and validate it
 try {
-    $config = (new DataValidation(new JSONFile("data.json", "config")))
+    $config = (new DataValidation(new JSONFile("config/data.json")))
         ->classValidation()
         ->typeValidation()
-        ->returnData();
+        ->return();
 } catch (Throwable $e) {
     $sh->error($e);
 }
 
-// Create (if needed) and change directory to the path of saved files
-$dirPath = $config->save_to->path;
-directory($dirPath);
+// Create and change directory to the path of saved files
+$dirPath = $config->get("save_to.path");
+Pusheh::createDirRecursive($dirPath);
 chdir($dirPath);
 
 // Set required variables from data file
-$backupDirName = $config->backup->dir;
-$backupTimeout = $config->backup->timeout;
+$backupDirName = $config->get("backup.dir");
+$backupTimeout = $config->get("backup.timeout");
 
 // Create backup directory (if needed)
-directory($backupDirName);
-$backupDirName = forceEndSlash($backupDirName);
+Pusheh::createDirRecursive($backupDirName);
 
 while (true) {
     // Make a list of the whole files
@@ -36,8 +42,7 @@ while (true) {
     } catch (Throwable $e) {
         $now = time();
     }
-    fwrite($f = fopen($backupDirName . "update_time", "w"), $now);
-    fclose($f);
+    file_put_contents(Path::join($backupDirName, "update_time"), $now);
 
     // Make backup from the files
     foreach ($filesDir as $file)

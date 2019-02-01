@@ -1,17 +1,25 @@
 <?php
 
-// Include all include files
-require_once "./includes/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
+
+use Dej\Element\Shell;
+use Dej\Element\DataValidation;
+use MAChitgarha\Component\JSONFile;
+use MAChitgarha\Component\Pusheh;
+use Webmozart\PathUtil\Path;
+use MAChitgarha\Component\JSON;
+
+$sh = new Shell();
 
 try {
     // Load configurations and validate it
-    $config = (new DataValidation(new JSONFile("data.json", "config")))
+    $config = (new DataValidation(new JSONFile("config/data.json")))
         ->classValidation()
         ->typeValidation()
-        ->returnData();
+        ->return();
 
     // Load users config file and validate it
-    $users = MAC::extractMacAsKeys((new DataValidation(new JSONFile("users.json", "config")))
+    $users = extractMacAsKeys((new DataValidation(new JSONFile("config/users.json")))
         ->classValidation()
         ->typeValidation()
         ->return()
@@ -28,26 +36,26 @@ try {
     $sh->error($e);
 }
 
-$toLogSkippedPackets = $config->logs->skipped_packets;
+$toLogSkippedPackets = $config->get("logs.skipped_packets");
 
 // Interface info
-$interfaceMac = $config->interface->mac;
+$interfaceMac = $config->get("interface.mac");
 
 // Files path and their formats for saving
-$path = forceEndSlash($config->save_to->path);
-$format = $config->save_to->format;
+$path = $config->get("save_to.path");
+$format = $config->get("save_to.format");
 
 // Set logs configurations
-$logsPath = forceEndSlash($config->logs->path);
-$tcpdumpLogsPath = $logsPath . "tcpdump/";
-$skippedPacketsFile = $logsPath . "skipped_packets.log";
+$logsPath = $config->get("logs.path");
+$tcpdumpLogsPath = Path::join($logsPath, "tcpdump");
+$skippedPacketsFile = Path::join($logsPath, "skipped_packets.log");
 
 // TCPDump executable file
-$tcpdump = $config->executables->tcpdump;
+$tcpdump = $config->get("executables.tcpdump");
 
 while (true) {
     // Search for all done packet files
-    $donePacketsFiles = glob($tcpdumpLogsPath . "packets-done*");
+    $donePacketsFiles = glob(Path::join($tcpdumpLogsPath, "packets-done*"));
 
     // Find the first ready packets file to be sniffed
     if (count($donePacketsFiles) > 0) {
@@ -71,10 +79,10 @@ while (true) {
     // Set up files
     $i = (int)$sniffIndex;
     // Files to remove
-    $tcpdumpFile = $tcpdumpLogsPath . "tcpdump" . ($i === 0 ? "" : $i);
-    $packetsDoneFile = $tcpdumpLogsPath . "packets-done" . $i;
+    $tcpdumpFile = Path::join($tcpdumpLogsPath, "tcpdump" . ($i === 0 ? "" : $i));
+    $packetsDoneFile = Path::join($tcpdumpLogsPath, "packets-done$i");
     // Packets file to sniff
-    $packetsFile = $tcpdumpLogsPath . "packets" . $i;
+    $packetsFile = Path::join($tcpdumpLogsPath, "packets$i");
 
     // Array to save size of transferred packets based on MAC addresses
     $devicesInfo = [];
@@ -243,4 +251,17 @@ function logPackets($file, array $macAddresses, int $packetSize, string $packetD
 
     // Write to the file
     fwrite($file, $output);
+}
+
+function extractMacAsKeys(JSON $usersData): array
+{
+    $usersData->getDataAsArray();
+
+    $users = [];
+    foreach ($usersData->iterate() as $user)
+        if ($user !== null)
+            foreach ((array)$user->mac as $mac)
+                $users[$mac] = $user->name;    
+    
+    return $users;
 }
