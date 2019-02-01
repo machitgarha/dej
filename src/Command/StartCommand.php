@@ -30,9 +30,9 @@ class StartCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkRootPermissions();
-
         $output->writeln("Starting Dej...");
+
+        $this->checkRootPermissions();
 
         // If there are some screens running, prompt user
         if (StatusCommand::getStatus() !== StatusCommand::STATUS_STOPPED) {
@@ -60,7 +60,7 @@ class StartCommand extends BaseCommand
                 ->typeValidation()
                 ->return();
         } catch (\Throwable $e) {
-            throw $e;//$this->sh->error($e);
+            $this->sh->error($e);
         }
 
         // Perform comparison between files and backup files

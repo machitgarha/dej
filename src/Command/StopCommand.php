@@ -18,9 +18,9 @@ class StopCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkRootPermissions();
-
         $output->writeln("Stopping Dej...");
+
+        $this->checkRootPermissions();
 
         // Check if there are some screens to stop
         if (StatusCommand::getStatus() === StatusCommand::STATUS_STOPPED) {
