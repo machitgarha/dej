@@ -1,32 +1,47 @@
 <?php
 
-// Include all include files
-require_once "./includes/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
+
+use Dej\Element\DataValidation;
+use MAChitgarha\Component\JSONFile;
+use MAChitgarha\Component\Pusheh;
+use Webmozart\PathUtil\Path;
+use Dej\Element\Shell;
+use Symfony\Component\Process\Process;
+
+$sh = new Shell();
 
 try {
     // Load configurations and validate it
-    $config = (new DataValidation(new JSONFile("data.json", "config")))
+    $config = (new DataValidation(new JSONFile("config/data.json")))
         ->classValidation()
         ->typeValidation()
-        ->returnData();
+        ->return();
 } catch (Throwable $e) {
     $sh->error($e);
 }
 
-$interfaceName = $config->interface->name;
+$interfaceName = $config->get("interface.name");
 
 // File path to save
-$logsPath = forceEndSlash($config->logs->path);
-directory($logsPath);
+$logsPath = $config->get("logs.path");
+Pusheh::createDirRecursive($logsPath);
 
 // TCPDump executable file
-$tcpdump = $config->executables->tcpdump;
+$tcpdump = $config->get("executables.tcpdump");
 
 /*
-* Uses TCPDump to sniff network packets. Official TCPDump site: www.tcpdump.org
+* Use TCPDump to sniff network packets. Official TCPDump site: www.tcpdump.org
 * -i: Sniffing the selected interface
 * -w: Write to the file
+* -C: The size of each TCPDump log file
 * Use the loop for when the device is not set up
 */
-while (true)
-    echo `$tcpdump -i $interfaceName -C 1 -w ${logsPath}tcpdump/tcpdump`;
+while (true) {
+    $tcpdumpLogsPath = Path::join($logsPath, "tcpdump/tcpdump");
+    $cmd = "$tcpdump -i $interfaceName -C 1 -w $tcpdumpLogsPath";
+    $tcpdumpProcess = Process::fromShellCommandline($cmd);
+    $tcpdumpProcess->setTimeout(null)->run(function ($type, $out) {
+        echo $out;
+    });
+}

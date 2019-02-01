@@ -4,6 +4,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Dej\Element\Shell;
+use MAChitgarha\Component\JSONFile;
 
 abstract class BaseCommand extends Command
 {
