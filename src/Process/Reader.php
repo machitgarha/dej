@@ -1,23 +1,30 @@
 <?php
 
-// Include all include files
-require_once "./includes/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
+
+use Dej\Element\Shell;
+use Dej\Element\DataValidation;
+use MAChitgarha\Component\JSONFile;
+use MAChitgarha\Component\Pusheh;
+use Webmozart\PathUtil\Path;
+
+$sh = new Shell();
 
 try {
     // Load configurations and validate it
-    $config = (new DataValidation(new JSONFile("data.json", "config")))
+    $config = (new DataValidation(new JSONFile("config/data.json")))
         ->classValidation()
         ->typeValidation()
-        ->returnData();
+        ->return();
 } catch (Throwable $e) {
-    $sh->error($e);
+    throw $e;//$sh->error($e);
 }
 
 // Change directory to TCPDump logs path
-chdir(forceEndSlash($config->logs->path) . "tcpdump");
+chdir(Path::join($config->get("logs.path"), "tcpdump"));
 
 // TCPDump executable file
-$tcpdump = $config->executables->tcpdump;
+$tcpdump = $config->get("executables.tcpdump");
 
 $i = 0;
 while (true) {
