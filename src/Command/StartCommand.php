@@ -111,11 +111,11 @@ class StartCommand extends BaseCommand
 
         $status = StatusCommand::getStatus();
         if ($status === StatusCommand::STATUS_RUNNING)
-            $this->sh->echo("Done!");
+            $output->writeln("Done!");
         elseif ($status === StatusCommand::STATUS_PARTIAL || $status === StatusCommand::STATUS_STOPPED)
-            $this->sh->error("Something went wrong. Try again!");
+            $output->writeln("Something went wrong. Try again!");
         else
-            $this->sh->warn("Too much instances are running.");
+            $output->writeln("Too much instances are running.");
     }
 
     // Replace a broken file with the backup

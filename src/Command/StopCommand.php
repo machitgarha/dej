@@ -25,7 +25,7 @@ class StopCommand extends BaseCommand
         // Check if there are some screens to stop
         if (StatusCommand::getStatus() === StatusCommand::STATUS_STOPPED) {
             $output->writeln("Not running.");
-            exit();
+            return;
         }
     
         // Stop TCPDump and the reader instances
