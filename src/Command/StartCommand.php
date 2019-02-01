@@ -14,6 +14,9 @@ use Symfony\Component\Process\PhpProcess;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Dej\Element\ContinuousProcess;
 use Symfony\Component\Process\ProcessUtils;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class StartCommand extends RootCommand
 {
@@ -33,9 +36,19 @@ class StartCommand extends RootCommand
         if (StatusCommand::getStatus() !== StatusCommand::STATUS_STOPPED) {
             // Prompt user to restart Dej or not
             $helper = $this->getHelper("question");
-            $question = new ConfirmationQuestion("Already running. Restart? [N(o)/y(es)] ");
-            if ($helper->ask($input, $output, $question))
-                echo "Yeah";
+            $question = new ConfirmationQuestion("Already running. Restart? [N(o)/y(es)] ", false);
+            if ($helper->ask($input, $output, $question)) {
+                $output->writeln("Restarting...");
+                try {
+                    $result = $this->getApplication()->find("stop")
+                        ->run(new ArrayInput([]), new NullOutput());
+                } catch (\Throwable $e) {}
+                if ($result !== 0)
+                    throw new \Exception("Cannot stop Dej");
+            } else {
+                $output->writeln("Aborted.");
+                exit();
+            }
         }
 
         try {
