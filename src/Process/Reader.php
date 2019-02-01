@@ -17,7 +17,7 @@ try {
         ->typeValidation()
         ->return();
 } catch (Throwable $e) {
-    throw $e;//$sh->error($e);
+    $sh->error($e);
 }
 
 // Change directory to TCPDump logs path
