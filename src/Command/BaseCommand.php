@@ -18,4 +18,10 @@ abstract class BaseCommand extends Command
     {
         return new JSONFile(__DIR__ . "/../../config/$filename.json");
     }
+
+    protected function checkRootPermissions()
+    {
+        if (posix_getuid() !== 0)
+            throw new \Exception("Root permission needed");
+    }
 }

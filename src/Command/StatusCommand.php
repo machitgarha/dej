@@ -5,7 +5,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StatusCommand extends RootCommand
+class StatusCommand extends BaseCommand
 {
     const SCREEN_NUMBER = 4;
     const STATUS_STOPPED = 0;
@@ -20,6 +20,8 @@ class StatusCommand extends RootCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkRootPermissions();
+
         // Search for Dej screens
         switch (self::getStatus()) {
             case self::STATUS_STOPPED:

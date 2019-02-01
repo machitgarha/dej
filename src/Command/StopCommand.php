@@ -7,7 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
-class StopCommand extends RootCommand
+class StopCommand extends BaseCommand
 {
     protected $rootPermissions;
 
@@ -18,6 +18,8 @@ class StopCommand extends RootCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkRootPermissions();
+
         $output->writeln("Stopping Dej...");
 
         // Check if there are some screens to stop

@@ -18,7 +18,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
 
-class StartCommand extends RootCommand
+class StartCommand extends BaseCommand
 {
     protected $phpExecutable = "php";
     protected $rootPermissions;
@@ -30,6 +30,8 @@ class StartCommand extends RootCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkRootPermissions();
+
         $output->writeln("Starting Dej...");
 
         // If there are some screens running, prompt user
