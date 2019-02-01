@@ -8,6 +8,7 @@ use Dej\Command\StartCommand;
 use Dej\Command\StopCommand;
 use Dej\Command\StatusCommand;
 use Dej\Command\RestartCommand;
+use Dej\Command\CheckCommand;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -20,7 +21,8 @@ $application->addCommands([
     new StartCommand(),
     new StopCommand(),
     new StatusCommand(),
-    new RestartCommand()
+    new RestartCommand(),
+    new CheckCommand(),
 ]);
 
 $application->setName("Dej");
