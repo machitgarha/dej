@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Dej\Inter\OutInter;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Dej\Command\HelpCommand;
 use Dej\Command\StartCommand;
@@ -9,6 +8,7 @@ use Dej\Command\StopCommand;
 use Dej\Command\StatusCommand;
 use Dej\Command\RestartCommand;
 use Dej\Command\CheckCommand;
+use Dej\Command\ConfigCommand;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -23,8 +23,10 @@ $application->addCommands([
     new StatusCommand(),
     new RestartCommand(),
     new CheckCommand(),
+    new ConfigCommand()
 ]);
 
+$application->setCatchExceptions(false);
 $application->setName("Dej");
 
-$application->run(null, new ConsoleOutput());
+$application->run();

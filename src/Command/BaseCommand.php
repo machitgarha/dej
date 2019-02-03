@@ -8,6 +8,9 @@ use MAChitgarha\Component\JSONFile;
 
 abstract class BaseCommand extends Command
 {
+    /** @var Shell */
+    protected $sh;
+
     public function __construct(string $name = null)
     {
         $this->sh = new Shell();
