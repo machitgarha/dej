@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use MAChitgarha\Component\JSONFile;
 use Symfony\Component\Console\Input\ArrayInput;
 use Dej\Element\DataValidation;
+use MAChitgarha\Component\Pusheh;
 
 class ConfigCommand extends BaseCommand
 {
@@ -34,7 +35,11 @@ class ConfigCommand extends BaseCommand
         // If file doesn't exist, attemp to create it
         } catch (\Throwable $e) {
             // Create the configuration file
-            `./dej config create`;
+            try {
+                $this->createConfigFile();
+            } catch (\Throwable $e) {
+                $this->sh->echo($e->getMessage());
+            }
 
             // Load it
             try {
@@ -129,5 +134,25 @@ class ConfigCommand extends BaseCommand
             $this->sh->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
             $this->sh->echo("Try 'dej config check' for more details.");
         }
+    }
+
+    private function createConfigFile()
+    {
+        $this->sh->echo("Creating...");
+
+        // Create directory if it does not exist
+        Pusheh::createDir("config");
+        $dataJsonFile = "config/data.json";
+
+        if (file_exists($dataJsonFile))
+            throw new \Exception("Configuration file exists.");
+
+        // Create the configuration
+        touch($dataJsonFile);
+
+        // Make right permissions
+        chmod($dataJsonFile, 0755);
+
+        $this->sh->echo("Done!");
     }
 }
