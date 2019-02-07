@@ -34,15 +34,23 @@ class HelpCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($this->command !== null) {
-            $command = $this->command->getName();
-            $helpPath = "data/helps/$command.txt";
+        $getHelp = function (string $commandName) {
+            $helpPath = "data/helps/$commandName.txt";
             if (is_readable($helpPath))
                 $this->sh->exit(file_get_contents($helpPath));
+        };
+
+        if ($this->command !== null) {
+            $command = $this->command->getName();
+            $getHelp($command);
         }
 
-        $command = $input->getArgument("command_name");
-        $this->sh->echo("Unknown command '$command'.");
+        $commandName = $input->getArgument("command_name");
+        if ($this->getApplication()->has($commandName)) {
+            $getHelp($commandName);
+        }
+
+        $this->sh->echo("Unknown command '$commandName'.");
         $this->sh->echo("Try 'dej help' for more information.");
 
         $this->command = null;

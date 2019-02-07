@@ -1,4 +1,7 @@
 #!/bin/sh
 
+# SOURCE
+src="."
+
 # Don't move or edit this file manually!
-php ./src/console.php $@
+php "$src"/src/console.php $@
