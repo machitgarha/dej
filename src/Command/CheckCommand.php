@@ -19,27 +19,33 @@ class CheckCommand extends BaseCommand
 
         // Load configuration file and also validator
         try {
-            $dataJson = $this->loadJson("data.json");
+            $dataJson = $this->loadJson("data");
         } catch (Throwable $e) {
             $output->error($e);
         }
 
-        $output->echo("Loaded successfully.", 2);
+        $output->writeln([
+            "Loaded successfully.",
+            "",
+        ]);
 
         // Check for missing fields
-        $output->echo("Checking for missing important fields...");
+        $output->writeln("Checking for missing important fields...");
 
         $validated = DataValidation::new($dataJson)->classValidation();
         if (empty($validated->getWarnings(true)))
-            $output->echo("All important fields have been set!");
+            $output->writeln("All important fields have been set!");
         $validated->output(true);
 
         // Check for bad field values (e.g. bad MAC address for interface.mac)
-        $output->echo("Checking for invalid field values...", 1, 1);
+        $output->writeln([
+            "",
+            "Checking for invalid field values...",
+        ]);
 
         $validated = DataValidation::new($dataJson)->typeValidation();
         if (empty($validated->getWarnings(true)))
-            $output->echo("Looks good!");
+            $output->writeln("Looks good!");
         $validated->output(true);
     }
 }
