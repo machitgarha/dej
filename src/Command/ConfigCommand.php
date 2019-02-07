@@ -30,14 +30,13 @@ class ConfigCommand extends BaseCommand
         $loaded = true;
         try {
             $dataJson = $this->loadJson("data");
-
-        // If file doesn't exist, attemp to create it
+        // If file doesn't exist, attempt to create it
         } catch (\Throwable $e) {
             // Create the configuration file
             try {
-                $this->createConfigFile();
+                $this->createConfigFile($output);
             } catch (\Throwable $e) {
-                $output->echo($e->getMessage());
+                $output->writeln($e->getMessage());
             }
 
             // Load it
@@ -60,15 +59,18 @@ class ConfigCommand extends BaseCommand
         foreach ((array)$types as $key => $val)
             array_push($possibleOptions, $key);
 
-        $output->echo("Done!", 2);
+        $output->writeln([
+            "Done!",
+            "",
+        ]);
 
         // Break if it is an invalid option
         if (!in_array($index, $possibleOptions)) {
-            $output->echo("There is no '$index' option exists.");
+            $output->writeln("There is no '$index' option exists.");
             $output->exit("Run 'dej config list' for more info.");
         }
 
-        $output->echo("Updating...");
+        $output->writeln("Updating...");
 
         // Get field's current value
         $currentValue = $dataJson->get($index);
@@ -104,17 +106,17 @@ class ConfigCommand extends BaseCommand
             $output->error($e);
         }
 
-        $output->echo("Done!");
+        $output->writeln("Done!");
         if ($currentValue !== null && $currentValue !== $value)
-            $output->echo(json_encode($currentValue) . " -> " . json_encode($value));
+            $output->writeln(json_encode($currentValue) . " -> " . json_encode($value));
 
         // Restart Dej to see the effects and show the result, if root permissions granted
         try {
             $this->checkRootPermissions();
-            $output->echo();
+            $output->writeln("");
             $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
         } catch (\Throwable $e) {
-            $output->echo("You have to restart Dej to see effects.");
+            $output->warn("You have to restart Dej to see effects.");
         }
 
         // Check for warnings
@@ -130,14 +132,17 @@ class ConfigCommand extends BaseCommand
         // If at least a warning found, print it
         $warningsCount = count($warnings);
         if ($warningsCount !== 0) {
-            $output->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
-            $output->echo("Try 'dej config check' for more details.");
+            $output->writeln([
+                "",
+                "Found $warningsCount warning(s) in the configuration file.",
+                "Try 'dej check' for more details.",
+            ]);
         }
     }
 
-    private function createConfigFile()
+    private function createConfigFile(OutputInterface $output)
     {
-        $output->echo("Creating...");
+        $output->writeln("Creating...");
 
         // Create directory if it does not exist
         Pusheh::createDir("config");
