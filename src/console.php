@@ -11,6 +11,7 @@ use Dej\Command\CheckCommand;
 use Dej\Command\ConfigCommand;
 use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
+use Dej\Command\UpdateCommand;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -27,7 +28,8 @@ $application->addCommands([
     new CheckCommand(),
     new ConfigCommand(),
     new UninstallCommand(),
-    new InstallCommand()
+    new InstallCommand(),
+    new UpdateCommand(),
 ]);
 
 $application->setCatchExceptions(false);
