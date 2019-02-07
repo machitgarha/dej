@@ -7,8 +7,9 @@ use Dej\Element\DataValidation;
 use MAChitgarha\Component\JSONFile;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
+use Dej\Element\ShellOutput;
 
-$sh = new Shell();
+$sh = new ShellOutput();
 
 // Load configurations and validate it
 try {

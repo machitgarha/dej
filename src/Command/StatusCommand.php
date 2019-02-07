@@ -4,6 +4,8 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Dej\Element\ShellOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class StatusCommand extends BaseCommand
 {
@@ -25,19 +27,19 @@ class StatusCommand extends BaseCommand
         // Search for Dej screens
         switch (self::getStatus()) {
             case self::STATUS_STOPPED:
-                $this->sh->exit("Not running.");
+                $output->exit("Not running.");
                 break;
             
             case self::STATUS_PARTIAL:
-                $this->sh->warn("Partially running.");
+                $output->warn("Partially running.");
                 break;
             
             case self::STATUS_RUNNING:
-                $this->sh->exit("Running!");
+                $output->exit("Running!");
                 break;
 
             default:
-                $this->sh->warn("Too many running instances");
+                $output->warn("Too many running instances");
                 break;
         }           
     }

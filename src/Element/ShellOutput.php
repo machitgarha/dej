@@ -4,8 +4,10 @@ namespace Dej\Element;
 
 use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
-class Shell
+class ShellOutput implements OutputInterface
 {
     private $messages;
     public $lineLimit;
@@ -24,7 +26,7 @@ class Shell
         $this->lineLimit = $lineLimit;
 
         // Determines whether to show the full output or not
-        $this->showErrorMessage = $showErrorMessage;
+        $outputowErrorMessage = $showErrorMessage;
     }
 
     // Output a string with some lines before and after
@@ -88,7 +90,7 @@ class Shell
             return $error;
 
         // Return error message, based on showErrorMessage property
-        $showErrorMessage = $this->showErrorMessage;
+        $showErrorMessage = $outputowErrorMessage;
         $getErrorMessage = function (string $errorMessage = null) use ($showErrorMessage) {
             $defaultErrorMsg = "Unknown error.";
             return $showErrorMessage ? ($errorMessage ?? $defaultErrorMsg) : $defaultErrorMsg;
@@ -181,5 +183,72 @@ class Shell
         }
 
         return implode(PHP_EOL, $messageLines);
+    }
+
+    public function write($messages, $newLine = false, $options = 0)
+    {
+        $newLine = $newLine ? 1 : 0;
+
+        if (is_iterable($messages)) {
+            foreach ($messages as $message)
+                $this->echo($message, $newLine);
+        } else {
+            $this->echo($messages, $newLine);
+        }
+    }
+
+    public function writeln($messages, $options = 0)
+    {
+        $this->write($messages, true, $options);
+    }
+
+    public function setVerbosity($level)
+    {
+        throw new \Exception("Not implemented");
+    }
+
+    public function getVerbosity()
+    {
+        return self::VERBOSITY_NORMAL;
+    }
+
+    public function isQuiet()
+    {
+        return false;
+    }
+
+    public function isVerbose()
+    {
+        return false;
+    }
+
+    public function isVeryVerbose()
+    {
+        return false;
+    }
+
+    public function isDebug()
+    {
+        return false;
+    }
+
+    public function setDecorated($decorated)
+    {
+        throw new \Exception("Not implemented");
+    }
+
+    public function isDecorated()
+    {
+        return false;
+    }
+
+    public function setFormatter(OutputFormatterInterface $formatter)
+    {
+        throw new \Exception("Not implemented");
+    }
+
+    public function getFormatter()
+    {
+        return false;
     }
 }

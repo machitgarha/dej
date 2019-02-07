@@ -19,21 +19,21 @@ class UninstallCommand extends BaseCommand
         $this->checkRootPermissions();
 
         try {
-            $this->sh->echo("Preparing to uninstall Dej...");
+            $output->echo("Preparing to uninstall Dej...");
 
             // Find where Dej has been installed
             $installationPath = trim(`which dej`);
             if (empty($installationPath))
-                $this->sh->error("Not installed yet.");
+                $output->error("Not installed yet.");
 
             // Get agreement
             $helper = $this->getHelper("question");
             $question = new ConfirmationQuestion("Are you sure? [N(o)/y(es)] ", false);
             if (!$helper->ask($input, $output, $question)) {
-                $this->sh->exit("Aborted.");
+                $output->exit("Aborted.");
             }
 
-            $this->sh->echo("Uninstalling...");
+            $output->echo("Uninstalling...");
 
             // Grant right permissions to be able to remove it
             chmod($installationPath, 0755);
@@ -41,9 +41,9 @@ class UninstallCommand extends BaseCommand
             // Remove the file
             unlink($installationPath);
 
-            $this->sh->echo("Uninstalled successfully.");
+            $output->echo("Uninstalled successfully.");
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
     }
 }

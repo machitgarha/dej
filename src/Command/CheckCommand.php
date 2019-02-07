@@ -22,25 +22,25 @@ class CheckCommand extends BaseCommand
         try {
             $dataJson = new JSONFile("config/data.json");
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
 
-        $this->sh->echo("Loaded successfully.", 2);
+        $output->echo("Loaded successfully.", 2);
 
         // Check for missing fields
-        $this->sh->echo("Checking for missing important fields...");
+        $output->echo("Checking for missing important fields...");
 
         $validated = (new DataValidation($dataJson))->classValidation();
         if (empty($validated->getWarnings(true)))
-            $this->sh->echo("All important fields have been set!");
+            $output->echo("All important fields have been set!");
         $validated->output(true);
 
         // Check for bad field values (e.g. bad MAC address for interface.mac)
-        $this->sh->echo("Checking for invalid field values...", 1, 1);
+        $output->echo("Checking for invalid field values...", 1, 1);
 
         $validated = (new DataValidation($dataJson))->typeValidation();
         if (empty($validated->getWarnings(true)))
-            $this->sh->echo("Looks good!");
+            $output->echo("Looks good!");
         $validated->output(true);
     }
 }

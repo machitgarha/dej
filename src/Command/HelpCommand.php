@@ -37,7 +37,7 @@ class HelpCommand extends BaseCommand
         $getHelp = function (string $commandName) {
             $helpPath = "data/helps/$commandName.txt";
             if (is_readable($helpPath))
-                $this->sh->exit(file_get_contents($helpPath));
+                $output->exit(file_get_contents($helpPath));
         };
 
         if ($this->command !== null) {
@@ -50,8 +50,8 @@ class HelpCommand extends BaseCommand
             $getHelp($commandName);
         }
 
-        $this->sh->echo("Unknown command '$commandName'.");
-        $this->sh->echo("Try 'dej help' for more information.");
+        $output->echo("Unknown command '$commandName'.");
+        $output->echo("Try 'dej help' for more information.");
 
         $this->command = null;
     }

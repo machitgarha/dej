@@ -8,8 +8,9 @@ use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use Dej\Element\Shell;
 use Symfony\Component\Process\Process;
+use Dej\Element\ShellOutput;
 
-$sh = new Shell();
+$sh = new ShellOutput();
 
 try {
     // Load configurations and validate it

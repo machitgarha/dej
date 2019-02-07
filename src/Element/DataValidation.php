@@ -210,7 +210,7 @@ class DataValidation
 
     public function output(bool $onlyWarnings = false)
     {
-        $sh = new Shell();
+        $sh = new ShellOutput();
 
         $errorsOutputType = $onlyWarnings ? "warn" : "error";
         foreach ($this->errors as $error)

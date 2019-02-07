@@ -38,14 +38,14 @@ class ConfigCommand extends BaseCommand
             try {
                 $this->createConfigFile();
             } catch (\Throwable $e) {
-                $this->sh->echo($e->getMessage());
+                $output->echo($e->getMessage());
             }
 
             // Load it
             try {
                 $dataJson = new JSONFile("config/data.json");
             } catch (\Throwable $e) {
-                $this->sh->error($e);
+                $output->error($e);
             }
         }
 
@@ -53,7 +53,7 @@ class ConfigCommand extends BaseCommand
         try {
             $types = (new JSONFile("data/validation/type.json"))->get("data\.json");
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
 
         // Extract all possible options
@@ -61,15 +61,15 @@ class ConfigCommand extends BaseCommand
         foreach ((array)$types as $key => $val)
             array_push($possibleOptions, $key);
 
-        $this->sh->echo("Done!", 2);
+        $output->echo("Done!", 2);
 
         // Break if it is an invalid option
         if (!in_array($index, $possibleOptions)) {
-            $this->sh->echo("There is no '$index' option exists.");
-            $this->sh->exit("Run 'dej config list' for more info.");
+            $output->echo("There is no '$index' option exists.");
+            $output->exit("Run 'dej config list' for more info.");
         }
 
-        $this->sh->echo("Updating...");
+        $output->echo("Updating...");
 
         // Get field's current value
         $currentValue = $dataJson->get($index);
@@ -91,7 +91,7 @@ class ConfigCommand extends BaseCommand
             
             case "mac":
                 if (!preg_match("/^([\da-f]{2}:){5}([\da-f]{2})$/i", $value))
-                    $this->sh->error("Wrong MAC address was given.");
+                    $output->error("Wrong MAC address was given.");
                 break;
         }
 
@@ -102,20 +102,20 @@ class ConfigCommand extends BaseCommand
         try {
             $dataJson->save();
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
 
-        $this->sh->echo("Done!");
+        $output->echo("Done!");
         if ($currentValue !== null && $currentValue !== $value)
-            $this->sh->echo(json_encode($currentValue) . " -> " . json_encode($value));
+            $output->echo(json_encode($currentValue) . " -> " . json_encode($value));
 
         // Restart Dej to see the effects and show the result, if root permissions granted
         try {
             $this->checkRootPermissions();
-            $this->sh->echo();
+            $output->echo();
             $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
         } catch (\Throwable $e) {
-            $this->sh->echo("You have to restart Dej to see effects.");
+            $output->echo("You have to restart Dej to see effects.");
         }
 
         // Check for warnings
@@ -125,20 +125,20 @@ class ConfigCommand extends BaseCommand
                 ->typeValidation()
                 ->getWarnings();
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
 
         // If at least a warning found, print it
         $warningsCount = count($warnings);
         if ($warningsCount !== 0) {
-            $this->sh->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
-            $this->sh->echo("Try 'dej config check' for more details.");
+            $output->echo("Found $warningsCount warning(s) in the configuration file.", 1, 1);
+            $output->echo("Try 'dej config check' for more details.");
         }
     }
 
     private function createConfigFile()
     {
-        $this->sh->echo("Creating...");
+        $output->echo("Creating...");
 
         // Create directory if it does not exist
         Pusheh::createDir("config");
@@ -153,6 +153,6 @@ class ConfigCommand extends BaseCommand
         // Make right permissions
         chmod($dataJsonFile, 0755);
 
-        $this->sh->echo("Done!");
+        $output->echo("Done!");
     }
 }

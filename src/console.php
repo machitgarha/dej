@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Dej\Command\HelpCommand;
 use Dej\Command\StartCommand;
 use Dej\Command\StopCommand;
@@ -12,6 +11,7 @@ use Dej\Command\ConfigCommand;
 use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
 use Dej\Command\UpdateCommand;
+use Dej\Element\ShellOutput;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -35,4 +35,4 @@ $application->addCommands([
 $application->setCatchExceptions(false);
 $application->setName("Dej");
 
-$application->run();
+$application->run(null, new ShellOutput());

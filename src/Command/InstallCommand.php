@@ -63,7 +63,7 @@ class InstallCommand extends BaseCommand
                 $isUpdatedCommand = new Process(["git", "pull"]);
                 $isUpdatedCommand->run();
                 if (trim($isUpdatedCommand->getOutput()) !== "Already up to date.")
-                    $this->sh->error("Cannot update local repository. Aborting.");
+                    $output->error("Cannot update local repository. Aborting.");
             }
 
             // Create a temporary command file matching new changes
@@ -84,16 +84,16 @@ class InstallCommand extends BaseCommand
             unlink($tmpFile);
 
             if (!$toInstall)
-                $this->sh->error("Already installed.");
+                $output->error("Already installed.");
 
             // Grant right permissions
             chmod($dej, 0755);
 
             $output->writeln("Completed.");
             if (!$updateMode)
-                $this->sh->echo("Try 'dej help' for more information.");
+                $output->echo("Try 'dej help' for more information.");
         } catch (Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
     }
 }

@@ -60,7 +60,7 @@ class StartCommand extends BaseCommand
                 ->typeValidation()
                 ->return();
         } catch (\Throwable $e) {
-            $this->sh->error($e);
+            $output->error($e);
         }
 
         // Perform comparison between files and backup files
