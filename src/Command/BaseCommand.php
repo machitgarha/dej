@@ -7,9 +7,9 @@ use MAChitgarha\Component\JSONFile;
 
 abstract class BaseCommand extends Command
 {
-    protected function loadConfiguration(string $filename)
+    protected function loadJson(string $filename, string $prefix = "config"): JSONFile
     {
-        return new JSONFile(__DIR__ . "/../../config/$filename.json");
+        return new JSONFile(__DIR__ . "/../../$prefix/$filename.json");
     }
 
     protected function checkRootPermissions()

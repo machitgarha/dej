@@ -5,7 +5,6 @@ namespace Dej\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use MAChitgarha\Component\JSONFile;
 use Symfony\Component\Console\Input\ArrayInput;
 use Dej\Element\DataValidation;
 use MAChitgarha\Component\Pusheh;
@@ -30,7 +29,7 @@ class ConfigCommand extends BaseCommand
         // Load configurations
         $loaded = true;
         try {
-            $dataJson = new JSONFile("config/data.json");
+            $dataJson = $this->loadJson("data");
 
         // If file doesn't exist, attemp to create it
         } catch (\Throwable $e) {
@@ -43,7 +42,7 @@ class ConfigCommand extends BaseCommand
 
             // Load it
             try {
-                $dataJson = new JSONFile("config/data.json");
+                $dataJson = $this->loadJson("data");
             } catch (\Throwable $e) {
                 $output->error($e);
             }
@@ -51,7 +50,7 @@ class ConfigCommand extends BaseCommand
 
         // Load all possible options
         try {
-            $types = (new JSONFile("data/validation/type.json"))->get("data\.json");
+            $types = $this->loadJson("type", "data/validation")->get("data\.json");
         } catch (Throwable $e) {
             $output->error($e);
         }
@@ -120,7 +119,7 @@ class ConfigCommand extends BaseCommand
 
         // Check for warnings
         try {
-            $warnings = (new DataValidation(new JSONFile("config/data.json")))
+            $warnings = DataValidation::new($this->loadJson("data"))
                 ->classValidation()
                 ->typeValidation()
                 ->getWarnings();

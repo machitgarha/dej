@@ -55,7 +55,7 @@ class StartCommand extends BaseCommand
 
         try {
             // Load configurations and validate it
-            $config = DataValidation::new($this->loadConfiguration("data"))
+            $config = DataValidation::new($this->loadJson("data"))
                 ->classValidation()
                 ->typeValidation()
                 ->return();

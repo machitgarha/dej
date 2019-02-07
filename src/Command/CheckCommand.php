@@ -4,7 +4,6 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use MAChitgarha\Component\JSONFile;
 use Dej\Element\DataValidation;
 
 class CheckCommand extends BaseCommand
@@ -20,7 +19,7 @@ class CheckCommand extends BaseCommand
 
         // Load configuration file and also validator
         try {
-            $dataJson = new JSONFile("config/data.json");
+            $dataJson = $this->loadJson("data.json");
         } catch (Throwable $e) {
             $output->error($e);
         }
@@ -30,7 +29,7 @@ class CheckCommand extends BaseCommand
         // Check for missing fields
         $output->echo("Checking for missing important fields...");
 
-        $validated = (new DataValidation($dataJson))->classValidation();
+        $validated = DataValidation::new($dataJson)->classValidation();
         if (empty($validated->getWarnings(true)))
             $output->echo("All important fields have been set!");
         $validated->output(true);
@@ -38,7 +37,7 @@ class CheckCommand extends BaseCommand
         // Check for bad field values (e.g. bad MAC address for interface.mac)
         $output->echo("Checking for invalid field values...", 1, 1);
 
-        $validated = (new DataValidation($dataJson))->typeValidation();
+        $validated = DataValidation::new($dataJson)->typeValidation();
         if (empty($validated->getWarnings(true)))
             $output->echo("Looks good!");
         $validated->output(true);

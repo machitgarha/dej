@@ -34,7 +34,7 @@ class HelpCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $getHelp = function (string $commandName) {
+        $getHelp = function (string $commandName) use ($output) {
             $helpPath = "data/helps/$commandName.txt";
             if (is_readable($helpPath))
                 $output->exit(file_get_contents($helpPath));
