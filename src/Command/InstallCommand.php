@@ -31,7 +31,6 @@ class InstallCommand extends BaseCommand
 
             // Data path
             $dataPath = Path::join(__DIR__, "../..");
-            chdir($dataPath);
 
             // Extract $PATH info and set installation path
             $defaultInstallPath = "/usr/local/bin";
@@ -91,7 +90,7 @@ class InstallCommand extends BaseCommand
 
             $output->writeln("Completed.");
             if (!$updateMode)
-                $output->echo("Try 'dej help' for more information.");
+                $output->writeln("Try 'dej help' for more information.");
         } catch (Throwable $e) {
             $output->error($e);
         }

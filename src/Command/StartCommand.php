@@ -48,8 +48,7 @@ class StartCommand extends BaseCommand
                 if ($result !== 0)
                     throw new \Exception("Cannot stop Dej");
             } else {
-                $output->writeln("Aborted.");
-                exit();
+                $output->exit("Aborted.");
             }
         }
 
@@ -84,9 +83,9 @@ class StartCommand extends BaseCommand
         ];
         foreach ($neededExecutables as $neededExecutable)
             if (empty(`which {$neededExecutable[1]}`))
-                $sh->error("You must have {$neededExecutable[0]} command installed, i.e., the specified" .
-                    "executable file cannot be used ({$neededExecutable[1]}). Fix it by editing " .
-                    "executables field in config/data.json.");
+                $output->error("You must have {$neededExecutable[0]} command installed, i.e., the"
+                    . "specified executable file cannot be used ({$neededExecutable[1]}). Fix it by"
+                    . " editing executables field in config/data.json.");
 
         // Names of directories and files
         $sourceDir = "src/Process";

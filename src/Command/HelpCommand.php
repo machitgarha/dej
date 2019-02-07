@@ -19,9 +19,7 @@ class HelpCommand extends BaseCommand
 
         $this
             ->setName('help')
-            ->setDefinition(array(
-                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name', 'help'),
-            ));
+            ->addArgument("command_name", InputArgument::OPTIONAL, "The command name", "help");
     }
 
     public function setCommand(Command $command)
@@ -50,8 +48,10 @@ class HelpCommand extends BaseCommand
             $getHelp($commandName);
         }
 
-        $output->echo("Unknown command '$commandName'.");
-        $output->echo("Try 'dej help' for more information.");
+        $output->writeln([
+            "Unknown command '$commandName'.",
+            "Try 'dej help' for more information."]
+        );
 
         $this->command = null;
     }

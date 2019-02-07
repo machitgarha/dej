@@ -19,7 +19,7 @@ class UninstallCommand extends BaseCommand
         $this->checkRootPermissions();
 
         try {
-            $output->echo("Preparing to uninstall Dej...");
+            $output->writeln("Preparing to uninstall Dej...");
 
             // Find where Dej has been installed
             $installationPath = trim(`which dej`);
@@ -33,7 +33,7 @@ class UninstallCommand extends BaseCommand
                 $output->exit("Aborted.");
             }
 
-            $output->echo("Uninstalling...");
+            $output->writeln("Uninstalling...");
 
             // Grant right permissions to be able to remove it
             chmod($installationPath, 0755);
@@ -41,7 +41,7 @@ class UninstallCommand extends BaseCommand
             // Remove the file
             unlink($installationPath);
 
-            $output->echo("Uninstalled successfully.");
+            $output->writeln("Uninstalled successfully.");
         } catch (Throwable $e) {
             $output->error($e);
         }
