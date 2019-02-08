@@ -9,6 +9,10 @@ use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
 class ShellOutput implements OutputInterface
 {
+    const TYPE_NORMAL = 0;
+    const TYPE_WARN = 1;
+    const TYPE_ERROR = 2;
+
     private $messages;
     public $lineLimit;
     public $showErrorMessage;
@@ -26,7 +30,7 @@ class ShellOutput implements OutputInterface
         $this->lineLimit = $lineLimit;
 
         // Determines whether to show the full output or not
-        $outputowErrorMessage = $showErrorMessage;
+        $this->showErrorMessage = $showErrorMessage;
     }
 
     // Output a string with some lines before and after
@@ -90,7 +94,7 @@ class ShellOutput implements OutputInterface
             return $error;
 
         // Return error message, based on showErrorMessage property
-        $showErrorMessage = $outputowErrorMessage;
+        $showErrorMessage = $this->showErrorMessage;
         $getErrorMessage = function (string $errorMessage = null) use ($showErrorMessage) {
             $defaultErrorMsg = "Unknown error.";
             return $showErrorMessage ? ($errorMessage ?? $defaultErrorMsg) : $defaultErrorMsg;

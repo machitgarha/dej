@@ -40,19 +40,11 @@ class ConfigCommand extends BaseCommand
             }
 
             // Load it
-            try {
-                $dataJson = $this->loadJson("data");
-            } catch (\Throwable $e) {
-                $output->error($e);
-            }
+            $dataJson = $this->loadJson("data");
         }
 
         // Load all possible options
-        try {
-            $types = $this->loadJson("type", "data/validation")->get("data\.json");
-        } catch (Throwable $e) {
-            $output->error($e);
-        }
+        $types = $this->loadJson("type", "data/validation")->get("data\.json");
 
         // Extract all possible options
         $possibleOptions = [];
@@ -100,11 +92,7 @@ class ConfigCommand extends BaseCommand
         $dataJson->set($index, $value);
 
         // Open the file to save
-        try {
-            $dataJson->save();
-        } catch (Throwable $e) {
-            $output->error($e);
-        }
+        $dataJson->save();
 
         $output->writeln("Done!");
         if ($currentValue !== null && $currentValue !== $value)
@@ -120,14 +108,10 @@ class ConfigCommand extends BaseCommand
         }
 
         // Check for warnings
-        try {
-            $warnings = DataValidation::new($this->loadJson("data"))
-                ->classValidation()
-                ->typeValidation()
-                ->getWarnings();
-        } catch (Throwable $e) {
-            $output->error($e);
-        }
+        $warnings = DataValidation::new($this->loadJson("data"))
+            ->classValidation()
+            ->typeValidation()
+            ->getWarnings();
 
         // If at least a warning found, print it
         $warningsCount = count($warnings);

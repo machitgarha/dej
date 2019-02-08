@@ -28,10 +28,10 @@ class RestartCommand extends BaseCommand
             $args = new ArrayInput([]);
             $nullOutput = new NullOutput();
             $stopResult = $dej->find("stop")->run($args, $nullOutput);
-            $startResult = $dej->find("start")->run($args, $nullOutput);
+            $startResult = $dej->find("starta")->run($args, $nullOutput);
         } catch (\Throwable $e) {}
 
-        if ($stopResult !== 0 || $startResult !== 0)
+        if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0)
             throw new \Exception("Cannot restart Dej");
 
         $output->writeln("Done!");

@@ -45,22 +45,18 @@ class StartCommand extends BaseCommand
                     $result = $this->getApplication()->find("stop")
                         ->run(new ArrayInput([]), new NullOutput());
                 } catch (\Throwable $e) {}
-                if ($result !== 0)
+                if (!isset($result) || $result !== 0)
                     throw new \Exception("Cannot stop Dej");
             } else {
                 $output->exit("Aborted.");
             }
         }
 
-        try {
-            // Load configurations and validate it
-            $config = DataValidation::new($this->loadJson("data"))
-                ->classValidation()
-                ->typeValidation()
-                ->return();
-        } catch (\Throwable $e) {
-            $output->error($e);
-        }
+        // Load configurations and validate it
+        $config = DataValidation::new($this->loadJson("data"))
+            ->classValidation()
+            ->typeValidation()
+            ->return();
 
         // Perform comparison between files and backup files
         $path = $config->get("save_to.path");

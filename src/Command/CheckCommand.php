@@ -18,11 +18,7 @@ class CheckCommand extends BaseCommand
         $output->writeln("Loading configuration file...");
 
         // Load configuration file and also validator
-        try {
-            $dataJson = $this->loadJson("data");
-        } catch (Throwable $e) {
-            $output->error($e);
-        }
+        $dataJson = $this->loadJson("data");
 
         $output->writeln([
             "Loaded successfully.",

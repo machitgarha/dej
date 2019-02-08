@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Symfony\Component\Console\Application;
 use Dej\Command\HelpCommand;
 use Dej\Command\StartCommand;
 use Dej\Command\StopCommand;
@@ -12,27 +13,33 @@ use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
 use Dej\Command\UpdateCommand;
 use Dej\Element\ShellOutput;
+use Symfony\Component\Process\Exception\ExceptionInterface;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// TODO: Add a try/catch
-// Create the Application
-$application = new Symfony\Component\Console\Application;
+$shellOutput = new ShellOutput();
 
-$application->addCommands([
-    new HelpCommand(),
-    new StartCommand(),
-    new StopCommand(),
-    new StatusCommand(),
-    new RestartCommand(),
-    new CheckCommand(),
-    new ConfigCommand(),
-    new UninstallCommand(),
-    new InstallCommand(),
-    new UpdateCommand(),
-]);
+try {
+    // Create the Application
+    $application = new Application();
 
-$application->setCatchExceptions(false);
-$application->setName("Dej");
+    $application->addCommands([
+        new HelpCommand(),
+        new StartCommand(),
+        new StopCommand(),
+        new StatusCommand(),
+        new RestartCommand(),
+        new CheckCommand(),
+        new ConfigCommand(),
+        new UninstallCommand(),
+        new InstallCommand(),
+        new UpdateCommand(),
+    ]);
 
-$application->run(null, new ShellOutput());
+    $application->setCatchExceptions(false);
+    $application->setName("Dej");
+
+    $application->run(null, $shellOutput);
+} catch (\Throwable $e) {
+    $shellOutput->error($e->getMessage());
+}

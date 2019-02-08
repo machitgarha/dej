@@ -18,32 +18,28 @@ class UninstallCommand extends BaseCommand
     {
         $this->checkRootPermissions();
 
-        try {
-            $output->writeln("Preparing to uninstall Dej...");
+        $output->writeln("Preparing to uninstall Dej...");
 
-            // Find where Dej has been installed
-            $installationPath = trim(`which dej`);
-            if (empty($installationPath))
-                $output->error("Not installed yet.");
+        // Find where Dej has been installed
+        $installationPath = trim(`which dej`);
+        if (empty($installationPath))
+            $output->error("Not installed yet.");
 
-            // Get agreement
-            $helper = $this->getHelper("question");
-            $question = new ConfirmationQuestion("Are you sure? [N(o)/y(es)] ", false);
-            if (!$helper->ask($input, $output, $question)) {
-                $output->exit("Aborted.");
-            }
-
-            $output->writeln("Uninstalling...");
-
-            // Grant right permissions to be able to remove it
-            chmod($installationPath, 0755);
-
-            // Remove the file
-            unlink($installationPath);
-
-            $output->writeln("Uninstalled successfully.");
-        } catch (Throwable $e) {
-            $output->error($e);
+        // Get agreement
+        $helper = $this->getHelper("question");
+        $question = new ConfirmationQuestion("Are you sure? [N(o)/y(es)] ", false);
+        if (!$helper->ask($input, $output, $question)) {
+            $output->exit("Aborted.");
         }
+
+        $output->writeln("Uninstalling...");
+
+        // Grant right permissions to be able to remove it
+        chmod($installationPath, 0755);
+
+        // Remove the file
+        unlink($installationPath);
+
+        $output->writeln("Uninstalled successfully.");
     }
 }
