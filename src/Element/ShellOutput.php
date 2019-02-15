@@ -6,10 +6,13 @@ use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 
 class ShellOutput implements OutputInterface
 {
     private $messages;
+    private $formatter;
+
     public $lineLimit;
     public $showErrorMessage;
 
@@ -27,11 +30,18 @@ class ShellOutput implements OutputInterface
 
         // Determines whether to show the full output or not
         $this->showErrorMessage = $showErrorMessage;
+
+        $this->formatter = new OutputFormatter();
     }
 
     // Output a string with some lines before and after
     public function echo(string $str = "", int $linesAfter = 1, int $linesBefore = 0)
     {
+        $strippedStr = strip_tags($str);
+        if (empty(trim($strippedStr)))
+            return;
+        $str = $strippedStr;
+
         $output = "";
 
         // Add lines before
@@ -190,8 +200,9 @@ class ShellOutput implements OutputInterface
         $newLine = $newLine ? 1 : 0;
 
         if (is_iterable($messages)) {
-            foreach ($messages as $message)
+            foreach ($messages as $message) {
                 $this->echo($message, $newLine);
+            }
         } else {
             $this->echo($messages, $newLine);
         }
@@ -244,11 +255,11 @@ class ShellOutput implements OutputInterface
 
     public function setFormatter(OutputFormatterInterface $formatter)
     {
-        throw new \Exception("Not implemented");
+        $this->formatter = $formatter;
     }
 
     public function getFormatter()
     {
-        return false;
+        return $this->formatter;
     }
 }

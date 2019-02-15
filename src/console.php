@@ -21,7 +21,7 @@ $shellOutput = new ShellOutput();
 
 try {
     // Create the Application
-    $application = new Application();
+    $application = new Application("Dej");
 
     $application->addCommands([
         new HelpCommand(),
@@ -38,7 +38,6 @@ try {
     ]);
 
     $application->setCatchExceptions(false);
-    $application->setName("Dej");
 
     $application->run(null, $shellOutput);
 } catch (\Throwable $e) {
