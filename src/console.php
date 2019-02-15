@@ -14,8 +14,6 @@ use Dej\Command\InstallCommand;
 use Dej\Command\UpdateCommand;
 use Dej\Element\ShellOutput;
 use Dej\Command\ListCommand;
-use Symfony\Component\Process\Exception\ExceptionInterface;
-use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -43,7 +41,6 @@ try {
     $application->setName("Dej");
 
     $application->run(null, $shellOutput);
-    var_dump($x->getNames());
 } catch (\Throwable $e) {
     $shellOutput->error($e->getMessage());
 }
