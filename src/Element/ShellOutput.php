@@ -4,19 +4,18 @@ namespace Dej\Element;
 
 use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
-class ShellOutput implements OutputInterface
+class ShellOutput extends ConsoleOutput
 {
     private $messages;
-    private $formatter;
 
     public $lineLimit;
     public $showErrorMessage;
 
-    public function __construct(bool $showErrorMessage = false, int $lineLimit = 80)
+    public function __construct(bool $showErrorMessage = false, int $lineLimit = 80, int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, OutputFormatterInterface $formatter = null)
     {
         try {
             // Error messages to use
@@ -31,17 +30,12 @@ class ShellOutput implements OutputInterface
         // Determines whether to show the full output or not
         $this->showErrorMessage = $showErrorMessage;
 
-        $this->formatter = new OutputFormatter();
+        parent::__construct($verbosity, $decorated, $formatter);
     }
 
     // Output a string with some lines before and after
     public function echo(string $str = "", int $linesAfter = 1, int $linesBefore = 0)
     {
-        $strippedStr = strip_tags($str);
-        if (empty(trim($strippedStr)))
-            return;
-        $str = $strippedStr;
-
         $output = "";
 
         // Add lines before
@@ -195,71 +189,10 @@ class ShellOutput implements OutputInterface
         return implode(PHP_EOL, $messageLines);
     }
 
-    public function write($messages, $newLine = false, $options = 0)
+    public function doWrite($message, $newLine = false)
     {
         $newLine = $newLine ? 1 : 0;
 
-        if (is_iterable($messages)) {
-            foreach ($messages as $message) {
-                $this->echo($message, $newLine);
-            }
-        } else {
-            $this->echo($messages, $newLine);
-        }
-    }
-
-    public function writeln($messages, $options = 0)
-    {
-        $this->write($messages, true, $options);
-    }
-
-    public function setVerbosity($level)
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getVerbosity()
-    {
-        return self::VERBOSITY_NORMAL;
-    }
-
-    public function isQuiet()
-    {
-        return false;
-    }
-
-    public function isVerbose()
-    {
-        return false;
-    }
-
-    public function isVeryVerbose()
-    {
-        return false;
-    }
-
-    public function isDebug()
-    {
-        return false;
-    }
-
-    public function setDecorated($decorated)
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function isDecorated()
-    {
-        return false;
-    }
-
-    public function setFormatter(OutputFormatterInterface $formatter)
-    {
-        $this->formatter = $formatter;
-    }
-
-    public function getFormatter()
-    {
-        return $this->formatter;
+        $this->echo($message, $newLine);
     }
 }
