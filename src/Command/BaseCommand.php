@@ -5,6 +5,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Command\Command;
 use MAChitgarha\Component\JSONFile;
 use Dej\Element\ShellOutput;
+use Webmozart\PathUtil\Path;
 
 abstract class BaseCommand extends Command
 {
@@ -22,5 +23,11 @@ abstract class BaseCommand extends Command
 
         if (posix_getuid() !== 0)
             throw new \Exception("Root permission needed");
+    }
+
+    protected function getHelpFromFile(string $filename)
+    {
+        $filePath = __DIR__ . "/../../data/helps/$filename.txt";
+        return trim(@file_get_contents($filePath));
     }
 }

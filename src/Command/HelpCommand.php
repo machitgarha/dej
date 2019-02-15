@@ -40,7 +40,9 @@ class HelpCommand extends BaseCommand
 
         if ($this->command !== null) {
             $command = $this->command->getName();
-            $getHelp($command);
+            if ($this->command->getHelp() !== null)
+                $output->exit($this->command->getHelp());
+            $getHelp($command); 
         }
 
         $commandName = $input->getArgument("command_name");
