@@ -18,9 +18,9 @@ abstract class BaseCommand extends Command
         $cannotCheckMessage = "We cannot detect if root permissions granted or not. Please " .
             "make sure you granted, otherwise, processes will not work and you will have problems.";
         if (!function_exists("posix_getuid"))
-            throw new \Exception($cannotCheckMessage, ShellOutput::TYPE_WARN);
+            echo $cannotCheckMessage;
 
         if (posix_getuid() !== 0)
-            throw new \Exception("Root permission needed", ShellOutput::TYPE_ERROR);
+            throw new \Exception("Root permission needed");
     }
 }

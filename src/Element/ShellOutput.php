@@ -9,10 +9,6 @@ use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 
 class ShellOutput implements OutputInterface
 {
-    const TYPE_NORMAL = 0;
-    const TYPE_WARN = 1;
-    const TYPE_ERROR = 2;
-
     private $messages;
     public $lineLimit;
     public $showErrorMessage;
