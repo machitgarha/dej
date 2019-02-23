@@ -35,22 +35,19 @@ class HelpCommand extends BaseCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $getHelp = function (string $commandName) use ($output) {
-            $helpPath = "data/helps/$commandName.txt";
-            if (is_readable($helpPath))
-                $output->exit(file_get_contents($helpPath));
+        $outputHelp = function (Command $command) use ($output) {
+            $help = $command->getHelp() ?? $command->getDescription();
+            if ($help !== null)
+                $output->exit($help);
         };
 
         if ($this->command !== null) {
-            $command = $this->command->getName();
-            $getHelp($command); 
-            if ($this->command->getHelp() !== null)
-                $output->exit($this->command->getHelp());
+            $outputHelp($command); 
         }
 
         $commandName = $input->getArgument("command_name");
         if ($this->getApplication()->has($commandName)) {
-            $getHelp($commandName);
+            $outputHelp($this->getApplication()->get($commandName));
         }
 
         self::commandNotFound($output, $commandName);
