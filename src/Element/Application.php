@@ -243,7 +243,7 @@ class Application extends \Symfony\Component\Console\Application
 
             $alternative = $alternatives[0];
 
-            HelpCommand::commandNotFound($name);
+            HelpCommand::commandNotFound($output, $name);
             return 1;
         }
 
