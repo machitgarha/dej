@@ -16,7 +16,11 @@ class StatusCommand extends BaseCommand
 
     protected function configure()
     {
-        $this->setName("status");
+        $this
+            ->setName("status")
+            ->setDescription("Tells how Dej is running (i.e. is running or not).")
+            ->setHelp($this->getHelpFromFile("status"))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

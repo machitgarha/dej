@@ -13,7 +13,11 @@ class StopCommand extends BaseCommand
 
     protected function configure()
     {
-        $this->setName("stop");
+        $this
+            ->setName("stop")
+            ->setDescription("Stops Dej.")
+            ->setHelp($this->getHelpFromFile("stop"))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

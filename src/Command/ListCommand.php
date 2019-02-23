@@ -9,7 +9,10 @@ class ListCommand extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName('list');
+        $this
+            ->setName('list')
+            ->setDescription("Lists the commands.")
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

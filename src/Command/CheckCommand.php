@@ -10,7 +10,10 @@ class CheckCommand extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName("check");
+        $this
+            ->setName("check")
+            ->setDescription("Checks configuration files to be valid.")
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

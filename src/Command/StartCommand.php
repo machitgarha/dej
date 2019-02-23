@@ -25,7 +25,11 @@ class StartCommand extends BaseCommand
 
     protected function configure()
     {
-        $this->setName("start");
+        $this
+            ->setName("start")
+            ->setDescription("Starts Dej.")
+            ->setHelp($this->getHelpFromFile("start"))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

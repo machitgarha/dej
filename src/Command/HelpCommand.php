@@ -19,7 +19,10 @@ class HelpCommand extends BaseCommand
 
         $this
             ->setName('help')
-            ->addArgument("command_name", InputArgument::OPTIONAL, "The command name", "help");
+            ->addArgument("command_name", InputArgument::OPTIONAL, "The command name", "help")
+            ->setDescription("Gets Dej help.")
+            ->setHelp($this->getHelpFromFile("help"))
+        ;
     }
 
     public function setCommand(Command $command)

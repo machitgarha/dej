@@ -12,7 +12,10 @@ class UpdateCommand extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName("update");
+        $this
+            ->setName("update")
+            ->setDescription("Updates Dej to the latest update.")
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

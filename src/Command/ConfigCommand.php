@@ -16,7 +16,10 @@ class ConfigCommand extends BaseCommand
         $this
             ->setName("config")
             ->addArgument("index", InputArgument::REQUIRED)
-            ->addArgument("value", InputArgument::REQUIRED);
+            ->addArgument("value", InputArgument::REQUIRED)
+            ->setDescription("Configures Dej.")
+            ->setHelp($this->getHelpFromFile("config"))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

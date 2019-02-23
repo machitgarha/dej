@@ -11,7 +11,10 @@ class UninstallCommand extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName("uninstall");
+        $this
+            ->setName("uninstall")
+            ->setDescription("Uninstalls Dej.")
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

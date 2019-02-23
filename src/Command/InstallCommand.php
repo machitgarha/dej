@@ -15,7 +15,9 @@ class InstallCommand extends BaseCommand
         $this
             ->setName("install")
             ->addOption("force", null, InputOption::VALUE_NONE)
-            ->addOption("update", null, InputOption::VALUE_NONE);
+            ->addOption("update", null, InputOption::VALUE_NONE)
+            ->setDescription("Installs Dej (or updates it).")
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

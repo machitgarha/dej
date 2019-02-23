@@ -12,7 +12,11 @@ class RestartCommand extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName("restart");
+        $this
+            ->setName("restart")
+            ->setDescription("Restarts Dej.")
+            ->setHelp($this->getHelpFromFile("restart"))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,7 +32,7 @@ class RestartCommand extends BaseCommand
             $args = new ArrayInput([]);
             $nullOutput = new NullOutput();
             $stopResult = $dej->find("stop")->run($args, $nullOutput);
-            $startResult = $dej->find("starta")->run($args, $nullOutput);
+            $startResult = $dej->find("start")->run($args, $nullOutput);
         } catch (\Throwable $e) {}
 
         if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0)
