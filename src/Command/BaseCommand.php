@@ -25,9 +25,14 @@ abstract class BaseCommand extends Command
             throw new \Exception("Root permission needed");
     }
 
-    protected function getHelpFromFile(string $filename)
+    protected function getHelpFromFile(string $filename, array $data = [])
     {
         $filePath = __DIR__ . "/../../data/helps/$filename.txt";
-        return trim(@file_get_contents($filePath));
+        $contents = trim(@file_get_contents($filePath));
+
+        foreach ($data as $placeholder => $value)
+            $contents = str_replace("{{$placeholder}}", $value, $contents);
+
+        return $contents;
     }
 }
