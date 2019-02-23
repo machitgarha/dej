@@ -21,7 +21,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$shellOutput = new ShellOutput(false, 130, ShellOutput::VERBOSITY_NORMAL, false, new OutputFormatter(
+$shellOutput = new ShellOutput(false, 80, ShellOutput::VERBOSITY_NORMAL, false, new OutputFormatter(
     false,
     [
         "info" => new OutputFormatterStyle("red", "blue")

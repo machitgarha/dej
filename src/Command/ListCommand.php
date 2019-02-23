@@ -4,6 +4,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\Table;
 
 class ListCommand extends BaseCommand
 {
@@ -19,12 +20,21 @@ class ListCommand extends BaseCommand
     {
         $output->writeln("List of available commands:");
         $commands = $this->getApplication()->all();
-        foreach ($commands as $command) {
-            $output->write([
-                "  ",
-                $command->getName()
-            ]);
-            $output->writeln("");
-        }
+
+        $getCommandListRows = function ($commands) {
+            $rows = [];
+            foreach ($commands as $command) {
+                $rows[] = [
+                    "",
+                    $command->getName(),
+                    $command->getDescription()
+                ];
+            }
+            return $rows;
+        };
+
+        $listTable = new Table($output);
+        $listTable->setRows($getCommandListRows($commands));
+        $listTable->setStyle("compact")->render();
     }
 }
