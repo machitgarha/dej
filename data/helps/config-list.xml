@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<options>
+    <option type="required">
+        <index>interface.name</index>
+        <description>
+            Interface name of your device you want to sniff.
+        </description>
+    </option>
+
+    <option type="required">
+        <index>interface.mac</index>
+        <description>
+            Interface's MAC address of your device you want to sniff.
+        </description>
+    </option>
+
+    <option type="required">
+        <index>save_to.path</index>
+        <description>
+            Where to save files. The files are about how much data each device used.
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>save_to.format</index>
+        <default>".txt"</default>
+        <description>
+            Files' format.
+        </description>
+    </option>
+
+    <option type="recommended">
+        <index>executables.screen</index>
+        <default>"screen"</default>
+        <description>
+            The executable file of the 'screen' command. It can be either the command name absolutely or the path to the command file.
+        </description>
+    </option>
+
+    <option type="recommended">
+        <index>executables.tcpdump</index>
+        <default>"tcpdump"</default>
+        <description>
+            The executable file of the 'tcpdump' command. It can be either the command name absolutely or the path to the command file.
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>backup.dir</index>
+        <default>"backup"</default>
+        <description>
+            Where to backup files inside inside 'save_to.path' (i.e. path is relative).
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>backup.timeout</index>
+        <default>60</default>
+        <description>
+            Take a backup from files in once in this no. of seconds.
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>logs.path</index>
+        <default>"logs"</default>
+        <description>
+            Path to save log files.
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>logs.screen</index>
+        <default>false</default>
+        <description>
+            Log outputs from running files inside the 'logs' directory or not.
+        </description>
+    </option>
+
+    <option type="optional">
+        <index>logs.skipped_packets</index>
+        <default>false</default>
+        <description>
+            Log outputs from sniffer file about which packets skipped.
+        </description>
+    </option>
+</options>

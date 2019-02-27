@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 class ShellOutput extends ConsoleOutput
 {
     private $messages;
+    private $toLimitLines = true;
 
     public $lineLimit;
     public $showErrorMessage;
@@ -50,7 +51,7 @@ class ShellOutput extends ConsoleOutput
             $output .= PHP_EOL;
 
         // Output with limited lines
-        echo $this->limitLines($output, $this->lineLimit);
+        echo ($this->toLimitLines ? self::limitLines($output, $this->lineLimit) : $output);
     }
 
     // Warn user about something
@@ -117,12 +118,12 @@ class ShellOutput extends ConsoleOutput
         foreach ($error->getParams() as $key => $val)
             $message = str_replace("%$key%", $val, $message);
 
-        // Skip optional output paramleters
+        // Skip optional output parameters
         return preg_replace("/\s*%\?[a-z_]+%/i", "", $message);
     }
 
     // Changing the format of the message not to be more than $lineSize
-    public function limitLines(string $message, int $lineSize = 80): string
+    public static function limitLines(string $message, int $lineSize = 80): string
     {
         if ($lineSize <= 0)
             return $message;
@@ -194,5 +195,25 @@ class ShellOutput extends ConsoleOutput
         $newLine = $newLine ? 1 : 0;
 
         $this->echo($message, $newLine);
+    }
+
+    public function disableLineLimit()
+    {
+        $this->toLimitLines = false;
+    }
+
+    public function enableLineLimit()
+    {
+        $this->toLimitLines = true;
+    }
+
+    public static function getShellWidth(): int
+    {
+        return (int)(`tput cols`);
+    }
+
+    public static function getShellHeight(): int
+    {
+        return (int)(`tput lines`);
     }
 }

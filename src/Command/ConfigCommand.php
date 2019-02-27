@@ -8,6 +8,11 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\ArrayInput;
 use Dej\Element\DataValidation;
 use MAChitgarha\Component\Pusheh;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
+use Dej\Element\ShellOutput;
+use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ConfigCommand extends BaseCommand
 {
@@ -15,8 +20,8 @@ class ConfigCommand extends BaseCommand
     {
         $this
             ->setName("config")
-            ->addArgument("index", InputArgument::REQUIRED)
-            ->addArgument("value", InputArgument::REQUIRED)
+            ->addArgument("index", InputArgument::OPTIONAL)
+            ->addArgument("value", InputArgument::OPTIONAL)
             ->setDescription("Configures Dej.")
             ->setHelp($this->getHelpFromFile("config"))
         ;
@@ -26,6 +31,12 @@ class ConfigCommand extends BaseCommand
     {
         $index = $input->getArgument("index");
         $value = $input->getArgument("value");
+
+        if ($index === "list")
+            $this->printOptionsList($output);
+
+        if ($index === "?")
+            $this->getOptionDetails($value, $output);
 
         $output->writeln("Preparing...");
 
@@ -145,5 +156,61 @@ class ConfigCommand extends BaseCommand
         chmod($dataJsonFile, 0755);
 
         $output->echo("Done!");
+    }
+
+    private function printOptionsList(ShellOutput $output)
+    {
+        $configListFile = __DIR__ . "/../../data/helps/config-list.xml";
+        $configListXML = new \SimpleXMLElement(file_get_contents($configListFile));
+
+        $shellWidth = ShellOutput::getShellWidth();
+        if ($shellWidth < 60) {
+            $output->warn("Your terminal is too small. Available options:");
+            foreach ($configListXML->option as $option)
+                $output->writeln($option->index);
+        } else {
+            $descriptionWidth = $shellWidth - 40;
+
+            $rows = [];
+            foreach ($configListXML->option as $option) {
+                $rows[] = [
+                    $option->index,
+                    ShellOutput::limitLines(trim($option->description), $descriptionWidth),
+                    $option->default ?? "",
+                ];
+            }
+
+            $output->disableLineLimit();
+            $table = new Table($output);
+            $table->setHeaders([
+                "Name",
+                "Description",
+                "Default"
+            ]);
+            $table->setRows($rows);
+            $table->setStyle("box")->render();
+            $output->enableLineLimit();
+        }
+
+        $output->exit("For more details on each option, try 'dej config ? [option]'.");
+    }
+
+    private function getOptionDetails(string $optionName, ShellOutput $output)
+    {
+        $configListFile = __DIR__ . "/../../data/helps/config-list.xml";
+        $configListXML = new \SimpleXMLElement(file_get_contents($configListFile));
+
+        foreach ($configListXML->option as $option) {
+            if ($option->index[0] == $optionName) {
+                $output->writeln([
+                    "Name: {$option->index}",
+                    "Description: " . trim($option->description),
+                    "Default value: " . ($option->default[0] ?? "None")
+                ]);
+                exit();
+            }
+        }
+
+        $output->exit("'$optionName' option not found.");
     }
 }
