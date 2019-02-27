@@ -38,6 +38,14 @@ class ConfigCommand extends BaseCommand
         if ($index === "?")
             $this->getOptionDetails($value, $output);
 
+        if ($index === "check") {
+            $this->getApplication()->find("check")->run(new ArrayInput([]), $output);
+            exit();
+        }
+
+        if (empty($index))
+            throw new \Exception("Bad usage.");
+
         $output->writeln("Preparing...");
 
         // Load configurations
