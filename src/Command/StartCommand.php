@@ -34,9 +34,9 @@ class StartCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("Starting Dej...");
-
         $this->checkRootPermissions();
+
+        $output->writeln("Starting Dej...");
 
         // If there are some screens running, prompt user
         if (StatusCommand::getStatus() !== StatusCommand::STATUS_STOPPED) {
