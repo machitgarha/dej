@@ -1,11 +1,21 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Dej\Element\DataValidation;
+use Dej\Element\ShellOutput;
 
+/**
+ * Validates configuration files.
+ */
 class CheckCommand extends BaseCommand
 {
     protected function configure()
@@ -16,35 +26,36 @@ class CheckCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * Executes check command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     */
+    protected function execute(InputInterface $input, $output)
     {
-        $output->writeln("Loading configuration file...");
+        $output->writeln([
+            "Preparing...",
+            ""
+        ]);
 
-        // Load configuration file and also validator
         $dataJson = $this->loadJson("data");
+        $isThereAnyWarnings = false;
 
-        $output->writeln([
-            "Loaded successfully.",
-            "",
-        ]);
+        // Check for required options that is not set
+        $validatedData = DataValidation::new($dataJson)->classValidation();
+        $isThereAnyWarnings = !empty($validatedData->getWarnings());
+            
+        $validatedData->output(true);
 
-        // Check for missing fields
-        $output->writeln("Checking for missing important fields...");
+        // Validating options' values (e.g. bad MAC address for interface.mac)
+        $validatedData = DataValidation::new($dataJson)->typeValidation();
+        $isThereAnyWarnings = $isThereAnyWarnings || !empty($validatedData->getWarnings());
 
-        $validated = DataValidation::new($dataJson)->classValidation();
-        if (empty($validated->getWarnings(true)))
-            $output->writeln("All important fields have been set!");
-        $validated->output(true);
+        $validatedData->output(true);
 
-        // Check for bad field values (e.g. bad MAC address for interface.mac)
-        $output->writeln([
-            "",
-            "Checking for invalid field values...",
-        ]);
-
-        $validated = DataValidation::new($dataJson)->typeValidation();
-        if (empty($validated->getWarnings(true)))
-            $output->writeln("Looks good!");
-        $validated->output(true);
+        if (!$isThereAnyWarnings)
+            $output->writeln("Good!");
     }
 }
