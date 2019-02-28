@@ -1,28 +1,28 @@
 <?xml version="1.0" ?>
 <options>
     <option type="required">
-        <index>interface.name</index>
+        <name>interface.name</name>
         <description>
             Interface name of your device you want to sniff.
         </description>
     </option>
 
     <option type="required">
-        <index>interface.mac</index>
+        <name>interface.mac</name>
         <description>
             Interface's MAC address of your device you want to sniff.
         </description>
     </option>
 
     <option type="required">
-        <index>save_to.path</index>
+        <name>save_to.path</name>
         <description>
             Where to save files. The files are about how much data each device used.
         </description>
     </option>
 
     <option type="optional">
-        <index>save_to.format</index>
+        <name>save_to.format</name>
         <default>".txt"</default>
         <description>
             Files' format.
@@ -30,7 +30,7 @@
     </option>
 
     <option type="recommended">
-        <index>executables.screen</index>
+        <name>executables.screen</name>
         <default>"screen"</default>
         <description>
             The executable file of the 'screen' command. It can be either the command name absolutely or the path to the command file.
@@ -38,7 +38,7 @@
     </option>
 
     <option type="recommended">
-        <index>executables.tcpdump</index>
+        <name>executables.tcpdump</name>
         <default>"tcpdump"</default>
         <description>
             The executable file of the 'tcpdump' command. It can be either the command name absolutely or the path to the command file.
@@ -46,7 +46,7 @@
     </option>
 
     <option type="optional">
-        <index>backup.dir</index>
+        <name>backup.dir</name>
         <default>"backup"</default>
         <description>
             Where to backup files inside inside 'save_to.path' (i.e. path is relative).
@@ -54,7 +54,7 @@
     </option>
 
     <option type="optional">
-        <index>backup.timeout</index>
+        <name>backup.timeout</name>
         <default>60</default>
         <description>
             Take a backup from files in once in this no. of seconds.
@@ -62,7 +62,7 @@
     </option>
 
     <option type="optional">
-        <index>logs.path</index>
+        <name>logs.path</name>
         <default>"logs"</default>
         <description>
             Path to save log files.
@@ -70,7 +70,7 @@
     </option>
 
     <option type="optional">
-        <index>logs.screen</index>
+        <name>logs.screen</name>
         <default>false</default>
         <description>
             Log outputs from running files inside the 'logs' directory or not.
@@ -78,7 +78,7 @@
     </option>
 
     <option type="optional">
-        <index>logs.skipped_packets</index>
+        <name>logs.skipped_packets</name>
         <default>false</default>
         <description>
             Log outputs from sniffer file about which packets skipped.
