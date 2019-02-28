@@ -1,4 +1,10 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
@@ -12,17 +18,25 @@ use Symfony\Component\Process\Process;
 use MAChitgarha\Component\JSON;
 use Symfony\Component\Process\PhpProcess;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Dej\Element\ContinuousProcess;
 use Symfony\Component\Process\ProcessUtils;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
+use Dej\Element\ShellOutput;
 
+/**
+ * Starts Dej.
+ */
 class StartCommand extends BaseCommand
 {
+    /** @var string PHP executable path, located in ./data/php. */
     protected $phpExecutable;
-    protected $rootPermissions;
 
+    /**
+     * Sets the PHP executable before starting Dej.
+     *
+     * @param string $name The command name, i.e. start.
+     */
     public function __construct(string $name = null)
     {
         $this->phpExecutable = trim(file_get_contents(__DIR__ . "/../../data/php"));
@@ -36,10 +50,15 @@ class StartCommand extends BaseCommand
             ->setDescription("Starts Dej.")
             ->setHelp($this->getHelpFromFile("start"))
         ;
-
-        
     }
 
+    /**
+     * Executes start command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->forceRootPermissions($output);
@@ -57,8 +76,11 @@ class StartCommand extends BaseCommand
                     $result = $this->getApplication()->find("stop")
                         ->run(new ArrayInput([]), new NullOutput());
                 } catch (\Throwable $e) {}
+
+                // If something goes wrong with stopping Dej
                 if (!isset($result) || $result !== 0)
                     throw new \Exception("Cannot stop Dej");
+            // User canceled starting Dej
             } else {
                 $output->writeln("Aborted.");
                 return;
@@ -74,6 +96,7 @@ class StartCommand extends BaseCommand
         // Perform comparison between files and backup files
         $path = $config->get("save_to.path");
         $backupDir = $config->get("backup.dir");
+
         $this->compareFiles($path, $backupDir);
 
         // Load executables
@@ -85,7 +108,7 @@ class StartCommand extends BaseCommand
         $logsDir = $config->get("logs.path");
         Pusheh::createDirRecursive($logsDir);
 
-        // Check for installed commands
+        // Checks for installed commands
         $neededExecutables = [
             ["screen", $screen],
             ["tcpdump", $tcpdump]
@@ -126,31 +149,35 @@ class StartCommand extends BaseCommand
             $output->writeln("Too much instances are running.");
     }
 
-    // Replace a broken file with the backup
-    private function compareFiles(string $path, string $backupDir)
+    /**
+     * Replaces a broken file with its backup.
+     * 
+     * A broken file is a file that is got empty or is smaller than its backup.
+     *
+     * @param string $path The path of the main files.
+     * @param string $backupDir The path of the backup files.
+     * @return int
+     */
+    private function compareFiles(string $path, string $backupDir): void
     {
         // Remove colons from number
         $getNum = function (string $path) {
             return (int)str_replace(",", "", file_get_contents($path));
         };
 
-        // Get files info
+        // Get files information
         Pusheh::createDirRecursive($path);
         $files = new \DirectoryIterator($path);
-
-        // Add path to backup directory
         $backupDir = "$path/$backupDir";
 
-        // Perform on all files
         foreach ($files as $file) {
-            // Get names and paths
             $filename = $file->getFilename();
             $filePath = Path::join($path, $filename);
             $backupFilePath = Path::join($backupDir, $filename);
 
-            // Check for a broken file, and replace it, if needed
+            // Replacing broken file
             if (is_dir($backupDir) && file_exists($backupFilePath) &&
-            $getNum($backupFilePath) > $getNum($filePath)) {
+                $getNum($backupFilePath) > $getNum($filePath)) {
                 // Remove the broken file
                 unlink($filePath);
 
