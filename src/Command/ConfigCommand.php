@@ -46,8 +46,6 @@ class ConfigCommand extends BaseCommand
         if (empty($index))
             throw new \Exception("Bad usage.");
 
-        $output->writeln("Preparing...");
-
         // Load configurations
         $loaded = true;
         try {
@@ -65,6 +63,18 @@ class ConfigCommand extends BaseCommand
             $dataJson = $this->loadJson("data");
         }
 
+        if ($value === null) {
+            if ($dataJson->isSet($index)) {
+                $output->writeln($dataJson->get($index));
+            } else {
+                $output->writeln([
+                    "Option '$index' does not exist.",
+                    "Run 'dej config list' for more info."
+                ]);
+            }
+            exit();
+        }
+
         // Load all possible options
         $types = $this->loadJson("type", "data/validation")->get("data\.json");
 
@@ -73,18 +83,13 @@ class ConfigCommand extends BaseCommand
         foreach ((array)$types as $key => $val)
             array_push($possibleOptions, $key);
 
-        $output->writeln([
-            "Done!",
-            "",
-        ]);
-
         // Break if it is an invalid option
         if (!in_array($index, $possibleOptions)) {
             $output->writeln("There is no '$index' option exists.");
             $output->exit("Run 'dej config list' for more info.");
         }
 
-        $output->writeln("Updating...");
+        $output->writeln("Updating configurations...");
 
         // Get field's current value
         $currentValue = $dataJson->get($index);
@@ -141,7 +146,7 @@ class ConfigCommand extends BaseCommand
             $output->writeln([
                 "",
                 "Found $warningsCount warning(s) in the configuration file.",
-                "Try 'dej check' for more details.",
+                "Try 'dej config check' for more details.",
             ]);
         }
     }
