@@ -1,4 +1,10 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
@@ -7,7 +13,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Webmozart\PathUtil\Path;
 use Symfony\Component\Process\Process;
+use Dej\Element\ShellOutput;
 
+/**
+ * Installs Dej.
+ */
 class InstallCommand extends BaseCommand
 {
     protected function configure()
@@ -20,12 +30,21 @@ class InstallCommand extends BaseCommand
         ;
     }
 
+    /**
+     * Executes install command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     * @throws \Exception When installation path cannot be detected.
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->forceRootPermissions($output);
 
         $output->writeln("Preparing...");
 
+        // Get options
         $forceMode = $input->getOption("force");
         $updateMode = $input->getOption("update");
 
@@ -37,7 +56,7 @@ class InstallCommand extends BaseCommand
         $paths = explode(":", $_SERVER["PATH"]);
         // Break if install path cannot be specified
         if (empty($paths))
-            throw new Exception("Unknown installation path.");
+            throw new \Exception("Unknown installation path.");
         $installPath = $paths[0];
         if (in_array($defaultInstallPath, $paths))
             $installPath = $defaultInstallPath;
