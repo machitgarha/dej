@@ -42,7 +42,6 @@ class CheckCommand extends BaseCommand
 
         $dataJson = $this->loadJson("data");
         $isThereAnyWarnings = false;
-        $i = 0;
 
         // Check for missing options that is not set
         $validatedData = DataValidation::new($dataJson)->classValidation();
