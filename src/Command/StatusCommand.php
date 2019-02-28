@@ -25,7 +25,7 @@ class StatusCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkRootPermissions();
+        $this->forceRootPermissions($output);
 
         // Search for Dej screens
         switch (self::getStatus()) {

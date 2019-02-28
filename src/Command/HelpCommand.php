@@ -44,7 +44,7 @@ class HelpCommand extends BaseCommand
             return false;
         };
 
-        if ($this->command !== null && $outputHelp($command)) {
+        if ($this->command !== null && $outputHelp($this->command)) {
             return;
         }
 

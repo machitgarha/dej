@@ -22,7 +22,7 @@ class InstallCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checkRootPermissions();
+        $this->forceRootPermissions($output);
 
         $output->writeln("Preparing...");
 

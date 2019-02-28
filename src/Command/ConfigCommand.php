@@ -13,6 +13,7 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Dej\Element\ShellOutput;
 use Symfony\Component\Console\Helper\TableStyle;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\NullOutput;
 
 class ConfigCommand extends BaseCommand
 {
@@ -134,7 +135,7 @@ class ConfigCommand extends BaseCommand
 
         // Restart Dej to see the effects and show the result, if root permissions granted
         try {
-            $this->checkRootPermissions();
+            $this->forceRootPermissions(new NullOutput());
             $output->writeln("");
             $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
         } catch (\Throwable $e) {

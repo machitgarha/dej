@@ -23,7 +23,7 @@ class RestartCommand extends BaseCommand
     {
         $output->writeln("Restarting Dej...");
 
-        $this->checkRootPermissions();
+        $this->forceRootPermissions($output);
 
         // Restart when permissions granted
         $dej = $this->getApplication();
