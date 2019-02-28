@@ -1,4 +1,10 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
@@ -6,8 +12,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Dej\Element\ShellOutput;
 
-
+/**
+ * Restarts Dej.
+ */
 class RestartCommand extends BaseCommand
 {
     protected function configure()
@@ -19,15 +28,23 @@ class RestartCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * Executes restart command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     * @throws \Exception If something goes wrong.
+     */
+    protected function execute(InputInterface $input, $output)
     {
-        $output->writeln("Restarting Dej...");
-
         $this->forceRootPermissions($output);
 
-        // Restart when permissions granted
+        $output->writeln("Restarting Dej...");
+
         $dej = $this->getApplication();
 
+        // Run a start command followed by a stop command
         try {
             $args = new ArrayInput([]);
             $nullOutput = new NullOutput();
@@ -35,6 +52,7 @@ class RestartCommand extends BaseCommand
             $startResult = $dej->find("start")->run($args, $nullOutput);
         } catch (\Throwable $e) {}
 
+        // Check for errors and badnesses during the processes
         if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0)
             throw new \Exception("Cannot restart Dej");
 
