@@ -1,12 +1,21 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Dej\Element\ShellOutput;
 
-
+/**
+ * Uninstalls Dej.
+ */
 class UninstallCommand extends BaseCommand
 {
     protected function configure()
@@ -17,7 +26,14 @@ class UninstallCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * Executes uninstall command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     */
+    protected function execute(InputInterface $input, $output)
     {
         $this->forceRootPermissions($output);
 
