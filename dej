@@ -1,7 +1,29 @@
 #!/bin/sh
 
+# PHP executable to run PHP files, change this if needed
+phpExecutable=$(cat ./data/php)
+
 # SOURCE
 src="."
 
+# Check for PHP executable to be exist
+havePhp=`which $phpExecutable`
+
+# Run PHP files, if PHP is present
+if [ -n "$havePhp" ]; then
+    # Exit if the PHP version is lower than 7
+    if [ $($phpExecutable -r "echo (float)(phpversion()) <= 7.1;") ]; then
+        echo "Error: Your PHP version must be at least 7.1."
+        exit
+    fi
+
+# Warn user for which PHP cannot be found
+else
+    echo "Cannot run PHP. Simply, install PHP, or change the ehavePhpxecutable path"
+    echo "defined in './data/php' file; then, try again."
+    echo "PHP executable path has been set to: '$phpExecutable'"
+    exit
+fi
+
 # Don't move or edit this file manually!
-php "$src"/src/console.php $@
+$phpExecutable "$src"/src/console.php $@

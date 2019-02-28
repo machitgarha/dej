@@ -20,8 +20,14 @@ use Symfony\Component\Console\Input\ArrayInput;
 
 class StartCommand extends BaseCommand
 {
-    protected $phpExecutable = "php";
+    protected $phpExecutable;
     protected $rootPermissions;
+
+    public function __construct(string $name = null)
+    {
+        $this->phpExecutable = trim(file_get_contents(__DIR__ . "/../../data/php"));
+        parent::__construct($name);
+    }
 
     protected function configure()
     {
@@ -30,6 +36,8 @@ class StartCommand extends BaseCommand
             ->setDescription("Starts Dej.")
             ->setHelp($this->getHelpFromFile("start"))
         ;
+
+        
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
