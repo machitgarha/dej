@@ -1,4 +1,10 @@
 <?php
+/**
+ * Dej command files.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Command;
 
@@ -6,11 +12,13 @@ use Webmozart\PathUtil\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
+use Dej\Element\ShellOutput;
 
+/**
+ * Stops Dej.
+ */
 class StopCommand extends BaseCommand
 {
-    protected $rootPermissions;
-
     protected function configure()
     {
         $this
@@ -20,13 +28,20 @@ class StopCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * Executes stop command.
+     *
+     * @param InputInterface $input
+     * @param ShellOutput $output
+     * @return void
+     */
+    protected function execute(InputInterface $input, $output)
     {
         $this->forceRootPermissions($output);
 
         $output->writeln("Stopping Dej...");
 
-        // Check if there are some screens to stop
+        // Check if there is at least one screen to continue stopping
         if (StatusCommand::getStatus() === StatusCommand::STATUS_STOPPED) {
             $output->writeln("Not running.");
             return;
