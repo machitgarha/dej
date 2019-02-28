@@ -30,7 +30,7 @@ class StatusCommand extends BaseCommand
         // Search for Dej screens
         switch (self::getStatus()) {
             case self::STATUS_STOPPED:
-                $output->exit("Not running.");
+                $output->writeln("Not running.");
                 break;
             
             case self::STATUS_PARTIAL:
@@ -38,7 +38,7 @@ class StatusCommand extends BaseCommand
                 break;
             
             case self::STATUS_RUNNING:
-                $output->exit("Running!");
+                $output->writeln("Running!");
                 break;
 
             default:

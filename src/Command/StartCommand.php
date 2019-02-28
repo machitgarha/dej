@@ -60,7 +60,8 @@ class StartCommand extends BaseCommand
                 if (!isset($result) || $result !== 0)
                     throw new \Exception("Cannot stop Dej");
             } else {
-                $output->exit("Aborted.");
+                $output->writeln("Aborted.");
+                return;
             }
         }
 

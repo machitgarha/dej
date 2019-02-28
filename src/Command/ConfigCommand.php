@@ -32,15 +32,19 @@ class ConfigCommand extends BaseCommand
         $index = $input->getArgument("index");
         $value = $input->getArgument("value");
 
-        if ($index === "list")
+        if ($index === "list") {
             $this->printOptionsList($output);
+            return;
+        }
 
-        if ($index === "?")
+        if ($index === "?") {
             $this->getOptionDetails($value, $output);
+            return;
+        }
 
         if ($index === "check") {
             $this->getApplication()->find("check")->run(new ArrayInput([]), $output);
-            exit();
+            return;
         }
 
         if (empty($index))
@@ -72,7 +76,7 @@ class ConfigCommand extends BaseCommand
                     "Run 'dej config list' for more info."
                 ]);
             }
-            exit();
+            return;
         }
 
         // Load all possible options
@@ -85,8 +89,11 @@ class ConfigCommand extends BaseCommand
 
         // Break if it is an invalid option
         if (!in_array($index, $possibleOptions)) {
-            $output->writeln("There is no '$index' option exists.");
-            $output->exit("Run 'dej config list' for more info.");
+            $output->writeln([
+                "There is no '$index' option exists.",
+                "Run 'dej config list' for more info."
+            ]);
+            return;
         }
 
         $output->writeln("Updating configurations...");
@@ -205,7 +212,7 @@ class ConfigCommand extends BaseCommand
             $output->enableLineLimit();
         }
 
-        $output->exit("For more details on each option, try 'dej config ? [option]'.");
+        $output->writeln("For more details on each option, try 'dej config ? [option]'.");
     }
 
     private function getOptionDetails(string $optionName, ShellOutput $output)
@@ -220,10 +227,10 @@ class ConfigCommand extends BaseCommand
                     "Description: " . trim($option->description),
                     "Default value: " . ($option->default[0] ?? "None")
                 ]);
-                exit();
+                return;
             }
         }
 
-        $output->exit("'$optionName' option not found.");
+        $output->writeln("'$optionName' option not found.");
     }
 }

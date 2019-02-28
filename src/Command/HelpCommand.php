@@ -39,17 +39,19 @@ class HelpCommand extends BaseCommand
             $help = $command->getHelp() ?? $command->getDescription();
             if ($help !== null) {
                 $output->writeln($help);
-                exit();
+                return true;
             }
+            return false;
         };
 
-        if ($this->command !== null) {
-            $outputHelp($command); 
+        if ($this->command !== null && $outputHelp($command)) {
+            return;
         }
 
         $commandName = $input->getArgument("command_name");
-        if ($this->getApplication()->has($commandName)) {
-            $outputHelp($this->getApplication()->get($commandName));
+        if ($this->getApplication()->has($commandName) &&
+            $outputHelp($this->getApplication()->get($commandName))) {
+            return;
         }
 
         self::commandNotFound($output, $commandName);
