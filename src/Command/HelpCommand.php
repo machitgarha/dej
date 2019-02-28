@@ -37,8 +37,10 @@ class HelpCommand extends BaseCommand
     {
         $outputHelp = function (Command $command) use ($output) {
             $help = $command->getHelp() ?? $command->getDescription();
-            if ($help !== null)
-                $output->exit($help);
+            if ($help !== null) {
+                $output->writeln($help);
+                exit();
+            }
         };
 
         if ($this->command !== null) {
