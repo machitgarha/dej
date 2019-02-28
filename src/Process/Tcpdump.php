@@ -2,13 +2,13 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Dej\Element\DataValidation;
+use Dej\Component\DataValidation;
 use MAChitgarha\Component\JSONFile;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
-use Dej\Element\Shell;
+use Dej\Component\Shell;
 use Symfony\Component\Process\Process;
-use Dej\Element\ShellOutput;
+use Dej\Component\ShellOutput;
 
 $sh = new ShellOutput();
 

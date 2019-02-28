@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Dej\Element;
+namespace Dej\Component;
 
 use Symfony\Component\Console\Command\Command;
 use Dej\Command\HelpCommand;

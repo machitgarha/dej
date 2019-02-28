@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use Dej\Element\Application;
+use Dej\Component\Application;
 use Dej\Command\HelpCommand;
 use Dej\Command\StartCommand;
 use Dej\Command\StopCommand;
@@ -12,7 +12,7 @@ use Dej\Command\ConfigCommand;
 use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
 use Dej\Command\UpdateCommand;
-use Dej\Element\ShellOutput;
+use Dej\Component\ShellOutput;
 use Dej\Command\ListCommand;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Formatter\OutputFormatter;

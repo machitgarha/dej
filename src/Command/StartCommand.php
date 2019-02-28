@@ -13,7 +13,7 @@ use Webmozart\PathUtil\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
-use Dej\Element\DataValidation;
+use Dej\Component\DataValidation;
 use Symfony\Component\Process\Process;
 use MAChitgarha\Component\JSON;
 use Symfony\Component\Process\PhpProcess;
@@ -22,7 +22,7 @@ use Symfony\Component\Process\ProcessUtils;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
-use Dej\Element\ShellOutput;
+use Dej\Component\ShellOutput;
 
 /**
  * Starts Dej.

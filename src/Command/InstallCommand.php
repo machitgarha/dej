@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Webmozart\PathUtil\Path;
 use Symfony\Component\Process\Process;
-use Dej\Element\ShellOutput;
+use Dej\Component\ShellOutput;
 
 /**
  * Installs Dej.

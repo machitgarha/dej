@@ -10,7 +10,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Dej\Element\ShellOutput;
+use Dej\Component\ShellOutput;
 
 /**
  * Gets Dej status.

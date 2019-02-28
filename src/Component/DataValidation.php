@@ -1,6 +1,6 @@
 <?php
 
-namespace Dej\Element;
+namespace Dej\Component;
 
 use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
