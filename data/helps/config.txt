@@ -2,5 +2,6 @@ Usages:
     dej config [option] [value]
     dej config list
     dej config ? [option]
+    dej config check
 
 Edits the configuration file and set [option]'s value to [value]. The config file exist in ./config/data.json, which you can edit it manually.
