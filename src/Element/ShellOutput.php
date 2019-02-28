@@ -7,9 +7,11 @@ use Webmozart\PathUtil\Path;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Dej\Exception\Exception;
 
 class ShellOutput extends ConsoleOutput
 {
+    /** @var JSONFile */
     private $messages;
     private $toLimitLines = true;
 
@@ -102,8 +104,8 @@ class ShellOutput extends ConsoleOutput
         };
 
         // If it wasn't an instance of ParamException
-        if (!($error instanceof ParamException))
-            if ($error instanceof Throwable)
+        if (!($error instanceof Exception))
+            if ($error instanceof \Throwable)
                 return $getErrorMessage($error->getMessage());
             else
                 return $getErrorMessage();

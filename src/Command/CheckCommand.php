@@ -42,11 +42,12 @@ class CheckCommand extends BaseCommand
 
         $dataJson = $this->loadJson("data");
         $isThereAnyWarnings = false;
+        $i = 0;
 
-        // Check for required options that is not set
+        // Check for missing options that is not set
         $validatedData = DataValidation::new($dataJson)->classValidation();
         $isThereAnyWarnings = !empty($validatedData->getWarnings());
-            
+
         $validatedData->output(true);
 
         // Validating options' values (e.g. bad MAC address for interface.mac)

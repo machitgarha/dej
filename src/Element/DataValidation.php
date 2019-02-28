@@ -5,7 +5,10 @@ namespace Dej\Element;
 use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
 use MAChitgarha\Component\JSON;
-use Dej\Exception\ParamException;
+use Dej\Exception\Exception;
+use Dej\Exception\InvalidFieldValueException;
+use Dej\Exception\MissingFieldException;
+use Dej\Exception\FileNameInvalidException;
 
 class DataValidation
 {
@@ -70,7 +73,7 @@ class DataValidation
                     if ($fieldClass === "required")
                         $data["?type"] = "required";
                     if ($fieldClass !== "optional")
-                        $this->pushError(new ParamException($data));
+                        $this->pushError(new MissingFieldException($data));
                 }
             }
         };
@@ -96,7 +99,7 @@ class DataValidation
                 break;
 
             default:
-                throw new ParamException([], true);
+                throw new FileNameInvalidException([], true);
         }
 
         return $this;
@@ -153,7 +156,7 @@ class DataValidation
 
                 // Warn user, there is mistyped field!
                 if (!$validField)
-                    $this->pushWarning(new ParamException([
+                    $this->pushWarning(new InvalidFieldValueException([
                         "type" => $this->fullTypes[$fieldType],
                         "value" => json_encode($fieldValue)
                     ]));

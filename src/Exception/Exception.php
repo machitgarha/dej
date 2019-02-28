@@ -2,7 +2,7 @@
 
 namespace Dej\Exception;
 
-class ParamException extends \Exception
+abstract class Exception extends \Exception
 {
     private $params;
     private $isInternal;
@@ -12,7 +12,8 @@ class ParamException extends \Exception
         $this->params = $params;
         $this->isInternal = $isInternal;
 
-        parent::__construct(get_class($this));
+        $className = array_reverse(explode("\\", get_class($this)))[0];
+        parent::__construct($className);
     }
 
     public function getParams()
@@ -26,7 +27,7 @@ class ParamException extends \Exception
     }
 }
 
-class FileException extends ParamException {}
+class FileException extends Exception {}
     class FileLoadingException extends FileException {}
         class FileOpeningException extends FileLoadingException {}
         class FileReadingException extends FileLoadingException {}
@@ -36,6 +37,6 @@ class FileException extends ParamException {}
     class FileEmptyException extends FileException {}
     class FileNameInvalidException extends FileException {}
 
-class FieldException extends ParamException {}
+class FieldException extends Exception {}
     class InvalidFieldValueException extends FieldException {}
     class MissingFieldException extends FieldException {}
