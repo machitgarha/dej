@@ -1,10 +1,12 @@
 #!/bin/sh
 
-# PHP executable to run PHP files, change this if needed
-phpExecutable=$(cat ./data/php)
-
+# Don't edit the following three lines:
 # SOURCE
 src="."
+cd $src
+
+# PHP executable to run PHP files, change this if needed
+phpExecutable=$(cat ./data/php)
 
 # Check for PHP executable to be exist
 havePhp=`which $phpExecutable`
