@@ -11,7 +11,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use MAChitgarha\Component\JSONFile;
-use Webmozart\PathUtil\Path;
+use Dej\Component\JSONFileValidation;
 
 /**
  * The base class for all Dej commands.
@@ -23,11 +23,11 @@ abstract class BaseCommand extends Command
      *
      * @param string $filename The filename to load, with '.json' suffix.
      * @param string $prefix The prefix directory to load from.
-     * @return JSONFile
+     * @return JSONFileValidation
      */
-    protected function loadJson(string $filename, string $prefix = "config"): JSONFile
+    protected function loadJson(string $filename, string $prefix = "config"): JSONFileValidation
     {
-        return new JSONFile(__DIR__ . "/../../$prefix/$filename.json");
+        return new JSONFileValidation(__DIR__ . "/../../$prefix/$filename.json");
     }
 
     /**

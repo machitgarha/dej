@@ -9,17 +9,11 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\ArrayInput;
-use Dej\Component\DataValidation;
-use MAChitgarha\Component\Pusheh;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableSeparator;
-use Dej\Component\ShellOutput;
-use Symfony\Component\Console\Helper\TableStyle;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Output\NullOutput;
+use Dej\Component\ShellOutput;
 
 /**
  * Configures Dej.
@@ -78,7 +72,7 @@ class ConfigCommand extends BaseCommand
         try {
             $dataJson = $this->loadJson("data");
         } catch (\Throwable $e) {
-            throw new \Exception("Invalid configuration file detected.");
+            throw new \Exception("JSON configuration file could not be loaded.");
         }
 
         // Handling 'dej config [option]'
@@ -97,62 +91,41 @@ class ConfigCommand extends BaseCommand
         // From here, handling 'dej config [option] [value]'
         $option = $firstArgument;
 
-        // Load all available options
-        $types = $this->loadJson("type", "data/validation")->get("data\.json");
-        $availableOptions = [];
-        foreach ((array)$types as $key => $val)
-            array_push($availableOptions, $key);
-
         // If the option is not available in options list
-        if (!in_array($option, $availableOptions)) {
+        if (!$dataJson->optionExist($option)) {
             $output->writeln([
-                "Invalid option '$firstArgument'.",
+                "Invalid option '$option'.",
                 "Run 'dej config list' for more info."
             ]);
-            return;
+            return 1;
         }
 
         $output->writeln("Updating configurations...");
 
         // Get option's current value
-        $currentValue = $dataJson->get($firstArgument);
+        $curValue = $dataJson->get($option);
 
-        // Fix values
-        $type = $types->$option->type ?? "string";
-        switch ($type) {
-            case "bool":
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                break;
+        // Set the new value and check if it's valid or not
+        $isValueValid = $dataJson
+            ->set($option, $value)
+            ->fixValue($option)
+            ->hasValidType($option);
 
-            case "int":
-                $value = filter_var($value, FILTER_VALIDATE_INT);
-                break;
-
-            case "alphanumeric":
-                $value = preg_replace("/[^a-z0-9]/i", "", $value);
-                break;
-
-            /*
-             * As a MAC address cannot be fixed, just alert user if it's invalid.
-             * Also, convert a dash-styled MAC address to colon-styled one.
-             */
-            case "mac":
-                if (!preg_match("/^([\da-f]{2}[:-]){5}([\da-f]{2})$/i", $value))
-                    throw new \RuntimeException("Wrong MAC address was given.");
-                
-                $value = str_replace("_", ":", $value);
-                break;
+        // Output alerts as errors
+        if (!$isValueValid) {
+            $dataJson->outputAlerts($output, ["w" => "e", "e" => "e"]);
+            return 1;
         }
 
         // Update the value and save the file
-        $dataJson->set($option, $value);
         $dataJson->save();
 
         $output->write("Done! ");
 
         // Print the changes, if there were any
-        if ($currentValue !== null && $currentValue !== $value)
-            $output->write("(" . json_encode($currentValue) . " => " . json_encode($value) . ")");
+        $newValue = $dataJson->get($option);
+        if ($curValue !== null && $curValue !== $newValue)
+            $output->write("(" . json_encode($curValue) . " => " . json_encode($newValue) . ")");
 
         $output->writeln([
             "",
@@ -168,13 +141,11 @@ class ConfigCommand extends BaseCommand
         }
 
         // Checks configuration file for warnings
-        $warnings = DataValidation::new($this->loadJson("data"))
-            ->classValidation()
-            ->typeValidation()
-            ->getWarnings();
+        $warningsCount = $dataJson
+            ->checkEverything()
+            ->getAlertsCount();
 
         // If at least a warning found, print it
-        $warningsCount = count($warnings);
         if ($warningsCount !== 0) {
             $output->writeln([
                 "",

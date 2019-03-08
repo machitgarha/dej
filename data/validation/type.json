@@ -1,54 +1,54 @@
 {
     "data.json": {
         "interface.name": {
-            "class": "required"
+            "required": true
         },
         "interface.mac": {
-            "type": "mac",
-            "class": "required"
+            "required": true,
+            "type": "macAddress"
         },
         "save_to.path": {
-            "class": "required"
-        },
-        "executables.screen": {
-            "default_value": "screen",
-            "class": "warn"
-        },
-        "executables.tcpdump": {
-            "default_value": "tcpdump",
-            "class": "warn"
-        },
-        "save_to.format": {
-            "default_value": ".txt"
-        },
-        "backup.dir": {
-            "default_value": "backup",
+            "required": true,
             "type": "alphanumeric"
         },
+        "executables.screen": {
+            "defaultValue": "screen"
+        },
+        "executables.tcpdump": {
+            "defaultValue": "tcpdump"
+        },
+        "save_to.format": {
+            "type": "alphanumeric",
+            "defaultValue": "txt"
+        },
+        "backup.dir": {
+            "type": "alphanumeric",
+            "defaultValue": "backup"
+        },
         "backup.timeout": {
-            "default_value": 60,
-            "type": "int"
+            "type": "integer",
+            "defaultValue": 60
         },
         "logs.screen": {
-            "default_value": false,
-            "type": "bool"
+            "type": "boolean",
+            "defaultValue": false
         },
         "logs.skipped_packets": {
-            "default_value": false,
-            "type": "bool"
+            "type": "boolean",
+            "defaultValue": false
         },
         "logs.path": {
-            "default_value": "logs"
+            "type": "alphanumeric",
+            "defaultValue": "logs"
         }
     },
+
     "users.json": {
         "name": {
-            "class": "required",
             "type": "alphanumeric"
         },
         "mac": {
-            "class": "required",
-            "type": "mac"
+            "type": "macAddress"
         }
     }
 }

@@ -2,22 +2,20 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use MAChitgarha\Component\JSONFile;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
-use Dej\Component\DataValidation;
 use Dej\Component\ShellOutput;
+use Dej\Component\JSONFileValidation;
 
-$sh = new ShellOutput();
+$shellOutput = new ShellOutput();
 
 // Load configurations and validate it
 try {
-    $config = (new DataValidation(new JSONFile("config/data.json")))
-        ->classValidation()
-        ->typeValidation()
-        ->return();
+    $config = (new JSONFileValidation("config/data.json"))
+        ->checkEverything()
+        ->throwFirstError();
 } catch (Throwable $e) {
-    $sh->error($e);
+    $shellOutput->error($e);
 }
 
 // Create and change directory to the path of saved files

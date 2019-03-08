@@ -2,28 +2,23 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Dej\Component\Shell;
-use Dej\Component\DataValidation;
-use MAChitgarha\Component\JSONFile;
-use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use MAChitgarha\Component\JSON;
 use Dej\Component\ShellOutput;
+use Dej\Component\JSONFileValidation;
 
-$sh = new ShellOutput();
+$shellOutput = new ShellOutput();
 
 try {
     // Load configurations and validate it
-    $config = (new DataValidation(new JSONFile("config/data.json")))
-        ->classValidation()
-        ->typeValidation()
-        ->return();
+    $config = (new JSONFileValidation("config/data.json"))
+        ->checkEverything()
+        ->throwFirstError();
 
     // Load users config file and validate it
-    $users = extractMacAsKeys((new DataValidation(new JSONFile("config/users.json")))
-        ->classValidation()
-        ->typeValidation()
-        ->return()
+    $users = extractMacAsKeys((new JSONFileValidation("config/users.json"))
+        ->checkEverything()
+        ->throwFirstError()
     );
 
     /*
@@ -34,7 +29,7 @@ try {
     */
     $stopFile = "config/stop";
 } catch (Throwable $e) {
-    $sh->error($e);
+    $shellOutput->error($e);
 }
 
 $toLogSkippedPackets = $config->get("logs.skipped_packets");
@@ -176,9 +171,9 @@ function saveToFile(string $macAddress, int $packetsTotalSize) {
     $packetsTotalSize /= 10 ** 6;
 
     // Produces the filename
-    $macFilePath = $path . $macAddress . $format;
+    $macFilePath = $path . $macAddress . "." . $format;
     
-    $filePath = $path . ($users[$macAddress] ?? $macAddress) . $format;
+    $filePath = $path . ($users[$macAddress] ?? $macAddress) . "." . $format;
 
     // Prevent duplicate files of one device
     $macFileLastVal = 0;

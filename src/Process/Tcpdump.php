@@ -2,24 +2,21 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Dej\Component\DataValidation;
-use MAChitgarha\Component\JSONFile;
+use Symfony\Component\Process\Process;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
-use Dej\Component\Shell;
-use Symfony\Component\Process\Process;
 use Dej\Component\ShellOutput;
+use Dej\Component\JSONFileValidation;
 
-$sh = new ShellOutput();
+$shellOutput = new ShellOutput();
 
 try {
     // Load configurations and validate it
-    $config = (new DataValidation(new JSONFile("config/data.json")))
-        ->classValidation()
-        ->typeValidation()
-        ->return();
+    $config = (new JSONFileValidation("config/data.json"))
+        ->checkEverything()
+        ->throwFirstError();
 } catch (Throwable $e) {
-    $sh->error($e);
+    $shellOutput->error($e);
 }
 
 $interfaceName = $config->get("interface.name");

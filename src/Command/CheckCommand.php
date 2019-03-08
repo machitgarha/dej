@@ -9,8 +9,6 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Dej\Component\DataValidation;
 use Dej\Component\ShellOutput;
 
 /**
@@ -36,26 +34,16 @@ class CheckCommand extends BaseCommand
     protected function execute(InputInterface $input, $output)
     {
         $output->writeln([
-            "Preparing...",
-            ""
+            "Preparing..."
         ]);
 
-        $dataJson = $this->loadJson("data");
-        $isThereAnyWarnings = false;
-
         // Check for missing options that is not set
-        $validatedData = DataValidation::new($dataJson)->classValidation();
-        $isThereAnyWarnings = !empty($validatedData->getWarnings());
+        $alertsCount = $this->loadJson("data")
+            ->checkEverything()
+            ->outputAlerts($output, ["w" => "w", "e" => "w"])
+            ->getAlertsCount();
 
-        $validatedData->output(true);
-
-        // Validating options' values (e.g. bad MAC address for interface.mac)
-        $validatedData = DataValidation::new($dataJson)->typeValidation();
-        $isThereAnyWarnings = $isThereAnyWarnings || !empty($validatedData->getWarnings());
-
-        $validatedData->output(true);
-
-        if (!$isThereAnyWarnings)
+        if ($alertsCount === 0)
             $output->writeln("Good!");
     }
 }

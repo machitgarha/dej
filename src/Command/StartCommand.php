@@ -8,21 +8,16 @@
 
 namespace Dej\Command;
 
-use MAChitgarha\Component\Pusheh;
-use Webmozart\PathUtil\Path;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
-use Dej\Component\DataValidation;
-use Symfony\Component\Process\Process;
-use MAChitgarha\Component\JSON;
-use Symfony\Component\Process\PhpProcess;
-use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\ProcessUtils;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Process\Process;
 use Dej\Component\ShellOutput;
+use MAChitgarha\Component\Pusheh;
+use Webmozart\PathUtil\Path;
+
 
 /**
  * Starts Dej.
@@ -88,10 +83,9 @@ class StartCommand extends BaseCommand
         }
 
         // Load configurations and validate it
-        $config = DataValidation::new($this->loadJson("data"))
-            ->classValidation()
-            ->typeValidation()
-            ->return();
+        $config = $this->loadJson("data")
+            ->checkEverything()
+            ->throwFirstError();
 
         // Perform comparison between files and backup files
         $path = $config->get("save_to.path");
