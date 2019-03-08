@@ -153,6 +153,11 @@ class JSONFileValidation extends JSONFile
                 $expectedType = "colon-styled MAC address";
                 break;
             
+            case "path":
+                // Should be implemented
+                return true;
+                break;
+            
             default:
                 throw new \Exception("Unknown type.");
         }
