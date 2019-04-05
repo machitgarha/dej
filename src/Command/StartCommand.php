@@ -107,7 +107,7 @@ class StartCommand extends BaseCommand
         ];
         foreach ($neededExecutables as $executable)
             if (empty(`which {$executable[1]}`))
-                return $output->error("You must have {$executable[0]} command installed, "
+                throw new OutputException("You must have {$executable[0]} command installed, "
                     . "i.e. the specified executable file cannot be used ({$executable[1]}). "
                     . "Change it by 'dej config'.");
 

@@ -68,7 +68,7 @@ class InstallCommand extends BaseCommand
             else
                 throw new OutputException("You must install Dej as a Phar file.");
         else
-            $output->write("Already installed.");
+            throw new OutputException("Already installed.");
 
         // Grant right permissions
         chmod($installationPath, 0755);

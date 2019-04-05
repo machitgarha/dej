@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Dej\Component\ShellOutput;
+use Dej\Exception\OutputException;
 
 /**
  * Uninstalls Dej.
@@ -42,7 +43,7 @@ class UninstallCommand extends BaseCommand
         // Find where Dej has been installed
         $installationPath = trim(`which dej`);
         if (empty($installationPath))
-            return $output->error("Not installed yet.");
+            throw new OutputException("Not installed yet.");
 
         // Get agreement
         $helper = $this->getHelper("question");
