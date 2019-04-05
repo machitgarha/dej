@@ -2,41 +2,20 @@
 
 namespace Dej\Exception;
 
+/**
+ * Dej exception.
+ */
 abstract class Exception extends \Exception
 {
-    private $params;
-    private $isInternal;
-
-    public function __construct(array $params = [], bool $isInternal = false)
+    /**
+     * Construct a new exception, just like normal exceptions.
+     *
+     * @param string $message
+     * @param integer $code
+     * @param \Throwable|null $previous
+     */
+    public function __construct(string $message = "", int $code = 0, \Throwable $previous = null)
     {
-        $this->params = $params;
-        $this->isInternal = $isInternal;
-
-        $className = array_reverse(explode("\\", get_class($this)))[0];
-        parent::__construct($className);
-    }
-
-    public function getParams()
-    {
-        return $this->params;
-    }
-
-    public function isInternal()
-    {
-        return $this->isInternal;
+        parent::__construct($message, $code, $previous);
     }
 }
-
-class FileException extends Exception {}
-    class FileLoadingException extends FileException {}
-        class FileOpeningException extends FileLoadingException {}
-        class FileReadingException extends FileLoadingException {}
-        class FileWritingException extends FileLoadingException {}
-        class FileExistenceException extends FileLoadingException {}
-        class FilePermissionsException extends FileLoadingException {}
-    class FileEmptyException extends FileException {}
-    class FileNameInvalidException extends FileException {}
-
-class FieldException extends Exception {}
-    class InvalidFieldValueException extends FieldException {}
-    class MissingFieldException extends FieldException {}
