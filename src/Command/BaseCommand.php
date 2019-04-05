@@ -10,8 +10,9 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
-use MAChitgarha\Component\JSONFile;
 use Dej\Component\JSONFileValidation;
+use Webmozart\PathUtil\Path;
+use MAChitgarha\Component\Pusheh;
 
 /**
  * The base class for all Dej commands.
@@ -20,14 +21,20 @@ abstract class BaseCommand extends Command
 {
     /**
      * Loads a JSON file.
+     * 
+     * The default path for configuration files is under the user's home directory.
      *
      * @param string $filename The filename to load, with '.json' suffix.
      * @param string $prefix The prefix directory to load from.
      * @return JSONFileValidation
      */
-    protected function loadJson(string $filename, string $prefix = "config"): JSONFileValidation
+    protected function loadJson(string $filename): JSONFileValidation
     {
-        return new JSONFileValidation(__DIR__ . "/../../$prefix/$filename.json");
+        // Create the config directory
+        $configDirectory = Path::join(getenv("HOME"), ".config/dej");
+        Pusheh::createDirRecursive($configDirectory);
+
+        return new JSONFileValidation(Path::join($configDirectory, "$filename.json"));
     }
 
     /**

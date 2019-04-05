@@ -12,32 +12,40 @@
             "type": "path"
         },
         "executables.screen": {
+            "required": false,
             "defaultValue": "screen"
         },
         "executables.tcpdump": {
+            "required": false,
             "defaultValue": "tcpdump"
         },
         "save_to.format": {
+            "required": false,
             "type": "alphanumeric",
             "defaultValue": "txt"
         },
         "backup.dir": {
+            "required": false,
             "type": "path",
             "defaultValue": "backup"
         },
         "backup.timeout": {
+            "required": false,
             "type": "integer",
             "defaultValue": 60
         },
         "logs.screen": {
+            "required": false,
             "type": "boolean",
             "defaultValue": false
         },
         "logs.skipped_packets": {
+            "required": false,
             "type": "boolean",
             "defaultValue": false
         },
         "logs.path": {
+            "required": false,
             "type": "path",
             "defaultValue": "logs"
         }

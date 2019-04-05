@@ -217,7 +217,11 @@ class JSONFileValidation extends JSONFile
         switch ($this->getFilename()) {
             case "data.json":
                 foreach ($this->validationData as $optionName => $optionData)
-                    $this->set($optionName, $this->get($optionName) ?? $optionData->defaultValue);
+                    if (!$optionData->required)
+                        $this->set(
+                            $optionName,
+                            $this->get($optionName) ?? $optionData->defaultValue
+                        );
                 break;
         }
 

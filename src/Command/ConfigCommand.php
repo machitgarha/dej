@@ -72,7 +72,7 @@ class ConfigCommand extends BaseCommand
         try {
             $dataJson = $this->loadJson("data");
         } catch (\Throwable $e) {
-            throw new \Exception("JSON configuration file could not be loaded.");
+            throw new \Exception("A configuration file could not be loaded.");
         }
 
         // Handling 'dej config [option]'

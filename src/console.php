@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 use Dej\Component\Application;
@@ -14,10 +13,6 @@ use Dej\Command\InstallCommand;
 use Dej\Command\UpdateCommand;
 use Dej\Component\ShellOutput;
 use Dej\Command\ListCommand;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -41,9 +36,12 @@ try {
         new ListCommand(),
     ]);
 
+    $application->setDefaultCommand("help");
     $application->setCatchExceptions(false);
 
     $application->run(null, $shellOutput);
 } catch (\Throwable $e) {
     $shellOutput->error($e->getMessage());
 }
+
+__halt_compiler();
