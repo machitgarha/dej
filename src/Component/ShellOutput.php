@@ -1,130 +1,87 @@
 <?php
+/**
+ * Dej component file.
+ * 
+ * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
+ * @see https://github.com/MAChitgarha/Dej
+ */
 
 namespace Dej\Component;
 
-use MAChitgarha\Component\JSONFile;
-use Webmozart\PathUtil\Path;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Dej\Exception\Exception;
 
+/**
+ * Print messages to the shell output.
+ */
 class ShellOutput extends ConsoleOutput
 {
-    /** @var JSONFile */
-    private $messages;
+    /** @var bool Whether to limit lines on printing or not. */
     private $toLimitLines = true;
+    /** @var int */
+    private $lineLimit;
 
-    public $lineLimit;
-    public $showErrorMessage;
-
-    public function __construct(bool $showErrorMessage = false, int $lineLimit = 80, int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, OutputFormatterInterface $formatter = null)
+    /**
+     * Constructs a shell output.
+     *
+     * @param integer $lineLimit Line limit (in characters). Pass 0 to disable line limit.
+     * Default is shell width.
+     * @param integer $verbosity
+     * @param boolean $decorated
+     * @param OutputFormatterInterface $formatter
+     */
+    public function __construct(int $lineLimit = null, int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, OutputFormatterInterface $formatter = null)
     {
-        try {
-            // Error messages to use
-            $this->messages = new JSONFile(Path::join(__DIR__, "/../../data/output/errors.json"));
-        } catch (Throwable $e) {
-            exit("Error: Unknown error." . PHP_EOL);
-        }
-
-        // Determines whether to limit all output lines or not
-        $this->lineLimit = $lineLimit;
-
-        // Determines whether to show the full output or not
-        $this->showErrorMessage = $showErrorMessage;
+        $this->resetLineLimit($lineLimit);
 
         parent::__construct($verbosity, $decorated, $formatter);
     }
 
-    // Output a string with some lines before and after
-    public function echo(string $str = "", int $linesAfter = 1, int $linesBefore = 0)
+    /**
+     * {@inheritDoc}
+     */
+    public function doWrite(string $message, bool $newLine = false): void
     {
-        $output = "";
-
-        // Add lines before
-        for ($i = 0; $i < $linesBefore; $i++)
-            $output .= PHP_EOL;
-
-        // Add main content
-        $output .= $str;
-
-        // Add lines after
-        for ($i = 0; $i < $linesAfter; $i++)
-            $output .= PHP_EOL;
+        $output = $message . ($newLine ? PHP_EOL : "");
 
         // Output with limited lines
         echo ($this->toLimitLines ? self::limitLines($output, $this->lineLimit) : $output);
     }
 
-    // Warn user about something
-    public function warn($error = null, array $options = [])
+    /**
+     * Output a warning.
+     *
+     * @param string $message The message.
+     * @return self
+     */
+    public function warn(string $message): self
     {
-        $this->prepareOutput("Warning", $error, $options);
+        $this->writeln("Warning: $message");
+        return $this;
     }
 
-    // Outputs an error and exits the program
-    public function error($error = null, array $options = [])
+    /**
+     * Outputs an error.
+     *
+     * @param string $message The message.
+     * @param int $returnCode The return code.
+     * @return int The passed return code.
+     */
+    public function error(string $message, int $returnCode = 1): int
     {
-        $this->prepareOutput("Error", $error, $options);
-        exit();
+        $this->writeln("Error: $message");
+        return $returnCode;
     }
 
-    public function exit(string $message = null, array $options = [])
-    {
-        $this->prepareOutput("exit", $message, $options);
-        exit();
-    }
-
-    private function prepareOutput(string $type, $error, array $options)
-    {
-        $output = $this->bindValues($error);
-
-        // To put the status in the beginning or not
-        $messagePrefix = "";
-        if ($type !== "exit")
-            $messagePrefix = "$type: ";
-
-        // Handling empty lines after and before
-        $linesAfter = $options["linesAfter"] ?? 1;
-        $linesBefore = $options["linesBefore"] ?? 0;
-
-        $this->echo($messagePrefix . $output, $linesAfter, $linesBefore);
-    }
-
-    private function bindValues($error): string
-    {
-        if (is_string($error))
-            return $error;
-
-        // Return error message, based on showErrorMessage property
-        $showErrorMessage = $this->showErrorMessage;
-        $getErrorMessage = function (string $errorMessage = null) use ($showErrorMessage) {
-            $defaultErrorMsg = "Unknown error.";
-            return $showErrorMessage ? ($errorMessage ?? $defaultErrorMsg) : $defaultErrorMsg;
-        };
-
-        // If it wasn't an instance of ParamException
-        if (!($error instanceof Exception))
-            if ($error instanceof \Throwable)
-                return $getErrorMessage($error->getMessage());
-            else
-                return $getErrorMessage();
-
-        // If the message index not exists or it is an internal error, don't bind values
-        $messageIndex = $error->getMessage();
-        if (!$this->messages->isSet($messageIndex) || $error->isInternal())
-            return $getErrorMessage($messageIndex);
-
-        // Preparing to bind values
-        $message = $this->messages->get($messageIndex);
-        foreach ($error->getParams() as $key => $val)
-            $message = str_replace("%$key%", $val, $message);
-
-        // Skip optional output parameters
-        return preg_replace("/\s*%\?[a-z_]+%/i", "", $message);
-    }
-
-    // Changing the format of the message not to be more than $lineSize
+    /**
+     * Limit lines of a message.
+     * 
+     * Explode the message into some lines, based on the given line size.
+     *
+     * @param string $message The message to be exploded.
+     * @param integer $lineSize The line size (line limit).
+     * @return string The message extracted into some lines.
+     */
     public static function limitLines(string $message, int $lineSize = 80): string
     {
         if ($lineSize <= 0)
@@ -192,28 +149,71 @@ class ShellOutput extends ConsoleOutput
         return implode(PHP_EOL, $messageLines);
     }
 
-    public function doWrite($message, $newLine = false)
-    {
-        $newLine = $newLine ? 1 : 0;
-
-        $this->echo($message, $newLine);
-    }
-
-    public function disableLineLimit()
+    /**
+     * Disable limiting lines.
+     *
+     * @return self
+     */
+    public function disableLineLimit(): self
     {
         $this->toLimitLines = false;
+        return $this;
     }
 
-    public function enableLineLimit()
+    /**
+     * Enable limiting lines.
+     *
+     * @return self
+     */
+    public function enableLineLimit(): self
     {
         $this->toLimitLines = true;
+        return $this;
     }
 
+    /**
+     * Reset line limit to a new one.
+     *
+     * @param int $lineLimit Line limit (in characters). Pass 0 to disable line limit.
+     * Default is shell width.
+     * @return self
+     */
+    public function resetLineLimit(int $lineLimit = null): self
+    {
+        if ($lineLimit < 0)
+            throw new \InvalidArgumentException("Line limit cannot be negative.");
+
+        if ($lineLimit === 0)
+            $this->disableLineLimit();
+
+        // Default line limit is shell width 
+        if ($lineLimit === null)
+            $lineLimit = self::getShellWidth();
+
+        $this->lineLimit = $lineLimit;
+
+        return $this;
+    } 
+
+    /**
+     * Gives the width of current shell.
+     *
+     * It is supported only on Linux systems.
+     *
+     * @return int
+     */
     public static function getShellWidth(): int
     {
         return (int)(`tput cols`);
     }
 
+    /**
+     * Gives the height of current shell.
+     * 
+     * It is supported only on Linux systems.
+     *
+     * @return int
+     */
     public static function getShellHeight(): int
     {
         return (int)(`tput lines`);
