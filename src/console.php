@@ -10,7 +10,6 @@ use Dej\Command\CheckCommand;
 use Dej\Command\ConfigCommand;
 use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
-use Dej\Command\UpdateCommand;
 use Dej\Component\ShellOutput;
 use Dej\Command\ListCommand;
 
@@ -32,7 +31,6 @@ try {
         new ConfigCommand(),
         new UninstallCommand(),
         new InstallCommand(),
-        new UpdateCommand(),
         new ListCommand(),
     ]);
 

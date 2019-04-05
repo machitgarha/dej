@@ -1,85 +1,129 @@
 <?xml version="1.0" ?>
 <options>
-    <option type="required">
+    <option>
         <name>interface.name</name>
+        <type>
+            <requirement>required</requirement>
+            <value>string</value>
+        </type>
         <description>
             Interface name of your device you want to sniff.
         </description>
     </option>
 
-    <option type="required">
+    <option>
         <name>interface.mac</name>
+        <type>
+            <requirement>required</requirement>
+            <value>mac</value>
+        </type>
         <description>
             Interface's MAC address of your device you want to sniff.
         </description>
     </option>
 
-    <option type="required">
+    <option>
         <name>save_to.path</name>
+        <type>
+            <requirement>required</requirement>
+            <value>string</value>
+        </type>
         <description>
             Where to save files. The files are about how much data each device used.
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>save_to.format</name>
-        <default>".txt"</default>
+        <default>"txt"</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>alphanumeric</value>
+        </type>
         <description>
             Files' format.
         </description>
     </option>
 
-    <option type="recommended">
+    <option>
         <name>executables.screen</name>
         <default>"screen"</default>
+        <type>
+            <requirement>recommended</requirement>
+            <value>string</value>
+        </type>
         <description>
             The executable file of the 'screen' command. It can be either the command name absolutely or the path to the command file.
         </description>
     </option>
 
-    <option type="recommended">
+    <option>
         <name>executables.tcpdump</name>
         <default>"tcpdump"</default>
+        <type>
+            <requirement>recommended</requirement>
+            <value>string</value>
+        </type>
         <description>
             The executable file of the 'tcpdump' command. It can be either the command name absolutely or the path to the command file.
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>backup.dir</name>
         <default>"backup"</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>string</value>
+        </type>
         <description>
             Where to backup files inside inside 'save_to.path' (i.e. path is relative).
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>backup.timeout</name>
         <default>60</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>integer</value>
+        </type>
         <description>
             Take a backup from files in once in this no. of seconds.
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>logs.path</name>
         <default>"logs"</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>string</value>
+        </type>
         <description>
             Path to save log files.
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>logs.screen</name>
         <default>false</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>boolean</value>
+        </type>
         <description>
             Log outputs from running files inside the 'logs' directory or not.
         </description>
     </option>
 
-    <option type="optional">
+    <option>
         <name>logs.skipped_packets</name>
         <default>false</default>
+        <type>
+            <requirement>optional</requirement>
+            <value>boolean</value>
+        </type>
         <description>
             Log outputs from sniffer file about which packets skipped.
         </description>
