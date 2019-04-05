@@ -1,6 +1,0 @@
-{
-    "FileReadingException": "Cannot read '%file_path%'.",
-    "FileExistenceException": "'%file_path%' doesn't exist.",
-    "MissingFieldException": "Missing %?type% '%field_name%' option.",
-    "InvalidFieldValueException": "%value% is not a valid %type%."
-}

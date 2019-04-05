@@ -17,6 +17,7 @@ use Symfony\Component\Process\Process;
 use Dej\Component\ShellOutput;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
+use Dej\Exception\OutputException;
 
 
 /**
@@ -53,6 +54,7 @@ class StartCommand extends BaseCommand
      * @param InputInterface $input
      * @param ShellOutput $output
      * @return void
+     * @throws OutputException If Dej cannot be restarted.
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -74,7 +76,7 @@ class StartCommand extends BaseCommand
 
                 // If something goes wrong with stopping Dej
                 if (!isset($result) || $result !== 0)
-                    throw new \Exception("Cannot stop Dej");
+                    throw new OutputException("Cannot stop Dej.");
             // User canceled starting Dej
             } else {
                 $output->writeln("Aborted.");
@@ -107,11 +109,11 @@ class StartCommand extends BaseCommand
             ["screen", $screen],
             ["tcpdump", $tcpdump]
         ];
-        foreach ($neededExecutables as $neededExecutable)
-            if (empty(`which {$neededExecutable[1]}`))
-                $output->error("You must have {$neededExecutable[0]} command installed, i.e., the"
-                    . "specified executable file cannot be used ({$neededExecutable[1]}). Fix it by"
-                    . " editing executables field in config/data.json.");
+        foreach ($neededExecutables as $executable)
+            if (empty(`which {$executable[1]}`))
+                return $output->error("You must have {$executable[0]} command installed, "
+                    . "i.e. the specified executable file cannot be used ({$executable[1]}). "
+                    . "Fix it by editing executables field in config/data.json.");
 
         // Names of directories and files
         $sourceDir = "src/Process";

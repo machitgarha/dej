@@ -60,7 +60,7 @@ class StatusCommand extends BaseCommand
                 break;
 
             default:
-                $output->warn("Too many running instances");
+                $output->warn("Too many running instances.");
                 break;
         }           
     }

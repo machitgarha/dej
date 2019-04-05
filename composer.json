@@ -26,9 +26,6 @@
     "autoload": {
         "psr-4": {
             "Dej\\": "src"
-        },
-        "files": [
-            "src/Exception/Exception.php"
-        ]
+        }
     }
 }

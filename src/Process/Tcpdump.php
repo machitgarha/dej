@@ -16,7 +16,7 @@ try {
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {
-    $shellOutput->error($e);
+    return $shellOutput->error($e->getMessage());
 }
 
 $interfaceName = $config->get("interface.name");

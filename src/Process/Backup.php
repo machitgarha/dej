@@ -15,7 +15,7 @@ try {
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {
-    $shellOutput->error($e);
+    return $shellOutput->error($e->getMessage());
 }
 
 // Create and change directory to the path of saved files

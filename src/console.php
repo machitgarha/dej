@@ -40,9 +40,9 @@ try {
 
     $application->run(null, $shellOutput);
 } catch (OutputException $e) {
-    $shellOutput->error($e->getMessage());
+    return $shellOutput->error($e->getMessage());
 } catch (\Throwable $e) {
-    $shellOutput->error("Unknown error.");
+    return $shellOutput->error("Unknown error.");
 }
 
 __HALT_COMPILER();

@@ -12,6 +12,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Webmozart\PathUtil\Path;
 use Dej\Component\ShellOutput;
+use Dej\Exception\OutputException;
+use Dej\Exception\InternalException;
 
 /**
  * Installs Dej.
@@ -33,8 +35,8 @@ class InstallCommand extends BaseCommand
      * @param InputInterface $input
      * @param ShellOutput $output
      * @return void
-     * @throws \Exception When installation path cannot be detected.
-     * @throws \Exception When try installing in a repository environment.
+     * @throws InternalException When installation path cannot be detected.
+     * @throws OutputException When try installing in a repository environment.
      */
     protected function execute(InputInterface $input, $output)
     {
@@ -48,7 +50,7 @@ class InstallCommand extends BaseCommand
         // Extract $PATH paths
         $sysInstallationDirs = explode(":", getenv("PATH"));
         if (empty($sysInstallationDirs))
-            throw new \Exception("Unknown installation path.");
+            throw new InternalException("Cannot find an installation path.");
 
         $installationDir = $sysInstallationDirs[0];
         $defaultInstallationDir = "/usr/local/bin";
@@ -64,9 +66,9 @@ class InstallCommand extends BaseCommand
             if (!empty($currentPharPath))
                 copy($currentPharPath, $installationPath);
             else
-                throw new \Exception("You must do this with a Phar file.");
+                throw new OutputException("You must install Dej as a Phar file.");
         else
-            $output->error("Already installed.");
+            $output->write("Already installed.");
 
         // Grant right permissions
         chmod($installationPath, 0755);

@@ -44,6 +44,12 @@ class JSONFileValidation extends JSONFile
     /** @var array Validation data fetched from the validation files. */
     protected $validationData;
 
+    /** @var array An array of filenames to be validated. */
+    protected $validFilenames = [
+        "data.json",
+        "users.json"
+    ];
+
     /**
      * Set up validation.
      * 
@@ -54,6 +60,7 @@ class JSONFileValidation extends JSONFile
      * @throws \Exception When the file doesn't exist and FILE_MUST_EXIST is on.
      * @throws \Exception When the file contains invalid JSON and IGNORE_INVALID_FILE is off.
      * @throws \Exception When something goes wrong while fetching validation data.
+     * @throws InternalException The passed file is an invalid and cannot be validated.
      */
     public function __construct(string $filePath, int $options = 0)
     {
@@ -61,6 +68,9 @@ class JSONFileValidation extends JSONFile
         $validationJson = new JSONFile(Path::join($this->validationDir, "type.json"));
 
         parent::__construct($filePath, $options);
+
+        if (!in_array($this->getFilename(), $this->validFilenames))
+            throw new InternalException("The file cannot be validated and is invalid.");
 
         // Save validation data
         $escapedFilename = str_replace(".", "\.", $this->getFilename());
@@ -94,9 +104,6 @@ class JSONFileValidation extends JSONFile
                         $this->hasValidType("macAddress", $userMac);
                 }
                 break;
-
-            default:
-                throw new InternalException("Invalid JSON filename for validation.");
         }
 
         return $this;
@@ -205,6 +212,7 @@ class JSONFileValidation extends JSONFile
                             "any MAC addresses (user's name: '$userName')") . ".");
                     }
                 }
+                break;
         }
 
         return $this;
@@ -432,7 +440,7 @@ class JSONFileValidation extends JSONFile
      * Throws the first error listed in errors, if there are any.
      *
      * @return self
-     * @throws OutputException The first error.
+     * @throws OutputException The first extracted error.
      */
     public function throwFirstError(): self
     {

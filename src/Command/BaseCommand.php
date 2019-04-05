@@ -13,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Dej\Component\JSONFileValidation;
 use Webmozart\PathUtil\Path;
 use MAChitgarha\Component\Pusheh;
+use Dej\Exception\OutputException;
 
 /**
  * The base class for all Dej commands.
@@ -42,7 +43,7 @@ abstract class BaseCommand extends Command
      *
      * @param OutputInterface $output
      * @return void
-     * @throws \RuntimeException When root permission has not been granted.
+     * @throws OutputException When root permission has not been granted.
      */
     protected function forceRootPermissions(OutputInterface $output): void
     {
@@ -53,7 +54,7 @@ abstract class BaseCommand extends Command
             $output->writeln($cannotDetectMessage);
 
         if (posix_getuid() !== 0)
-            throw new \RuntimeException("Root permission is needed.");
+            throw new OutputException("Root permission is needed.");
     }
 
     /**

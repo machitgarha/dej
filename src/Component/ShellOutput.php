@@ -177,6 +177,7 @@ class ShellOutput extends ConsoleOutput
      * @param int $lineLimit Line limit (in characters). Pass 0 to disable line limit.
      * Default is shell width.
      * @return self
+     * @throws \InvalidArgumentException When passing line limit a negative number.
      */
     public function resetLineLimit(int $lineLimit = null): self
     {

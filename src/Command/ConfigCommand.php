@@ -14,6 +14,8 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
+use Dej\Exception\OutputException;
+use Dej\Exception\InternalException;
 
 /**
  * Configures Dej.
@@ -39,9 +41,8 @@ class ConfigCommand extends BaseCommand
      * @param InputInterface $input
      * @param ShellOutput $output
      * @return void
-     * @throws \Exception If passing the first argument (i.e. option) is empty.
-     * @throws \Exception If the configuration file contains invalid JSON.
-     * @throws \RuntimeException When the JSON file contents are invalid.
+     * @throws OutputException If the option is missing.
+     * @throws InternalException If the configuration file contains invalid JSON.
      */
     protected function execute(InputInterface $input, $output)
     {
@@ -67,12 +68,12 @@ class ConfigCommand extends BaseCommand
         }
 
         if (empty($firstArgument))
-            throw new \Exception("Bad usage.");
+            throw new OutputException("Bad usage.");
 
         try {
             $dataJson = $this->loadJson("data");
         } catch (\Throwable $e) {
-            throw new \Exception("A configuration file could not be loaded.");
+            throw new InternalException("A configuration file could not be loaded.");
         }
 
         // Handling 'dej config [option]'
@@ -159,7 +160,7 @@ class ConfigCommand extends BaseCommand
      * Loads configuration options data, as an XML data.
      *
      * @return \SimpleXMLElement Configuration options data.
-     * @throws \Exception When something goes wrong on fetching options data.
+     * @throws InternalException When something goes wrong on fetching options data.
      */
     private function loadConfigOptionsData(): \SimpleXMLElement
     {
@@ -168,7 +169,7 @@ class ConfigCommand extends BaseCommand
             $configListXML = $file->fread($file->getSize());
             $file = null;
         } catch (\Throwable $e) {
-            throw new \Exception("Cannot fetch the list of options.");
+            throw new InternalException("Cannot fetch the list of options.");
         }
 
         return new \SimpleXMLElement($configListXML);

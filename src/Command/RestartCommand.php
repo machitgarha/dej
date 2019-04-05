@@ -9,10 +9,10 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
+use Dej\Exception\OutputException;
 
 /**
  * Restarts Dej.
@@ -34,7 +34,7 @@ class RestartCommand extends BaseCommand
      * @param InputInterface $input
      * @param ShellOutput $output
      * @return void
-     * @throws \Exception If something goes wrong.
+     * @throws OutputException If something goes wrong.
      */
     protected function execute(InputInterface $input, $output)
     {
@@ -54,7 +54,7 @@ class RestartCommand extends BaseCommand
 
         // Check for errors and badnesses during the processes
         if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0)
-            throw new \Exception("Cannot restart Dej");
+            throw new OutputException("Cannot restart Dej.");
 
         $output->writeln("Done!");
     }

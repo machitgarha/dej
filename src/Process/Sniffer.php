@@ -29,7 +29,7 @@ try {
     */
     $stopFile = "config/stop";
 } catch (Throwable $e) {
-    $shellOutput->error($e);
+    return $shellOutput->error($e->getMessage());
 }
 
 $toLogSkippedPackets = $config->get("logs.skipped_packets");

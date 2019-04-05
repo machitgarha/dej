@@ -14,7 +14,7 @@ try {
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {
-    $shellOutput->error($e);
+    return $shellOutput->error($e->getMessage());
 }
 
 // Change directory to TCPDump logs path

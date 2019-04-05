@@ -42,7 +42,7 @@ class UninstallCommand extends BaseCommand
         // Find where Dej has been installed
         $installationPath = trim(`which dej`);
         if (empty($installationPath))
-            $output->error("Not installed yet.");
+            return $output->error("Not installed yet.");
 
         // Get agreement
         $helper = $this->getHelper("question");
