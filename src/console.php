@@ -1,5 +1,11 @@
 <?php
 
+$minRequiredPhpVersion = 7.1;
+if ((float)(PHP_VERSION) <= $minRequiredPhpVersion)
+    return print("Minimum required PHP version is $minRequiredPhpVersion." . PHP_EOL);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 use Dej\Component\Application;
 use Dej\Command\HelpCommand;
 use Dej\Command\StartCommand;
@@ -13,8 +19,6 @@ use Dej\Command\InstallCommand;
 use Dej\Command\ListCommand;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
-
-require_once __DIR__ . '/../vendor/autoload.php';
 
 $shellOutput = new ShellOutput();
 
@@ -42,6 +46,8 @@ try {
 } catch (OutputException $e) {
     return $shellOutput->error($e->getMessage());
 } catch (\Throwable $e) {
+    // Debugging only:
+    // throw $e;
     return $shellOutput->error("Unknown error.");
 }
 
