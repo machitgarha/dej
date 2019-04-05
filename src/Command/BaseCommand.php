@@ -20,10 +20,30 @@ use Dej\Exception\OutputException;
  */
 abstract class BaseCommand extends Command
 {
+    /** @var string Configuration directory for configuration files. */
+    protected $configDir;
+
+    /** @var string Path to the file for stopping Dej sniffer. */
+    protected $stopHandlerFile;
+
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct()
+    {
+        $home = getenv("HOME");
+
+        // Path for configuration files is under the user's home directory.
+        $this->configDir = Path::join($home, ".config/dej");
+
+        // For stopping Dej sniffer, a communicator file is needed.
+        $this->stopHandlerFile = Path::join($this->configDir, "stopHandler");
+
+        parent::__construct();
+    }
+
     /**
      * Loads a JSON file.
-     * 
-     * The default path for configuration files is under the user's home directory.
      *
      * @param string $filename The filename to load, with '.json' suffix.
      * @param string $prefix The prefix directory to load from.
@@ -31,11 +51,10 @@ abstract class BaseCommand extends Command
      */
     protected function loadJson(string $filename): JSONFileValidation
     {
-        // Create the config directory
-        $configDirectory = Path::join(getenv("HOME"), ".config/dej");
-        Pusheh::createDirRecursive($configDirectory);
+        // Create the configuration directory
+        Pusheh::createDirRecursive($this->configDir);
 
-        return new JSONFileValidation(Path::join($configDirectory, "$filename.json"));
+        return new JSONFileValidation(Path::join($this->configDir, "$filename.json"));
     }
 
     /**

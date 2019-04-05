@@ -1,5 +1,8 @@
 <?php
 
+if ($argc < 4)
+    exit("Too few arguments.");
+
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use Webmozart\PathUtil\Path;
@@ -9,25 +12,27 @@ use Dej\Component\JSONFileValidation;
 
 $shellOutput = new ShellOutput();
 
+$dataConfigPath = $argv[1];
+$usersConfigPath = $argv[2];
+/*
+ * A simple file to send signal for ending up the process by sniffing the last file.
+ * By running 'dej stop', first the TCPDump file will stop. Then, this file should be stopped,
+ * however, instead of killing the process, let it to do the last step with the last created
+ * TCPDump file.
+ */
+$stopHandlerFile = $argv[3];
+
 try {
     // Load configurations and validate it
-    $config = (new JSONFileValidation("config/data.json"))
+    $config = (new JSONFileValidation($dataConfigPath))
         ->checkEverything()
         ->throwFirstError();
 
     // Load users config file and validate it
-    $users = extractMacAsKeys((new JSONFileValidation("config/users.json"))
+    $users = extractMacAsKeys((new JSONFileValidation($usersConfigPath))
         ->checkEverything()
         ->throwFirstError()
     );
-
-    /*
-     * A simple file to send signal for ending up the process by sniffing the last file.
-     * By running 'dej stop', first the TCPDump file will stop. Then, this file should be stopped,
-     * however, instead of killing the process, let it to do the last step with the last created
-     * TCPDump file.
-    */
-    $stopFile = "config/stop";
 } catch (Throwable $e) {
     return $shellOutput->error($e->getMessage());
 }
@@ -61,8 +66,8 @@ while (true) {
         $sniffIndex = null;
 
     // Stop the process if 'dej stop' request was sent
-    if (file_exists($stopFile)) {
-        unlink($stopFile);
+    if (file_exists($stopHandlerFile)) {
+        unlink($stopHandlerFile);
         break;
     }        
 

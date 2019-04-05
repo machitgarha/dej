@@ -46,7 +46,7 @@ class JSONFileValidation extends JSONFile
 
     /** @var array An array of filenames to be validated. */
     protected $validFilenames = [
-        "data.json",
+        "config.json",
         "users.json"
     ];
 
@@ -89,7 +89,7 @@ class JSONFileValidation extends JSONFile
          * See the example for each file in the examples directory to know files' structures.
          */
         switch ($this->getFilename()) {
-            case "data.json":
+            case "config.json":
                 foreach ($this->validationData as $optionName => $data)
                     $this->hasValidType($optionName);
                 break;
@@ -193,7 +193,7 @@ class JSONFileValidation extends JSONFile
          * See the example for each file in the examples directory to know files' structures.
          */
         switch ($this->getFilename()) {
-            case "data.json":
+            case "config.json":
                 foreach ($this->validationData as $optionName => $optionData)
                     // If a required value is missing
                     if (!$this->isSet($optionName) && ($optionData->required ?? false) === true)
@@ -225,7 +225,7 @@ class JSONFileValidation extends JSONFile
          * See the example for each file in the examples directory to know files' structures.
          */
         switch ($this->getFilename()) {
-            case "data.json":
+            case "config.json":
                 foreach ($this->validationData as $optionName => $optionData)
                     if (!$optionData->required)
                         $this->set(
@@ -252,7 +252,7 @@ class JSONFileValidation extends JSONFile
          * See the example for each file in the examples directory to know files' structures.
          */
         switch ($this->getFilename()) {
-            case "data.json":
+            case "config.json":
                 foreach ($this->validationData as $optionName => $data)
                     $this->fixValue($optionName);
                 break;

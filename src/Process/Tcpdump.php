@@ -1,5 +1,8 @@
 <?php
 
+if ($argc < 2)
+    exit("Too few arguments.");
+
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use Symfony\Component\Process\Process;
@@ -10,9 +13,11 @@ use Dej\Component\JSONFileValidation;
 
 $shellOutput = new ShellOutput();
 
+$dataConfigPath = $argv[1];
+
 try {
     // Load configurations and validate it
-    $config = (new JSONFileValidation("config/data.json"))
+    $config = (new JSONFileValidation($dataConfigPath))
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {

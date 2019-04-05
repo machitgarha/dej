@@ -35,7 +35,8 @@ class StartCommand extends BaseCommand
      */
     public function __construct(string $name = null)
     {
-        $this->phpExecutable = trim(file_get_contents(__DIR__ . "/../../data/php"));
+        $this->phpExecutable = PHP_BINARY;
+
         parent::__construct($name);
     }
 
@@ -96,13 +97,8 @@ class StartCommand extends BaseCommand
         $this->compareFiles($path, $backupDir);
 
         // Load executables
-        $php = $this->phpExecutable;
         $screen = $config->get("executables.screen");
         $tcpdump = $config->get("executables.tcpdump");
-
-        // Logs directory, and create it if not found
-        $logsDir = $config->get("logs.path");
-        Pusheh::createDirRecursive($logsDir);
 
         // Checks for installed commands
         $neededExecutables = [
@@ -113,7 +109,7 @@ class StartCommand extends BaseCommand
             if (empty(`which {$executable[1]}`))
                 return $output->error("You must have {$executable[0]} command installed, "
                     . "i.e. the specified executable file cannot be used ({$executable[1]}). "
-                    . "Fix it by editing executables field in config/data.json.");
+                    . "Change it by 'dej config'.");
 
         // Names of directories and files
         $sourceDir = "src/Process";
@@ -124,16 +120,34 @@ class StartCommand extends BaseCommand
             "Backup",
         ];
 
+        // Logging configurations
+        $isLoggingEnabled = $config->get("logs.screen");
+        $logsPath = $config->get("logs.path");
+        Pusheh::createDirRecursive($logsPath);
+
         // Run each file with a logger
         foreach ($filenames as $filename) {
-            // Check if logs were enabled for screen or not
-            $logPath = Path::join($logsDir, $filename);
-            $processFilePath = Path::join($sourceDir, "$filename.php");
-            $logPart = $config->get("logs.screen") ? "-L -Logfile $logPath.log" : "";
-            $cmd = "$screen -S $filename.dej -d -m $php $processFilePath";
+            // The logging part; check if it's enabled or not
+            $logFile = Path::join($logsPath, "$filename.log");
+            $logPart = $isLoggingEnabled ? "-L -Logfile $logFile" : "";
 
-            $process = Process::fromShellCommandline($cmd);
-            $process->run();
+            // Create the command to be executed in a screen
+            $mainCommand = "{$this->phpExecutable} "
+                // The PHP file path to be run
+                . Path::join($sourceDir, "$filename.php") . " "
+                /*
+                 * Extra arguments to be used in the files:
+                 * 1: Path to config.json configuration file,
+                 * 2: Path to users.json configuration file.
+                 * 1: Path to stop handler file (for the sniffer).
+                 */
+                . Path::join($this->configDir, "config.json") . " "
+                . Path::join($this->configDir, "users.json") . " "
+                . $this->stopHandlerFile;
+
+            // Run the process
+            $command = "$screen -S $filename.dej $logPart -d -m $mainCommand";
+            Process::fromShellCommandline($command)->run();
         }
 
         $status = StatusCommand::getStatus();

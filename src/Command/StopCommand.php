@@ -53,9 +53,8 @@ class StopCommand extends BaseCommand
 
         // Send signal to stop sniffer, and wait for the process to end
         if (StatusCommand::isRunning("sniffer")) {
-            $stopFile = "config/stop"; 
-            touch($stopFile);
-            while (file_exists($stopFile))
+            touch($this->stopHandlerFile);
+            while (file_exists($this->stopHandlerFile))
                 usleep(100 * 1000);
         }
 
