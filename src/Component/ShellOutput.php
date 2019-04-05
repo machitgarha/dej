@@ -40,7 +40,7 @@ class ShellOutput extends ConsoleOutput
     /**
      * {@inheritDoc}
      */
-    public function doWrite(string $message, bool $newLine = false): void
+    public function doWrite($message, $newLine = false): void
     {
         $output = $message . ($newLine ? PHP_EOL : "");
 

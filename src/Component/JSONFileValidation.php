@@ -8,10 +8,11 @@
 
 namespace Dej\Component;
 
+use Symfony\Component\Console\Output\OutputInterface;
 use MAChitgarha\Component\JSONFile;
 use Webmozart\PathUtil\Path;
-use Dej\Exception\FileNameInvalidException;
-use Symfony\Component\Console\Output\OutputInterface;
+use Dej\Exception\OutputException;
+use Dej\Exception\InternalException;
 
 /**
  * Validating data in configuration files.
@@ -52,7 +53,7 @@ class JSONFileValidation extends JSONFile
      * @param int $options Available options: FILE_MUST_EXIST, IGNORE_INVALID_FILE
      * @throws \Exception When the file doesn't exist and FILE_MUST_EXIST is on.
      * @throws \Exception When the file contains invalid JSON and IGNORE_INVALID_FILE is off.
-     * @throws \Exception When something goes wrong with fetching validation data.
+     * @throws \Exception When something goes wrong while fetching validation data.
      */
     public function __construct(string $filePath, int $options = 0)
     {
@@ -95,7 +96,7 @@ class JSONFileValidation extends JSONFile
                 break;
 
             default:
-                throw new FileNameInvalidException([], true);
+                throw new InternalException("Invalid JSON filename for validation.");
         }
 
         return $this;
@@ -107,6 +108,7 @@ class JSONFileValidation extends JSONFile
      * @param string $optionName The option's name.
      * @param mixed $optionValue The option's value.
      * @return bool Returns true if no alerts found and the value is not null, false otherwise.
+     * @throws InternalException When the option type is invalid.
      */
     public function hasValidType(string $optionName, $optionValue = null): bool
     {
@@ -159,7 +161,7 @@ class JSONFileValidation extends JSONFile
                 break;
             
             default:
-                throw new \Exception("Unknown type.");
+                throw new InternalException("Unknown type.");
         }
 
         // Push an alert
@@ -430,12 +432,13 @@ class JSONFileValidation extends JSONFile
      * Throws the first error listed in errors, if there are any.
      *
      * @return self
+     * @throws OutputException The first error.
      */
     public function throwFirstError(): self
     {
         $errors = $this->alerts["errors"];
         if (!empty($errors))
-            throw new \Exception($this->alerts["errors"][0]);
+            throw new OutputException($this->alerts["errors"][0]);
         
         return $this;
     }
