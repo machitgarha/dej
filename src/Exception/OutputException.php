@@ -9,9 +9,9 @@
 namespace Dej\Exception;
 
 /**
- * Dej exception.
+ * Exceptions that should be caught and printed.
  */
-abstract class Exception extends \Exception
+class OutputException extends Exception
 {
     /**
      * Construct a new exception, just like normal exceptions.

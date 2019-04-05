@@ -9,9 +9,9 @@
 namespace Dej\Exception;
 
 /**
- * Dej exception.
+ * Internal exceptions, like errors.
  */
-abstract class Exception extends \Exception
+class InternalException extends Exception
 {
     /**
      * Construct a new exception, just like normal exceptions.

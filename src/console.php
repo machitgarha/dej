@@ -10,8 +10,9 @@ use Dej\Command\CheckCommand;
 use Dej\Command\ConfigCommand;
 use Dej\Command\UninstallCommand;
 use Dej\Command\InstallCommand;
-use Dej\Component\ShellOutput;
 use Dej\Command\ListCommand;
+use Dej\Component\ShellOutput;
+use Dej\Exception\OutputException;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -38,8 +39,10 @@ try {
     $application->setCatchExceptions(false);
 
     $application->run(null, $shellOutput);
+} catch (OutputException $e) {
+    $shellOutput->error($e->getMessage() . ".");
 } catch (\Throwable $e) {
-    $shellOutput->error($e->getMessage());
+    $shellOutput->error("Unknown error.");
 }
 
 __halt_compiler();
