@@ -6,7 +6,7 @@ src="."
 cd $src
 
 # PHP executable to run PHP files, change this if needed
-phpExecutable=$(cat ./data/php)
+phpExecutable="php"
 
 # Check for PHP executable to be exist
 havePhp=`which $phpExecutable`
