@@ -5,11 +5,12 @@ use Dej\Component\ShellOutput;
 require_once __DIR__ . "/../vendor/autoload.php";
 
 $output = new ShellOutput();
+$section = $output->section();
 
 // Go to the root of the project
 chdir(__DIR__ . "/..");
 
-$output->writeln("Preparing...");
+$section->writeln("Preparing...");
 
 $dejPhar = new Phar("dej.phar");
 
@@ -27,16 +28,16 @@ $filesToBeImported = [
 ];
 
 // Import files in directories that has to be imported
-$output->writeln("Importing directories...");
+$section->overwrite("Importing directories...");
 foreach ($directoriesToBeImported as $dirName) {
-    $output->writeln("'$dirName'...");
+    $section->writeln("'$dirName'...");
     $recDirIt = new RecursiveDirectoryIterator($dirName, RecursiveDirectoryIterator::SKIP_DOTS);
     foreach (new RecursiveIteratorIterator($recDirIt) as $file)
         $dejPhar->addFile($file->getPathname());
 }
 
 // Import single files that has to be imported
-$output->writeln("Importing files...");
+$section->overwrite("Importing files...");
 foreach ($filesToBeImported as $filePath) {
     $dejPhar->addFile($filePath);
 }
@@ -44,16 +45,15 @@ foreach ($filesToBeImported as $filePath) {
 // Set default stub
 $dejPhar->setStub("#!/usr/bin/env php" . PHP_EOL . $defaultStub);
 
-$output->writeln("Saving the Phar file...");
+$section->overwrite("Saving the Phar file...");
 
 // Save changes
 $dejPhar->stopBuffering();
 
-$output->write("Granting permissions... ");
+$section->overwrite("Granting permissions... ");
 
 // Grant right permissions, if it has been run as root
 if (!@chmod("dej.phar", 0755))
-    $output->write("failed (maybe you are not root)");
-$output->writeln("");
+    $section->write("failed (maybe you are not root)");
 
-$output->writeln("Done!");
+$section->overwrite("Done!");
