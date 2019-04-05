@@ -86,7 +86,7 @@ class StartCommand extends BaseCommand
         }
 
         // Load configurations and validate it
-        $config = $this->loadJson("data")
+        $config = $this->loadJson("config")
             ->checkEverything()
             ->throwFirstError();
 

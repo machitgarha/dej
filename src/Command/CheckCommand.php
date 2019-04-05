@@ -38,7 +38,7 @@ class CheckCommand extends BaseCommand
         ]);
 
         // Check for missing options that is not set
-        $alertsCount = $this->loadJson("data")
+        $alertsCount = $this->loadJson("config")
             ->checkEverything()
             ->outputAlerts($output, ["w" => "w", "e" => "w"])
             ->getAlertsCount();

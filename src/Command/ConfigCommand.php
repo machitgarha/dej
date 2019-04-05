@@ -71,7 +71,7 @@ class ConfigCommand extends BaseCommand
             throw new OutputException("Bad usage.");
 
         try {
-            $dataJson = $this->loadJson("data");
+            $dataJson = $this->loadJson("config");
         } catch (\Throwable $e) {
             throw new InternalException("A configuration file could not be loaded.");
         }
