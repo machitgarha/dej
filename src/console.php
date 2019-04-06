@@ -19,6 +19,7 @@ use Dej\Command\InstallCommand;
 use Dej\Command\ListCommand;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 $shellOutput = new ShellOutput();
 
@@ -45,6 +46,8 @@ try {
     $application->run(null, $shellOutput);
 } catch (OutputException $e) {
     return $shellOutput->error($e->getMessage());
+} catch (CommandNotFoundException $e) {
+    return $shellOutput->error("Unknown command. See 'dej list'.");
 } catch (\Throwable $e) {
     // Debugging only:
     // throw $e;
