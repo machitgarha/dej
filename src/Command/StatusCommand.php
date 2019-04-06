@@ -9,7 +9,6 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Dej\Component\ShellOutput;
 
 /**
@@ -41,7 +40,7 @@ class StatusCommand extends BaseCommand
      * @param ShellOutput $output
      * @return void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, $output)
     {
         $this->forceRootPermissions($output);
 

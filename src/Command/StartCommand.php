@@ -57,7 +57,7 @@ class StartCommand extends BaseCommand
      * @return void
      * @throws OutputException If Dej cannot be restarted.
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, $output)
     {
         $this->forceRootPermissions($output);
 
