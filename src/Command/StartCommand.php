@@ -8,7 +8,6 @@
 
 namespace Dej\Command;
 
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Output\NullOutput;
@@ -18,7 +17,6 @@ use Dej\Component\ShellOutput;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use Dej\Exception\OutputException;
-
 
 /**
  * Starts Dej.
@@ -120,7 +118,7 @@ class StartCommand extends BaseCommand
             "Backup",
         ];
 
-        // Logging configurations
+        // Get logging configurations
         $isLoggingEnabled = $config->get("logs.screen");
         $logsPath = $config->get("logs.path");
         Pusheh::createDirRecursive($logsPath);

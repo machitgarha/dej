@@ -9,7 +9,7 @@
         },
         "save_to.path": {
             "required": true,
-            "type": "path"
+            "type": "absolutePath"
         },
         "executables.screen": {
             "required": false,
@@ -46,8 +46,8 @@
         },
         "logs.path": {
             "required": false,
-            "type": "path",
-            "defaultValue": "logs"
+            "type": "absolutePath",
+            "defaultValue": "/var/log/dej"
         }
     },
 

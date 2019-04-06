@@ -95,7 +95,7 @@
 
     <option>
         <name>logs.path</name>
-        <default>"logs"</default>
+        <default>"/var/log/dej"</default>
         <type>
             <requirement>optional</requirement>
             <value>string</value>

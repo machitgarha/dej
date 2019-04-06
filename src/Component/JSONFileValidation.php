@@ -166,6 +166,13 @@ class JSONFileValidation extends JSONFile
                 // Should be implemented
                 return true;
                 break;
+
+            // An absolute path, not a relative one
+            case "absolutePath":
+                if ($optionValue[0] === "/")
+                    return true;
+                $expectedType = "absolute path (i.e. not a relative one)";
+                break;
             
             default:
                 throw new InternalException("Unknown type.");
