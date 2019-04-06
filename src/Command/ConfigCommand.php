@@ -101,8 +101,6 @@ class ConfigCommand extends BaseCommand
             return 1;
         }
 
-        $output->writeln("Updating configurations...");
-
         // Get option's current value
         $curValue = $dataJson->get($option);
 
