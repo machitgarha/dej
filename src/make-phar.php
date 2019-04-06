@@ -23,6 +23,12 @@ $directoriesToBeImported = [
     "src",
     "vendor",
 ];
+// Replace directories with CLI arguments, if present
+if ($argc > 1) {
+    array_shift($argv);
+    $directoriesToBeImported = $argv;
+}
+
 $filesToBeImported = [
     "LICENSE"
 ];
@@ -30,6 +36,10 @@ $filesToBeImported = [
 // Import files in directories that has to be imported
 $section->overwrite("Importing directories...");
 foreach ($directoriesToBeImported as $dirName) {
+    // Check if it's a directory or not
+    if (!is_dir($dirName))
+        return $section->overwrite("'$dirName' is not a valid directory (i.e. does not exist).");
+
     $section->writeln("'$dirName'...");
     $recDirIt = new RecursiveDirectoryIterator($dirName, RecursiveDirectoryIterator::SKIP_DOTS);
     foreach (new RecursiveIteratorIterator($recDirIt) as $file)
