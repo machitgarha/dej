@@ -29,7 +29,7 @@ class StartCommand extends BaseCommand
     /**
      * Sets the PHP executable before starting Dej.
      *
-     * @param string $name The command name, i.e. start.
+     * @param string|null $name The command name, i.e. start.
      */
     public function __construct(string $name = null)
     {
@@ -164,7 +164,7 @@ class StartCommand extends BaseCommand
      *
      * @param string $path The path of the main files.
      * @param string $backupDir The path of the backup files.
-     * @return int
+     * @return void
      */
     private function compareFiles(string $path, string $backupDir): void
     {

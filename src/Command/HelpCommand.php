@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputArgument;
  */
 class HelpCommand extends BaseCommand
 {
-    /** @var Command The command when 'dej [command] {-h,--help}' is called. */
+    /** @var Command|null The command when 'dej [command] {-h,--help}' is called. */
     private $command;
 
     protected function configure()

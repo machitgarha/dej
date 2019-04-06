@@ -40,7 +40,7 @@ class ConfigCommand extends BaseCommand
      *
      * @param InputInterface $input
      * @param ShellOutput $output
-     * @return void
+     * @return int
      * @throws OutputException If the option is missing.
      * @throws InternalException If the configuration file contains invalid JSON.
      */
@@ -105,8 +105,8 @@ class ConfigCommand extends BaseCommand
         $curValue = $dataJson->get($option);
 
         // Set the new value and check if it's valid or not
+        $dataJson->set($option, $value);
         $isValueValid = $dataJson
-            ->set($option, $value)
             ->fixValue($option)
             ->hasValidType($option);
 

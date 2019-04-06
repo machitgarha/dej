@@ -99,7 +99,7 @@ class StatusCommand extends BaseCommand
     /**
      * Returns the status of Dej.
      *
-     * @return void One of the STATUS_* constants.
+     * @return int One of the STATUS_* constants.
      */
     public static function getStatus(): int
     {

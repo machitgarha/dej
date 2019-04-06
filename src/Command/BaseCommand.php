@@ -29,7 +29,7 @@ abstract class BaseCommand extends Command
     /**
      * {@inheritDoc}
      */
-    public function __construct()
+    public function __construct(string $name = null)
     {
         $home = getenv("HOME");
 
@@ -39,14 +39,13 @@ abstract class BaseCommand extends Command
         // For stopping Dej sniffer, a communicator file is needed.
         $this->stopHandlerFile = Path::join($this->configDir, "stopHandler");
 
-        parent::__construct();
+        parent::__construct($name);
     }
 
     /**
      * Loads a JSON file.
      *
      * @param string $filename The filename to load, with '.json' suffix.
-     * @param string $prefix The prefix directory to load from.
      * @return JSONFileValidation
      */
     protected function loadJson(string $filename): JSONFileValidation
