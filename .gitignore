@@ -3,3 +3,4 @@
 /logs
 /vendor
 /dej.phar
+/.php_cs.cache
