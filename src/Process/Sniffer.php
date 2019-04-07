@@ -207,7 +207,7 @@ function format(string $num, bool $addColons = true) {
         // Get decimal part with leading zero in bytes for larger number support
         $decPart = substr((string)sprintf("%.6f", $num - floor($num)), 2, 6);
 
-        return number_format(floor($num) . $decPart);
+        return number_format((float)(floor($num) . $decPart));
     }
 
     // Split number into parts
