@@ -17,6 +17,7 @@ use Dej\Component\ShellOutput;
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use Dej\Exception\OutputException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Starts Dej.
@@ -48,15 +49,12 @@ class StartCommand extends BaseCommand
     }
 
     /**
-     * Executes start command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
      * @throws OutputException If Dej cannot be restarted.
      */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $this->forceRootPermissions($output);
 
         $output->writeln("Starting Dej...");

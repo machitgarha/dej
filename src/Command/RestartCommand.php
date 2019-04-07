@@ -13,6 +13,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Restarts Dej.
@@ -29,15 +30,12 @@ class RestartCommand extends BaseCommand
     }
 
     /**
-     * Executes restart command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
      * @throws OutputException If something goes wrong.
      */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $this->forceRootPermissions($output);
 
         $output->writeln("Restarting Dej...");

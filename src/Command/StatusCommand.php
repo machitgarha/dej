@@ -10,6 +10,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Dej\Component\ShellOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Gets Dej status.
@@ -33,15 +34,10 @@ class StatusCommand extends BaseCommand
         ;
     }
 
-    /**
-     * Executes status command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $this->forceRootPermissions($output);
 
         // Show message based on Dej status

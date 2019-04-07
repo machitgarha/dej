@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
 use Dej\Exception\InternalException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Configures Dej.
@@ -36,16 +37,13 @@ class ConfigCommand extends BaseCommand
     }
 
     /**
-     * Executes config command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return int
      * @throws OutputException If the option is missing.
      * @throws InternalException If the configuration file contains invalid JSON.
      */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $firstArgument = $input->getArgument("option");
         $value = $input->getArgument("value");
 

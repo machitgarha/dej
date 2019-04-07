@@ -10,6 +10,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Dej\Component\ShellOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Validates configuration files.
@@ -24,15 +25,10 @@ class CheckCommand extends BaseCommand
         ;
     }
 
-    /**
-     * Executes check command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $output->writeln([
             "Preparing..."
         ]);

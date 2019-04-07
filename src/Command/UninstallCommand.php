@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Uninstalls Dej.
@@ -26,15 +27,10 @@ class UninstallCommand extends BaseCommand
         ;
     }
 
-    /**
-     * Executes uninstall command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $this->forceRootPermissions($output);
 
         $output->writeln("Preparing to uninstall Dej...");

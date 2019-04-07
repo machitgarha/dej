@@ -11,6 +11,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Helper\Table;
 use Dej\Component\ShellOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Lists all commands.
@@ -25,15 +26,10 @@ class ListCommand extends BaseCommand
         ;
     }
 
-    /**
-     * Executes list command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $output->writeln("List of available commands:");
         $commands = $this->getApplication()->all();
 

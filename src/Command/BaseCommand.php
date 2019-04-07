@@ -26,9 +26,6 @@ abstract class BaseCommand extends Command
     /** @var string Path to the file for stopping Dej sniffer. */
     protected $stopHandlerFile;
 
-    /**
-     * {@inheritDoc}
-     */
     public function __construct(string $name = null)
     {
         $home = getenv("HOME");

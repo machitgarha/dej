@@ -45,15 +45,10 @@ class HelpCommand extends BaseCommand
         $this->command = $command;
     }
 
-    /**
-     * Executes help command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         /*
          * Searches for the help of a command. If the command has help, returns it, otherwise, it
          * returns the description of the command. If the command does not have any helps (i.e.

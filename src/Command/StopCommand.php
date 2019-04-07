@@ -10,6 +10,7 @@ namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Dej\Component\ShellOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Stops Dej.
@@ -25,15 +26,10 @@ class StopCommand extends BaseCommand
         ;
     }
 
-    /**
-     * Executes stop command.
-     *
-     * @param InputInterface $input
-     * @param ShellOutput $output
-     * @return void
-     */
-    protected function execute(InputInterface $input, $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
+        assert($output instanceof ShellOutput);
+
         $this->forceRootPermissions($output);
 
         $output->writeln("Stopping Dej...");
