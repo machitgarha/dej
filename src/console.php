@@ -1,8 +1,9 @@
 <?php
 
 $minRequiredPhpVersion = 7.1;
-if ((float)(PHP_VERSION) <= $minRequiredPhpVersion)
+if ((float)(PHP_VERSION) <= $minRequiredPhpVersion) {
     return print("Minimum required PHP version is $minRequiredPhpVersion." . PHP_EOL);
+}
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

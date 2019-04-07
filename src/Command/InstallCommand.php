@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -47,26 +47,30 @@ class InstallCommand extends BaseCommand
 
         // Extract $PATH paths
         $sysInstallationDirs = explode(":", getenv("PATH"));
-        if (empty($sysInstallationDirs))
+        if (empty($sysInstallationDirs)) {
             throw new InternalException("Cannot find an installation path.");
+        }
 
         $installationDir = $sysInstallationDirs[0];
         $defaultInstallationDir = "/usr/local/bin";
-        if (in_array($defaultInstallationDir, $sysInstallationDirs))
+        if (in_array($defaultInstallationDir, $sysInstallationDirs)) {
             $installationDir = $defaultInstallationDir;
+        }
 
         $installationPath = Path::join($installationDir, "dej");
         $currentPharPath = \Phar::running(false);
 
         // Install if it's not installed or force mode is enabled
-        if (!file_exists($installationPath) || $forceMode)
+        if (!file_exists($installationPath) || $forceMode) {
             // Check if user is working with a Phar or with the repository
-            if (!empty($currentPharPath))
+            if (!empty($currentPharPath)) {
                 copy($currentPharPath, $installationPath);
-            else
+            } else {
                 throw new OutputException("You must install Dej as a Phar file.");
-        else
+            }
+        } else {
             throw new OutputException("Already installed.");
+        }
 
         // Grant right permissions
         chmod($installationPath, 0755);

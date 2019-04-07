@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej component file.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -42,7 +42,7 @@ class ShellOutput extends ConsoleOutput
         $output = $message . ($newLine ? PHP_EOL : "");
 
         // Output with limited lines
-        echo ($this->toLimitLines ? self::limitLines($output, $this->lineLimit) : $output);
+        echo($this->toLimitLines ? self::limitLines($output, $this->lineLimit) : $output);
     }
 
     /**
@@ -72,7 +72,7 @@ class ShellOutput extends ConsoleOutput
 
     /**
      * Limit lines of a message.
-     * 
+     *
      * Explode the message into some lines, based on the given line size.
      *
      * @param string $message The message to be exploded.
@@ -81,8 +81,9 @@ class ShellOutput extends ConsoleOutput
      */
     public static function limitLines(string $message, int $lineSize = 80): string
     {
-        if ($lineSize <= 0)
+        if ($lineSize <= 0) {
             return $message;
+        }
 
         // Replace taps with 4 spaces, and explode message by new lines
         $messageParts = explode(PHP_EOL, str_replace("\t", str_repeat(" ", 4), $message));
@@ -92,8 +93,9 @@ class ShellOutput extends ConsoleOutput
         $splitLines = function ($message, $indent) use (&$messageLines, $lineSize) {
             while (true) {
                 // Reached the end of message
-                if ($message === "")
+                if ($message === "") {
                     break;
+                }
     
                 // Remove redundant preceding spaces
                 $message = $indent . ltrim($message);
@@ -103,19 +105,22 @@ class ShellOutput extends ConsoleOutput
 
                 // Set cut index If we can cut here exatcly on the $lineSize-th character,
                 // or if we reached the end and there is no $linSize-th character.
-                if (($message[$lineSize] ?? " ") === " ")
+                if (($message[$lineSize] ?? " ") === " ") {
                     $cutIndex = $lineSize;
+                }
     
                 // If no space or new lines found, find the last space in the current line to cut
                 elseif (($lastSpacePos = strrpos($currentLine, " ")) !== false &&
-                    $lastSpacePos >= strlen($indent))
-                        $cutIndex = $lastSpacePos;
+                    $lastSpacePos >= strlen($indent)) {
+                    $cutIndex = $lastSpacePos;
+                }
                 
                 // No white-spaces? We must cut the string
-                else
+                else {
                     $cutIndex = $lineSize;
+                }
 
-                // Cut the line from the proper 
+                // Cut the line from the proper
                 $line = substr($currentLine, 0, $cutIndex);
     
                 // Add the line
@@ -177,20 +182,23 @@ class ShellOutput extends ConsoleOutput
      */
     public function resetLineLimit(int $lineLimit = null): self
     {
-        if ($lineLimit < 0)
+        if ($lineLimit < 0) {
             throw new \InvalidArgumentException("Line limit cannot be negative.");
+        }
 
-        if ($lineLimit === 0)
+        if ($lineLimit === 0) {
             $this->disableLineLimit();
+        }
 
-        // Default line limit is shell width 
-        if ($lineLimit === null)
+        // Default line limit is shell width
+        if ($lineLimit === null) {
             $lineLimit = self::getShellWidth();
+        }
 
         $this->lineLimit = $lineLimit;
 
         return $this;
-    } 
+    }
 
     /**
      * Gives the width of current shell.
@@ -206,7 +214,7 @@ class ShellOutput extends ConsoleOutput
 
     /**
      * Gives the height of current shell.
-     * 
+     *
      * It is supported only on Linux systems.
      *
      * @return int

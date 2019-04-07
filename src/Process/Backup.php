@@ -1,7 +1,8 @@
 <?php
 
-if ($argc < 2)
+if ($argc < 2) {
     exit("Too few arguments.");
+}
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
@@ -48,11 +49,12 @@ while (true) {
     file_put_contents(Path::join($backupDirName, "update_time"), $now);
 
     // Make backup from the files
-    foreach ($filesDir as $file)
+    foreach ($filesDir as $file) {
         if ($file->isFile()) {
             $filename = $file->getFilename();
             `cp $filename $backupDirName/$filename`;
         }
+    }
 
     // Timeout
     sleep($backupTimeout);

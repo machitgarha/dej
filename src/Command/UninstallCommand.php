@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -37,8 +37,9 @@ class UninstallCommand extends BaseCommand
 
         // Find where Dej has been installed
         $installationPath = trim(`which dej`);
-        if (empty($installationPath))
+        if (empty($installationPath)) {
             throw new OutputException("Not installed yet.");
+        }
 
         // Get agreement
         $helper = $this->getHelper("question");

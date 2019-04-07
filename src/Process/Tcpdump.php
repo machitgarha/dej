@@ -1,7 +1,8 @@
 <?php
 
-if ($argc < 2)
+if ($argc < 2) {
     exit("Too few arguments.");
+}
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -48,11 +48,13 @@ class RestartCommand extends BaseCommand
             $nullOutput = new NullOutput();
             $stopResult = $dej->find("stop")->run($args, $nullOutput);
             $startResult = $dej->find("start")->run($args, $nullOutput);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // Check for errors and badnesses during the processes
-        if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0)
+        if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0) {
             throw new OutputException("Cannot restart Dej.");
+        }
 
         $output->writeln("Done!");
     }

@@ -1,7 +1,8 @@
 <?php
 
-if ($argc < 4)
+if ($argc < 4) {
     exit("Too few arguments.");
+}
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
@@ -29,7 +30,8 @@ try {
         ->throwFirstError();
 
     // Load users config file and validate it
-    $users = extractMacAsKeys((new JSONFileValidation($usersConfigPath))
+    $users = extractMacAsKeys(
+        (new JSONFileValidation($usersConfigPath))
         ->checkEverything()
         ->throwFirstError()
     );
@@ -62,14 +64,15 @@ while (true) {
     if (count($donePacketsFiles) > 0) {
         preg_match("#\d+$#i", $donePacketsFiles[0], $sniffIndexResult);
         $sniffIndex = $sniffIndexResult[0];
-    } else
+    } else {
         $sniffIndex = null;
+    }
 
     // Stop the process if 'dej stop' request was sent
     if (file_exists($stopHandlerFile)) {
         unlink($stopHandlerFile);
         break;
-    }        
+    }
 
     // Wait until reading raw packets
     if ($sniffIndex === null) {
@@ -109,19 +112,22 @@ while (true) {
         $remoteMac = $macAddresses[$macAddresses[0] === $interfaceMac ? 1 : 0];
 
         // Update devices info array
-        if (isset($devicesInfo[$remoteMac]))
+        if (isset($devicesInfo[$remoteMac])) {
             $devicesInfo[$remoteMac] += $packetSize;
-        elseif (!empty($remoteMac))
+        } elseif (!empty($remoteMac)) {
             $devicesInfo[$remoteMac] = $packetSize;
+        }
     }
 
     // Close file
-    if ($logFile)
+    if ($logFile) {
         fclose($logFile);
+    }
 
     // Saves the sent/received packets to files
-    foreach ($devicesInfo as $addr => $size)
+    foreach ($devicesInfo as $addr => $size) {
         saveToFile($addr, $size);
+    }
 
     // Remove files
     unlink($tcpdumpFile);
@@ -130,10 +136,12 @@ while (true) {
 }
 
 // Extracts useful info from a packet info
-function getPacketInfo(string $packetData) {
+function getPacketInfo(string $packetData)
+{
     // Prevents emptiness of packet info
-    if (empty($packetData))
+    if (empty($packetData)) {
         return 0;
+    }
 
     // Regular expressions to find MAC addresses and packet size and packet type
     $macAddressRegex = "/([\da-f]{2}:){5}[\da-f]{2}/i";
@@ -145,14 +153,16 @@ function getPacketInfo(string $packetData) {
 
     // Find packet size
     preg_match($packetSizeRegex, $packetData, $packetSize);
-    if (empty($packetSize))
+    if (empty($packetSize)) {
         return 0;
+    }
     $packetSize = explode(" ", $packetSize[0])[1];
 
     // Find ethertype
     preg_match($ethertypeRegex, $packetData, $ethertype);
-    if (empty($ethertype))
+    if (empty($ethertype)) {
         return 0;
+    }
     $ethertype = explode(" ", $ethertype[0])[1];
 
     /*
@@ -169,7 +179,8 @@ function getPacketInfo(string $packetData) {
 }
 
 // Saves extracted data into files, named by MAC addresses
-function saveToFile(string $macAddress, int $packetsTotalSize) {
+function saveToFile(string $macAddress, int $packetsTotalSize)
+{
     global $users, $path, $format;
 
     // Convert it to float, bytes and kilobytes are decimal
@@ -189,8 +200,9 @@ function saveToFile(string $macAddress, int $packetsTotalSize) {
 
     // If the main file exists, then get the last value
     $lastVal = 0;
-    if (is_readable($filePath))
+    if (is_readable($filePath)) {
         $lastVal = format(file_get_contents($filePath), false);
+    }
 
     // Adds new value to the last value
     $lastVal += $macFileLastVal + $packetsTotalSize;
@@ -202,7 +214,8 @@ function saveToFile(string $macAddress, int $packetsTotalSize) {
 }
 
 // Formats a number into a better human readable one
-function format(string $num, bool $addColons = true) {
+function format(string $num, bool $addColons = true)
+{
     if ($addColons) {
         // Get decimal part with leading zero in bytes for larger number support
         $decPart = substr((string)sprintf("%.6f", $num - floor($num)), 2, 6);
@@ -217,31 +230,36 @@ function format(string $num, bool $addColons = true) {
     // Extract Megabytes
     $mbPart = "";
     $i = 0;
-    for (; $i < $countNumParts - 2; $i++)
+    for (; $i < $countNumParts - 2; $i++) {
         $mbPart .= $numParts[$i];
+    }
     
     // Extract bytes
     $bytesPart = "";
-    for (; $i < $countNumParts; $i++)
+    for (; $i < $countNumParts; $i++) {
         $bytesPart .= sprintf('%03d', $numParts[$i]);
+    }
 
     return (float)("$mbPart.$bytesPart");
 }
 
 // Log skipped packets
-function logPackets($file, array $macAddresses, int $packetSize, string $packetData) {
+function logPackets($file, array $macAddresses, int $packetSize, string $packetData)
+{
     global $toLogSkippedPackets;
     
     // Return if logging skipped packets is disabled or if the file is wrong
-    if (!$toLogSkippedPackets || !is_resource($file))
+    if (!$toLogSkippedPackets || !is_resource($file)) {
         return;
+    }
         
     // Output MAC addresses
     $output = "Extracted MAC addresses were: ";
     $macAddressesLast = count($macAddresses) - 1;
-    foreach ($macAddresses as $macAddress)
+    foreach ($macAddresses as $macAddress) {
         $output .= "$macAddress" . ($macAddress ===
             $macAddresses[$macAddressesLast] ? PHP_EOL : ", ");
+    }
     
     // Output packet size
     $output .= "Extracted packet size was: $packetSize (bytes)" . PHP_EOL;
@@ -259,10 +277,13 @@ function extractMacAsKeys(JSON $usersData): array
     $usersData->getDataAsArray();
 
     $users = [];
-    foreach ($usersData->iterate() as $user)
-        if ($user !== null)
-            foreach ((array)$user->mac as $mac)
-                $users[$mac] = $user->name;    
+    foreach ($usersData->iterate() as $user) {
+        if ($user !== null) {
+            foreach ((array)$user->mac as $mac) {
+                $users[$mac] = $user->name;
+            }
+        }
+    }
     
     return $users;
 }

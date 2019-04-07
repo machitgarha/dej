@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */

@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Configures Dej.
- * 
+ *
  * For more details, see the command's help.
  */
 class ConfigCommand extends BaseCommand
@@ -65,8 +65,9 @@ class ConfigCommand extends BaseCommand
             return 0;
         }
 
-        if (empty($firstArgument))
+        if (empty($firstArgument)) {
             throw new OutputException("Bad usage.");
+        }
 
         try {
             $dataJson = $this->loadJson("config");
@@ -121,8 +122,9 @@ class ConfigCommand extends BaseCommand
 
         // Print the changes, if there were any
         $newValue = $dataJson->get($option);
-        if ($curValue !== null && $curValue !== $newValue)
+        if ($curValue !== null && $curValue !== $newValue) {
             $output->write("(" . json_encode($curValue) . " => " . json_encode($newValue) . ")");
+        }
 
         $output->writeln([
             "",
@@ -186,8 +188,9 @@ class ConfigCommand extends BaseCommand
         $shellWidth = ShellOutput::getShellWidth();
         if ($shellWidth < 60) {
             $output->warn("Your terminal is too small. Available options:");
-            foreach ($configListXML->option as $option)
+            foreach ($configListXML->option as $option) {
                 $output->writeln(" " . $option->name);
+            }
         } else {
             // 40: The approximate width of the names and default values columns
             $descriptionWidth = $shellWidth - 40;

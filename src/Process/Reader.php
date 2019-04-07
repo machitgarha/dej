@@ -1,7 +1,8 @@
 <?php
 
-if ($argc < 2)
+if ($argc < 2) {
     exit("Too few arguments.");
+}
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
@@ -57,21 +58,23 @@ while (true) {
     $readerCmd = "$tcpdump -e -t -r $tcpdumpFile > $packetsFile && touch $packetsDoneFile";
 
     // Run commands in the background
-    `($readerCmd) > /dev/null 2>/dev/null &`; 
+    `($readerCmd) > /dev/null 2>/dev/null &`;
 
-    // Sleep to prevent from so many concurrent processes 
+    // Sleep to prevent from so many concurrent processes
     usleep(500 * 1000);
 
     // Go to the next file
     $i++;
 
     // Reset index is for when TCPDump process has been restarted
-    if ($resetIndex)
+    if ($resetIndex) {
         $i = 0;
+    }
 }
 
 // Checks whether working with current file is done or not
-function checkNextFile(int &$index): array {
+function checkNextFile(int &$index): array
+{
     // Set up files
     $tcpdumpFile = "tcpdump" . ($index === 0 ? "" : $index);
     $tcpdumpFileNext = "tcpdump" . ($index + 1);
@@ -95,8 +98,9 @@ function checkNextFile(int &$index): array {
 
     // If TCPDump restarted, reset the index
     $resetIndex = false;
-    if ($tcpdumpFileNext === "tcpdump" && $isNextFileBig)
+    if ($tcpdumpFileNext === "tcpdump" && $isNextFileBig) {
         $resetIndex = true;
+    }
 
     return [
         $isNextFileBig, // Processing the current file?

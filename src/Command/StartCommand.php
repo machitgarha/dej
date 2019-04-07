@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -69,12 +69,14 @@ class StartCommand extends BaseCommand
                 try {
                     $result = $this->getApplication()->find("stop")
                         ->run(new ArrayInput([]), new NullOutput());
-                } catch (\Throwable $e) {}
+                } catch (\Throwable $e) {
+                }
 
                 // If something goes wrong with stopping Dej
-                if (!isset($result) || $result !== 0)
+                if (!isset($result) || $result !== 0) {
                     throw new OutputException("Cannot stop Dej.");
-            // User canceled starting Dej
+                }
+                // User canceled starting Dej
             } else {
                 $output->writeln("Aborted.");
                 return 0;
@@ -101,11 +103,13 @@ class StartCommand extends BaseCommand
             ["screen", $screen],
             ["tcpdump", $tcpdump]
         ];
-        foreach ($neededExecutables as $executable)
-            if (empty(`which {$executable[1]}`))
+        foreach ($neededExecutables as $executable) {
+            if (empty(`which {$executable[1]}`)) {
                 throw new OutputException("You must have {$executable[0]} command installed, "
                     . "i.e. the specified executable file cannot be used ({$executable[1]}). "
                     . "Change it by 'dej config'.");
+            }
+        }
 
         // Names of directories and files
         $sourceDir = "src/Process";
@@ -147,17 +151,18 @@ class StartCommand extends BaseCommand
         }
 
         $status = StatusCommand::getStatus();
-        if ($status === StatusCommand::STATUS_RUNNING)
+        if ($status === StatusCommand::STATUS_RUNNING) {
             $output->writeln("Done!");
-        elseif ($status === StatusCommand::STATUS_PARTIAL || $status === StatusCommand::STATUS_STOPPED)
+        } elseif ($status === StatusCommand::STATUS_PARTIAL || $status === StatusCommand::STATUS_STOPPED) {
             $output->writeln("Something went wrong. Try again!");
-        else
+        } else {
             $output->writeln("Too much instances are running.");
+        }
     }
 
     /**
      * Replaces a broken file with its backup.
-     * 
+     *
      * A broken file is a file that is got empty or is smaller than its backup.
      *
      * @param string $path The path of the main files.

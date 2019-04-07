@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -57,7 +57,7 @@ class StatusCommand extends BaseCommand
             default:
                 $output->warn("Too many running instances.");
                 break;
-        }           
+        }
     }
 
     /**
@@ -101,17 +101,21 @@ class StatusCommand extends BaseCommand
     {
         $screensCount = self::getRunningScreensCount();
 
-        if ($screensCount === 0)
+        if ($screensCount === 0) {
             return self::STATUS_STOPPED;
+        }
 
-        if ($screensCount > 0 && $screensCount < self::SCREEN_NUMBER)
+        if ($screensCount > 0 && $screensCount < self::SCREEN_NUMBER) {
             return self::STATUS_PARTIAL;
+        }
 
-        if ($screensCount === self::SCREEN_NUMBER)          
+        if ($screensCount === self::SCREEN_NUMBER) {
             return self::STATUS_RUNNING;
+        }
 
-        if ($screensCount > self::SCREEN_NUMBER)
+        if ($screensCount > self::SCREEN_NUMBER) {
             return self::STATUS_OVERFLOW;
+        }
     }
 
     /**

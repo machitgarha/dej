@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej component file.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -16,7 +16,7 @@ use Dej\Exception\InternalException;
 
 /**
  * Validating data in configuration files.
- * 
+ *
  * Don't try to make it dynamic, as it contains file-specific checks.
  * So don't waste your time to make it possible for every new and strange file.
  * Alert: Every warning or every error is an alert.
@@ -52,7 +52,7 @@ class JSONFileValidation extends JSONFile
 
     /**
      * Set up validation.
-     * 
+     *
      * Fetch validation data, save it and set class properties.
      *
      * @param string $filePath File path to be read.
@@ -69,8 +69,9 @@ class JSONFileValidation extends JSONFile
 
         parent::__construct($filePath, $options);
 
-        if (!in_array($this->getFilename(), $this->validFilenames))
+        if (!in_array($this->getFilename(), $this->validFilenames)) {
             throw new InternalException("The file cannot be validated and is invalid.");
+        }
 
         // Save validation data
         $escapedFilename = str_replace(".", "\.", $this->getFilename());
@@ -79,7 +80,7 @@ class JSONFileValidation extends JSONFile
 
     /**
      * Validate values of options to have proper types.
-     * 
+     *
      * @return self
      */
     public function validateTypesOfValues(): self
@@ -90,8 +91,9 @@ class JSONFileValidation extends JSONFile
          */
         switch ($this->getFilename()) {
             case "config.json":
-                foreach ($this->validationData as $optionName => $data)
+                foreach ($this->validationData as $optionName => $data) {
                     $this->hasValidType($optionName);
+                }
                 break;
     
             case "users.json":
@@ -100,8 +102,9 @@ class JSONFileValidation extends JSONFile
                     $this->hasValidType("name", $userData->name);
 
                     // Validating users' MAC addresses
-                    foreach ((array)$userData->mac as $userMac)
+                    foreach ((array)$userData->mac as $userMac) {
                         $this->hasValidType("macAddress", $userMac);
+                    }
                 }
                 break;
         }
@@ -125,8 +128,9 @@ class JSONFileValidation extends JSONFile
          */
         if ($optionValue === null) {
             $optionValue = $this->get($optionName);
-            if ($optionValue === null)
+            if ($optionValue === null) {
                 return false;
+            }
         }
 
         // Find option's type (the default type for every option is string)
@@ -145,20 +149,23 @@ class JSONFileValidation extends JSONFile
             case "string":
             case "integer":
             case "boolean":
-                if ($optionType === $validType)
+                if ($optionType === $validType) {
                     return true;
+                }
                 break;
 
             case "alphanumeric":
-                if (preg_match("/^[0-9a-z]+$/i", $optionValue))
+                if (preg_match("/^[0-9a-z]+$/i", $optionValue)) {
                     return true;
+                }
                 $expectedType = "alphanumeric string";
                 break;
 
             // Mac addresses could only be colon-styled ones
             case "macAddress":
-                if (preg_match("/^([\da-f]{2}:){5}([\da-f]{2})$/i", $optionValue))
+                if (preg_match("/^([\da-f]{2}:){5}([\da-f]{2})$/i", $optionValue)) {
                     return true;
+                }
                 $expectedType = "colon-styled MAC address";
                 break;
             
@@ -169,8 +176,9 @@ class JSONFileValidation extends JSONFile
 
             // An absolute path, not a relative one
             case "absolutePath":
-                if ($optionValue[0] === "/")
+                if ($optionValue[0] === "/") {
                     return true;
+                }
                 $expectedType = "absolute path (i.e. not a relative one)";
                 break;
             
@@ -201,10 +209,12 @@ class JSONFileValidation extends JSONFile
          */
         switch ($this->getFilename()) {
             case "config.json":
-                foreach ($this->validationData as $optionName => $optionData)
+                foreach ($this->validationData as $optionName => $optionData) {
                     // If a required value is missing
-                    if (!$this->isSet($optionName) && ($optionData->required ?? false) === true)
+                    if (!$this->isSet($optionName) && ($optionData->required ?? false) === true) {
                         $this->pushError("Required option '$optionName' is missing.");
+                    }
+                }
                 break;
             
             case "users.json":
@@ -233,12 +243,14 @@ class JSONFileValidation extends JSONFile
          */
         switch ($this->getFilename()) {
             case "config.json":
-                foreach ($this->validationData as $optionName => $optionData)
-                    if (!$optionData->required)
+                foreach ($this->validationData as $optionName => $optionData) {
+                    if (!$optionData->required) {
                         $this->set(
                             $optionName,
                             $this->get($optionName) ?? $optionData->defaultValue
                         );
+                    }
+                }
                 break;
         }
 
@@ -247,7 +259,7 @@ class JSONFileValidation extends JSONFile
 
     /**
      * Fix values if it's possible to be fixed.
-     * 
+     *
      * As an example, if an option that must be a boolean, is set to "false", this method will convert it to false (i.e. convert its type to boolean).
      *
      * @return self
@@ -260,8 +272,9 @@ class JSONFileValidation extends JSONFile
          */
         switch ($this->getFilename()) {
             case "config.json":
-                foreach ($this->validationData as $optionName => $data)
+                foreach ($this->validationData as $optionName => $data) {
                     $this->fixValue($optionName);
+                }
                 break;
             
             case "users.json":
@@ -272,8 +285,9 @@ class JSONFileValidation extends JSONFile
                     // Convert MAC addresses to an array
                     $this->set("$i.mac", (array)$this->get("$i.mac"));
                     // Fix users' mac addresses, one by one
-                    foreach ($this->get("$i.mac") as $j => $userMac)
+                    foreach ($this->get("$i.mac") as $j => $userMac) {
                         $this->fixValue("$i.mac.$j", "macAddress");
+                    }
                 }
                 break;
         }
@@ -291,15 +305,17 @@ class JSONFileValidation extends JSONFile
     public function fixValue(string $index, string $validType = null): self
     {
         // Set the valid data type automatically
-        if ($validType === null)
+        if ($validType === null) {
             $validType = $this->validationData->$index->type ?? "string";
+        }
 
         // Get the current value
         $value = $this->get($index);
 
         // Prevent from fixing nothing!
-        if ($value === null)
+        if ($value === null) {
             return $this;
+        }
 
         switch ($validType) {
             case "boolean":
@@ -314,8 +330,9 @@ class JSONFileValidation extends JSONFile
             case "alphanumeric":
                 $value = preg_replace("/[^a-z0-9]/i", "", $value);
                 // Prevent the value from getting empty
-                if ($value === "")
+                if ($value === "") {
                     return $this;
+                }
                 break;
 
             // Convert a dash-styled MAC address to a colon-styled one
@@ -364,10 +381,12 @@ class JSONFileValidation extends JSONFile
      */
     protected function pushAlert(string $alert, int $alertType = self::ALERT_TYPE_WARNING): self
     {
-        if ($alertType === self::ALERT_TYPE_WARNING)
+        if ($alertType === self::ALERT_TYPE_WARNING) {
             $this->alerts["warnings"][] = $alert;
-        if ($alertType === self::ALERT_TYPE_ERROR)
+        }
+        if ($alertType === self::ALERT_TYPE_ERROR) {
             $this->alerts["errors"][] = $alert;
+        }
 
         return $this;
     }
@@ -405,7 +424,7 @@ class JSONFileValidation extends JSONFile
      * "w" means output them as warnings (i.e. with a "Warning:" prefix)
      * "e" means output them as errors (i.e. with a "Error:" prefix)
      * "" means output them normally (i.e. without any prefixes)
-     * null means don't output them 
+     * null means don't output them
      * @return self
      */
     public function outputAlerts(OutputInterface $output, array $returnType = [
@@ -421,14 +440,18 @@ class JSONFileValidation extends JSONFile
         ];
 
         // Output warnings
-        if (($returnType["w"] ?? null) !== null)
-            foreach ($this->alerts["warnings"] as $warning)
+        if (($returnType["w"] ?? null) !== null) {
+            foreach ($this->alerts["warnings"] as $warning) {
                 $output->writeln($alertMessagePrefix[$returnType["w"]] . $warning);
+            }
+        }
         
         // Output errors
-        if (($returnType["e"] ?? null) !== null)
-            foreach ($this->alerts["errors"] as $error)
+        if (($returnType["e"] ?? null) !== null) {
+            foreach ($this->alerts["errors"] as $error) {
                 $output->writeln($alertMessagePrefix[$returnType["e"]] . $error);
+            }
+        }
         
         return $this;
     }
@@ -451,8 +474,9 @@ class JSONFileValidation extends JSONFile
      */
     public function throwFirstError(): self
     {
-        foreach ($this->alerts["errors"] as $errorMessage)
+        foreach ($this->alerts["errors"] as $errorMessage) {
             throw new OutputException($errorMessage);
+        }
 
         return $this;
     }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -39,7 +39,8 @@ class CheckCommand extends BaseCommand
             ->outputAlerts($output, ["w" => "w", "e" => "w"])
             ->getAlertsCount();
 
-        if ($alertsCount === 0)
+        if ($alertsCount === 0) {
             $output->writeln("Good!");
+        }
     }
 }

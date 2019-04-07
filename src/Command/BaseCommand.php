@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -65,19 +65,21 @@ abstract class BaseCommand extends Command
         // Cannot detect
         $cannotDetectMessage = "We cannot detect if root permissions is granted or not. Please " .
             "make sure you've granted, otherwise you may have problems.";
-        if (!function_exists("posix_getuid"))
+        if (!function_exists("posix_getuid")) {
             $output->writeln($cannotDetectMessage);
+        }
 
-        if (posix_getuid() !== 0)
+        if (posix_getuid() !== 0) {
             throw new OutputException("Root permission is needed.");
+        }
     }
 
     /**
      * Gets a help from a file.
-     * 
+     *
      * It tries to get the help file, but if reading it was unsuccessful, it uses the command's description. Also, you can inject values in the help file contents.
      *
-     * @param string $filename The filename of the help, without the 
+     * @param string $filename The filename of the help, without the
      * @param array $data Data to be injected. Placeholder is in the form of "{{sth}}".
      * @return string
      */
@@ -93,8 +95,9 @@ abstract class BaseCommand extends Command
             return $this->getDescription();
         }
 
-        foreach ($data as $placeholder => $value)
+        foreach ($data as $placeholder => $value) {
             $contents = str_replace("{{$placeholder}}", $value, $contents);
+        }
 
         return $contents;
     }

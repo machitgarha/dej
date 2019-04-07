@@ -1,7 +1,7 @@
 <?php
 /**
  * Dej command files.
- * 
+ *
  * @author Mohammad Amin Chitgarha <machitgarha@outlook.com>
  * @see https://github.com/MAChitgarha/Dej
  */
@@ -47,12 +47,13 @@ class StopCommand extends BaseCommand
         // Send signal to stop sniffer, and wait for the process to end
         if (StatusCommand::isRunning("sniffer")) {
             touch($this->stopHandlerFile);
-            while (file_exists($this->stopHandlerFile))
+            while (file_exists($this->stopHandlerFile)) {
                 usleep(100 * 1000);
+            }
         }
 
         // Stop the backup process
-        `screen -X -S Backup.dej quit`;        
+        `screen -X -S Backup.dej quit`;
 
         $output->writeln("Done!");
     }

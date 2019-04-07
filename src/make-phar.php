@@ -37,13 +37,15 @@ $filesToBeImported = [
 $section->overwrite("Importing directories...");
 foreach ($directoriesToBeImported as $dirName) {
     // Check if it's a directory or not
-    if (!is_dir($dirName))
+    if (!is_dir($dirName)) {
         return $section->overwrite("'$dirName' is not a valid directory (i.e. does not exist).");
+    }
 
     $section->writeln("'$dirName'...");
     $recDirIt = new RecursiveDirectoryIterator($dirName, RecursiveDirectoryIterator::SKIP_DOTS);
-    foreach (new RecursiveIteratorIterator($recDirIt) as $file)
+    foreach (new RecursiveIteratorIterator($recDirIt) as $file) {
         $dejPhar->addFile($file->getPathname());
+    }
 }
 
 // Import single files that has to be imported
@@ -63,7 +65,8 @@ $dejPhar->stopBuffering();
 $section->overwrite("Granting permissions... ");
 
 // Grant right permissions, if it has been run as root
-if (!@chmod("dej.phar", 0755))
+if (!@chmod("dej.phar", 0755)) {
     $section->write("failed (maybe you are not root)");
+}
 
 $section->overwrite("Done!");
