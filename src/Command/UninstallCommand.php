@@ -45,7 +45,7 @@ class UninstallCommand extends BaseCommand
         $question = new ConfirmationQuestion("Are you sure? [N(o)/y(es)] ", false);
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln("Aborted.");
-            return;
+            return 0;
         }
 
         $output->writeln("Uninstalling...");

@@ -77,7 +77,7 @@ class StartCommand extends BaseCommand
             // User canceled starting Dej
             } else {
                 $output->writeln("Aborted.");
-                return;
+                return 0;
             }
         }
 

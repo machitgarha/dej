@@ -50,19 +50,19 @@ class ConfigCommand extends BaseCommand
         // Handling 'dej config list' command
         if ($firstArgument === "list") {
             $this->printOptionsList($output);
-            return;
+            return 0;
         }
 
         // Handling 'dej config ? [option]'
         if ($firstArgument === "?") {
             $this->getOptionDetails($value, $output);
-            return;
+            return 0;
         }
 
         // Handling 'dej config check'
         if ($firstArgument === "check") {
             $this->getApplication()->find("check")->run(new ArrayInput([]), $output);
-            return;
+            return 0;
         }
 
         if (empty($firstArgument))
@@ -84,7 +84,7 @@ class ConfigCommand extends BaseCommand
                     "You can set it by running 'dej config $firstArgument [value]'."
                 ]);
             }
-            return;
+            return 0;
         }
 
         // From here, handling 'dej config [option] [value]'

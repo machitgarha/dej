@@ -66,14 +66,14 @@ class HelpCommand extends BaseCommand
 
         // Handling -h or --help
         if ($this->command !== null && $outputHelp($this->command)) {
-            return;
+            return 1;
         }
 
         // Handling 'dej help [command]'
         $commandName = $input->getArgument("command_name");
         if ($this->getApplication()->has($commandName) &&
             $outputHelp($this->getApplication()->get($commandName))) {
-            return;
+            return 0;
         }
 
         self::commandNotFound($output, $commandName);
