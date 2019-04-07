@@ -24,11 +24,11 @@ class ShellOutput extends ConsoleOutput
     /**
      * Constructs a shell output.
      *
-     * @param integer $lineLimit Line limit (in characters). Pass 0 to disable line limit.
+     * @param int|null $lineLimit Line limit (in characters). Pass 0 to disable line limit.
      * Default is shell width.
-     * @param integer $verbosity
-     * @param boolean $decorated
-     * @param OutputFormatterInterface $formatter
+     * @param int $verbosity
+     * @param bool|null $decorated
+     * @param OutputFormatterInterface|null $formatter
      */
     public function __construct(int $lineLimit = null, int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = null, OutputFormatterInterface $formatter = null)
     {
@@ -37,9 +37,6 @@ class ShellOutput extends ConsoleOutput
         parent::__construct($verbosity, $decorated, $formatter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function doWrite($message, $newLine = false): void
     {
         $output = $message . ($newLine ? PHP_EOL : "");
@@ -174,8 +171,7 @@ class ShellOutput extends ConsoleOutput
     /**
      * Reset line limit to a new one.
      *
-     * @param int $lineLimit Line limit (in characters). Pass 0 to disable line limit.
-     * Default is shell width.
+     * @param int|null $lineLimit Line limit (in characters). 0 will disable line limit and null will cause auto-detecting the shell width and setting line limit to it (i.e. by default).
      * @return self
      * @throws \InvalidArgumentException When passing line limit a negative number.
      */

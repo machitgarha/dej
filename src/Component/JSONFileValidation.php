@@ -285,7 +285,7 @@ class JSONFileValidation extends JSONFile
      * Fix a value with a valid type, if it's possible.
      *
      * @param string $index The index of the option to be fixed.
-     * @param string $validType Valid type for the value. Pass it null to detect automatically.
+     * @param string|null $validType Valid type for the value. Pass null for auto-detection.
      * @return self
      */
     public function fixValue(string $index, string $validType = null): self
@@ -358,8 +358,8 @@ class JSONFileValidation extends JSONFile
     /**
      * Adds an alert (i.e. error/warning) to the list of found alerts.
      *
-     * @param string $warning Alert message.
-     * @param string $alertType Alert type, can be one of the ALERT_TYPE_* constants.
+     * @param string $alert Alert message.
+     * @param int $alertType Alert type, can be one of the ALERT_TYPE_* constants.
      * @return self
      */
     protected function pushAlert(string $alert, int $alertType = self::ALERT_TYPE_WARNING): self
@@ -386,7 +386,7 @@ class JSONFileValidation extends JSONFile
     /**
      * Adds an error to the list of found alerts.
      *
-     * @param string $warning Error message.
+     * @param string $error Error message.
      * @return self
      */
     protected function pushError(string $error): self
@@ -447,14 +447,13 @@ class JSONFileValidation extends JSONFile
      * Throws the first error listed in errors, if there are any.
      *
      * @return self
-     * @throws OutputException The first extracted error.
+     * @throws OutputException The first error which has been found.
      */
     public function throwFirstError(): self
     {
-        $errors = $this->alerts["errors"];
-        if (!empty($errors))
-            throw new OutputException($this->alerts["errors"][0]);
-        
+        foreach ($this->alerts["errors"] as $errorMessage)
+            throw new OutputException($errorMessage);
+
         return $this;
     }
 }
