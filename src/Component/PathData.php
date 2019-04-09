@@ -58,7 +58,7 @@ class PathData
 
     /**
      * Creates and returns path to where Tcpdump raw packets data will be saved.
-     * 
+     *
      * @return string
      */
     public static function createAndGetTcpdumpDataDirPath(): string

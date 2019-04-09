@@ -11,10 +11,8 @@ namespace Dej\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Dej\Component\JSONFileValidation;
-use Webmozart\PathUtil\Path;
-use MAChitgarha\Component\Pusheh;
-use Dej\Exception\OutputException;
 use Dej\Component\PathData;
+use Dej\Exception\OutputException;
 
 /**
  * The base class for all Dej commands.
@@ -24,7 +22,7 @@ abstract class BaseCommand extends Command
     /**
      * Loads a JSON file.
      *
-     * @param string $filename The filename to load, with '.json' suffix.
+     * @param string $whichConfigFile The filename to load, without '.json' suffix.
      * @return JSONFileValidation
      */
     protected function loadConfig(string $whichConfigFile): JSONFileValidation

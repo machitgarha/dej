@@ -55,7 +55,7 @@ class JSONFileValidation extends JSONFile
      *
      * Fetch validation data, save it and set class properties.
      *
-     * @param string $filePath File path to be read.
+     * @param string $whichConfigFile The filename to load, without '.json' suffix.
      * @param int $options Available options: FILE_MUST_EXIST, IGNORE_INVALID_FILE
      * @throws \Exception When the file doesn't exist and FILE_MUST_EXIST is on.
      * @throws \Exception When the file contains invalid JSON and IGNORE_INVALID_FILE is off.
