@@ -1,2 +1,4 @@
-Usage: dej restart
+Usage:
+    dej restart
+
 Stops Dej, then starts it (needs root permissions).

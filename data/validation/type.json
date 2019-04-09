@@ -1,54 +1,62 @@
 {
-    "data.json": {
+    "config.json": {
         "interface.name": {
-            "class": "required"
+            "required": true
         },
         "interface.mac": {
-            "type": "mac",
-            "class": "required"
+            "required": true,
+            "type": "macAddress"
         },
         "save_to.path": {
-            "class": "required"
+            "required": true,
+            "type": "absolutePath"
         },
         "executables.screen": {
-            "default_value": "screen",
-            "class": "warn"
+            "required": false,
+            "defaultValue": "screen"
         },
         "executables.tcpdump": {
-            "default_value": "tcpdump",
-            "class": "warn"
+            "required": false,
+            "defaultValue": "tcpdump"
         },
         "save_to.format": {
-            "default_value": ".txt"
+            "required": false,
+            "type": "alphanumeric",
+            "defaultValue": "txt"
         },
         "backup.dir": {
-            "default_value": "backup",
-            "type": "alphanumeric"
+            "required": false,
+            "type": "path",
+            "defaultValue": "backup"
         },
         "backup.timeout": {
-            "default_value": 60,
-            "type": "int"
+            "required": false,
+            "type": "integer",
+            "defaultValue": 60
         },
         "logs.screen": {
-            "default_value": false,
-            "type": "bool"
+            "required": false,
+            "type": "boolean",
+            "defaultValue": false
         },
         "logs.skipped_packets": {
-            "default_value": false,
-            "type": "bool"
+            "required": false,
+            "type": "boolean",
+            "defaultValue": false
         },
         "logs.path": {
-            "default_value": "logs"
+            "required": false,
+            "type": "absolutePath",
+            "defaultValue": "/var/log/dej"
         }
     },
+
     "users.json": {
         "name": {
-            "class": "required",
             "type": "alphanumeric"
         },
         "mac": {
-            "class": "required",
-            "type": "mac"
+            "type": "macAddress"
         }
     }
 }

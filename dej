@@ -1,97 +1,31 @@
 #!/bin/sh
 
-# Don't move or edit this file manually!
+# Don't edit the following three lines:
 # SOURCE
-src="./"
-
-# Check if source directory exists
-if [ ! -d "$src" ]; then
-    echo "Cannot find source directory. Try reinstalling Dej."
-    exit
-fi
+src="."
 cd $src
 
-# Prints a message with a new line at end
-printfl () {
-    printf "$1\n"
-}
+# PHP executable to run PHP files, change this if needed
+phpExecutable="php"
 
-# Helps PHP file path to output helps
-helpHandler="src/help.php"
+# Check for PHP executable to be exist
+havePhp=`which $phpExecutable`
 
-# Errors while entering commands
-moreInfo="Try 'dej help' for more information."
+# Run PHP files, if PHP is present
+if [ -n "$havePhp" ]; then
+    # Exit if the PHP version is lower than 7
+    if [ $($phpExecutable -r "echo (float)(phpversion()) <= 7.1;") ]; then
+        echo "Error: Your PHP version must be at least 7.1."
+        exit
+    fi
 
-badUsageError=\
-"Bad usage.
-$moreInfo"
-
-# Show help if no argument supplied
-if [ $# -eq 0 ]; then
-    php $helpHandler "help"
-
-# One or more arguments
+# Warn user for which PHP cannot be found
 else
-    # Check for the command
-    case $1 in
-
-        # Needing help
-        help|-h|--help)
-            # General help
-            if [ $# -eq 1 ]; then
-                php $helpHandler "help"
-            # Specific help 
-            else
-                php $helpHandler $2
-            fi
-            ;;
-
-        # Changing or wanting Dej status
-        start|stop|status|restart)
-            if [ $# -eq 1 ]; then
-                sh src/php.sh $1
-            else
-                printfl "$badUsageError"
-            fi
-            ;;
-
-        # Update or uninstall Dej
-        update|uninstall)
-            sh $1.sh
-            ;;
-
-        # Dej configuration
-        config)
-            case $# in
-                2)
-                    case $2 in
-                        # List of available fields
-                        list)
-                            php $helpHandler "config-list"
-                            ;;
-                        # Creating the configuration file or validating it
-                        create|check)
-                            sh src/php.sh $2
-                            ;;
-                        *)
-                            printfl "$badUsageError"
-                            ;;
-                    esac
-                    ;;
-                # Changing a configuration
-                3)
-                    sh src/php.sh config $2 $3
-                    ;;
-                *)
-                    printfl "$badUsageError"
-                    ;;
-            esac
-            ;;
-
-        # Unknown command
-        *)
-            printfl "Unknown command '$1'."
-            printfl "$moreInfo"
-            ;;
-    esac
+    echo "Cannot run PHP. Simply, install PHP, or change the ehavePhpxecutable path"
+    echo "defined in './data/php' file; then, try again."
+    echo "PHP executable path has been set to: '$phpExecutable'"
+    exit
 fi
+
+# Don't move or edit this file manually!
+$phpExecutable "$src"/src/console.php $@
