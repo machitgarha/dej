@@ -11,6 +11,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Dej\Component\ShellOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Dej\Component\PathData;
 
 /**
  * Stops Dej.
@@ -40,14 +41,16 @@ class StopCommand extends BaseCommand
             return 0;
         }
     
-        // Stop TCPDump and the reader instances
+        // Stop Tcpdump and the reader instances
         `screen -X -S Tcpdump.dej quit`;
         `screen -X -S Reader.dej quit`;
 
-        // Send signal to stop sniffer, and wait for the process to end
+        // Send stop signal to the sniffer, and wait for the process to end
         if (StatusCommand::isRunning("sniffer")) {
-            touch($this->stopHandlerFile);
-            while (file_exists($this->stopHandlerFile)) {
+            $stopperFile = PathData::getStopperFilePath();
+
+            touch($stopperFile);
+            while (file_exists($stopperFile)) {
                 usleep(100 * 1000);
             }
         }

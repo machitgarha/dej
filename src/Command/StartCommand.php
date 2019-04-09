@@ -84,7 +84,7 @@ class StartCommand extends BaseCommand
         }
 
         // Load configurations and validate it
-        $config = $this->loadJson("config")
+        $config = $this->loadConfig("config")
             ->checkEverything()
             ->throwFirstError();
 
@@ -94,19 +94,14 @@ class StartCommand extends BaseCommand
 
         $this->compareFiles($path, $backupDir);
 
-        // Load executables
+        // Checks for installed commands
         $screen = $config->get("executables.screen");
         $tcpdump = $config->get("executables.tcpdump");
 
-        // Checks for installed commands
-        $neededExecutables = [
-            ["screen", $screen],
-            ["tcpdump", $tcpdump]
-        ];
-        foreach ($neededExecutables as $executable) {
-            if (empty(`which {$executable[1]}`)) {
-                throw new OutputException("You must have {$executable[0]} command installed, "
-                    . "i.e. the specified executable file cannot be used ({$executable[1]}). "
+        foreach (["screen", "tcpdump"] as $exeName) {
+            if (empty(`which {$$exeName}`)) {
+                throw new OutputException("You must have $exeName command installed, "
+                    . "i.e. the specified executable file cannot be used ({$$exeName}). "
                     . "Change it by 'dej config'.");
             }
         }
@@ -132,21 +127,14 @@ class StartCommand extends BaseCommand
             $logPart = $isLoggingEnabled ? "-L -Logfile $logFile" : "";
 
             // Create the command to be executed in a screen
-            $mainCommand = "{$this->phpExecutable} "
+            $primaryProcessCommand = (new Process([
+                $this->phpExecutable,
                 // The PHP file path to be run
-                . Path::join($sourceDir, "$filename.php") . " "
-                /*
-                 * Extra arguments to be used in the files:
-                 * 1: Path to config.json configuration file,
-                 * 2: Path to users.json configuration file.
-                 * 1: Path to stop handler file (for the sniffer).
-                 */
-                . Path::join($this->configDir, "config.json") . " "
-                . Path::join($this->configDir, "users.json") . " "
-                . $this->stopHandlerFile;
+                Path::join($sourceDir, "$filename.php"),
+            ]))->getCommandLine();
 
-            // Run the process
-            $command = "$screen -S $filename.dej $logPart -d -m $mainCommand";
+            // Start the process
+            $command = "$screen -S $filename.dej $logPart -d -m $primaryProcessCommand";
             Process::fromShellCommandline($command)->run();
         }
 

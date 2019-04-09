@@ -14,43 +14,24 @@ use Dej\Component\JSONFileValidation;
 use Webmozart\PathUtil\Path;
 use MAChitgarha\Component\Pusheh;
 use Dej\Exception\OutputException;
+use Dej\Component\PathData;
 
 /**
  * The base class for all Dej commands.
  */
 abstract class BaseCommand extends Command
 {
-    /** @var string Configuration directory for configuration files. */
-    protected $configDir;
-
-    /** @var string Path to the file for stopping Dej sniffer. */
-    protected $stopHandlerFile;
-
-    public function __construct(string $name = null)
-    {
-        $home = getenv("HOME");
-
-        // Path for configuration files is under the user's home directory.
-        $this->configDir = Path::join($home, ".config/dej");
-
-        // For stopping Dej sniffer, a communicator file is needed.
-        $this->stopHandlerFile = Path::join($this->configDir, "stopHandler");
-
-        parent::__construct($name);
-    }
-
     /**
      * Loads a JSON file.
      *
      * @param string $filename The filename to load, with '.json' suffix.
      * @return JSONFileValidation
      */
-    protected function loadJson(string $filename): JSONFileValidation
+    protected function loadConfig(string $whichConfigFile): JSONFileValidation
     {
-        // Create the configuration directory
-        Pusheh::createDirRecursive($this->configDir);
+        PathData::createAndGetConfigDirPath();
 
-        return new JSONFileValidation(Path::join($this->configDir, "$filename.json"));
+        return new JSONFileValidation($whichConfigFile);
     }
 
     /**

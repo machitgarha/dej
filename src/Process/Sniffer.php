@@ -1,43 +1,31 @@
 <?php
 
-if ($argc < 4) {
-    exit("Too few arguments.");
-}
-
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use Webmozart\PathUtil\Path;
-use MAChitgarha\Component\JSON;
 use Dej\Component\ShellOutput;
 use Dej\Component\JSONFileValidation;
+use Dej\Component\PathData;
 
 $shellOutput = new ShellOutput();
 
-$dataConfigPath = $argv[1];
-$usersConfigPath = $argv[2];
-/*
- * A simple file to send signal for ending up the process by sniffing the last file.
- * By running 'dej stop', first the TCPDump file will stop. Then, this file should be stopped,
- * however, instead of killing the process, let it to do the last step with the last created
- * TCPDump file.
- */
-$stopHandlerFile = $argv[3];
-
 try {
-    // Load configurations and validate it
-    $config = (new JSONFileValidation($dataConfigPath))
+    $config = (new JSONFileValidation("config"))
         ->checkEverything()
         ->throwFirstError();
 
-    // Load users config file and validate it
+    // Extract users data by loading users data configuration file
     $users = extractMacAsKeys(
-        (new JSONFileValidation($usersConfigPath))
-        ->checkEverything()
-        ->throwFirstError()
+        (new JSONFileValidation("users"))
+            ->checkEverything()
+            ->throwFirstError()
     );
 } catch (Throwable $e) {
     return $shellOutput->error($e->getMessage());
 }
+
+$stopperFilePath = PathData::getStopperFilePath();
+$tcpdumpDataDirPath = PathData::createAndGetTcpdumpDataDirPath();
 
 $toLogSkippedPackets = $config->get("logs.skipped_packets");
 
@@ -50,7 +38,6 @@ $format = $config->get("save_to.format");
 
 // Set logs configurations
 $logsPath = $config->get("logs.path");
-$tcpdumpLogsPath = Path::join($logsPath, "tcpdump");
 $skippedPacketsFile = Path::join($logsPath, "skipped_packets.log");
 
 // TCPDump executable file
@@ -58,7 +45,7 @@ $tcpdump = $config->get("executables.tcpdump");
 
 while (true) {
     // Search for all done packet files
-    $donePacketsFiles = glob(Path::join($tcpdumpLogsPath, "packets-done*"));
+    $donePacketsFiles = glob(Path::join($tcpdumpDataDirPath, "packets-done*"));
 
     // Find the first ready packets file to be sniffed
     if (count($donePacketsFiles) > 0) {
@@ -69,8 +56,8 @@ while (true) {
     }
 
     // Stop the process if 'dej stop' request was sent
-    if (file_exists($stopHandlerFile)) {
-        unlink($stopHandlerFile);
+    if (file_exists($stopperFilePath)) {
+        unlink($stopperFilePath);
         break;
     }
 
@@ -83,10 +70,10 @@ while (true) {
     // Set up files
     $i = (int)$sniffIndex;
     // Files to remove
-    $tcpdumpFile = Path::join($tcpdumpLogsPath, "tcpdump" . ($i === 0 ? "" : $i));
-    $packetsDoneFile = Path::join($tcpdumpLogsPath, "packets-done$i");
+    $tcpdumpFile = Path::join($tcpdumpDataDirPath, "tcpdump" . ($i === 0 ? "" : $i));
+    $packetsDoneFile = Path::join($tcpdumpDataDirPath, "packets-done$i");
     // Packets file to sniff
-    $packetsFile = Path::join($tcpdumpLogsPath, "packets$i");
+    $packetsFile = Path::join($tcpdumpDataDirPath, "packets$i");
 
     // Array to save size of transferred packets based on MAC addresses
     $devicesInfo = [];
@@ -187,9 +174,9 @@ function saveToFile(string $macAddress, int $packetsTotalSize)
     $packetsTotalSize /= 10 ** 6;
 
     // Produces the filename
-    $macFilePath = $path . $macAddress . "." . $format;
-    
-    $filePath = $path . ($users[$macAddress] ?? $macAddress) . "." . $format;
+    $macFilePath = Path::join($path, "$macAddress.$format");
+
+    $filePath = Path::join($path, ($users[$macAddress] ?? $macAddress) . ".$format");
 
     // Prevent duplicate files of one device
     $macFileLastVal = 0;
@@ -272,7 +259,7 @@ function logPackets($file, array $macAddresses, int $packetSize, string $packetD
     fwrite($file, $output);
 }
 
-function extractMacAsKeys(JSON $usersData): array
+function extractMacAsKeys(JSONFileValidation $usersData): array
 {
     $usersData->getDataAsArray();
 

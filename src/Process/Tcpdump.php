@@ -1,9 +1,5 @@
 <?php
 
-if ($argc < 2) {
-    exit("Too few arguments.");
-}
-
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use Symfony\Component\Process\Process;
@@ -11,14 +7,15 @@ use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use Dej\Component\ShellOutput;
 use Dej\Component\JSONFileValidation;
+use Dej\Component\PathData;
 
 $shellOutput = new ShellOutput();
 
-$dataConfigPath = $argv[1];
+$tcpdumpDataDirPath = PathData::createAndGetTcpdumpDataDirPath();
 
 try {
     // Load configurations and validate it
-    $config = (new JSONFileValidation($dataConfigPath))
+    $config = (new JSONFileValidation("config"))
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {
@@ -29,7 +26,6 @@ $interfaceName = $config->get("interface.name");
 
 // File path to save
 $logsPath = $config->get("logs.path");
-Pusheh::createDirRecursive(Path::join($logsPath, "tcpdump"));
 
 // TCPDump executable file
 $tcpdump = $config->get("executables.tcpdump");
@@ -42,8 +38,9 @@ $tcpdump = $config->get("executables.tcpdump");
 * Use the loop for when the device is not set up
 */
 while (true) {
-    $tcpdumpLogsPath = Path::join($logsPath, "tcpdump", "tcpdump");
-    $cmd = "$tcpdump -i $interfaceName -C 1 -w $tcpdumpLogsPath";
+    // Write Tcpdump data to files
+    $cmd = "$tcpdump -i $interfaceName -C 1 -w " . Path::join($tcpdumpDataDirPath, "tcpdump");
+
     $tcpdumpProcess = Process::fromShellCommandline($cmd);
     $tcpdumpProcess->setTimeout(null)->run(function ($type, $out) {
         echo $out;

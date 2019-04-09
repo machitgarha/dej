@@ -21,6 +21,7 @@ use Dej\Command\ListCommand;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Exception\RuntimeException;
 
 $shellOutput = new ShellOutput();
 
@@ -49,6 +50,8 @@ try {
     return $shellOutput->error($e->getMessage());
 } catch (CommandNotFoundException $e) {
     return $shellOutput->error("Unknown command. See 'dej list'.");
+} catch (RuntimeException $e) {
+    return $shellOutput->error($e->getMessage());
 } catch (\Throwable $e) {
     // Debugging only:
     // throw $e;

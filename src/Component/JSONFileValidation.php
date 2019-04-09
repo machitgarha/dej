@@ -62,15 +62,16 @@ class JSONFileValidation extends JSONFile
      * @throws \Exception When something goes wrong while fetching validation data.
      * @throws InternalException The passed file is an invalid and cannot be validated.
      */
-    public function __construct(string $filePath, int $options = 0)
+    public function __construct(string $whichConfigFile, int $options = 0)
     {
         // Open validation file
         $validationJson = new JSONFile(Path::join($this->validationDir, "type.json"));
 
-        parent::__construct($filePath, $options);
+        // Get the configuration file path and load it
+        parent::__construct(PathData::getConfigFilesPaths()[$whichConfigFile], $options);
 
         if (!in_array($this->getFilename(), $this->validFilenames)) {
-            throw new InternalException("The file cannot be validated and is invalid.");
+            throw new InternalException("The file cannot be validated and is invalid (" . $this->getFilename() . ")");
         }
 
         // Save validation data
@@ -103,7 +104,7 @@ class JSONFileValidation extends JSONFile
 
                     // Validating users' MAC addresses
                     foreach ((array)$userData->mac as $userMac) {
-                        $this->hasValidType("macAddress", $userMac);
+                        $this->hasValidType("mac", $userMac);
                     }
                 }
                 break;

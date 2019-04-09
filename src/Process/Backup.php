@@ -1,9 +1,5 @@
 <?php
 
-if ($argc < 2) {
-    exit("Too few arguments.");
-}
-
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use MAChitgarha\Component\Pusheh;
@@ -13,11 +9,8 @@ use Dej\Component\JSONFileValidation;
 
 $shellOutput = new ShellOutput();
 
-$dataConfigPath = $argv[1];
-
-// Load configurations and validate it
 try {
-    $config = (new JSONFileValidation($dataConfigPath))
+    $config = (new JSONFileValidation("config"))
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {

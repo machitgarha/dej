@@ -1,32 +1,24 @@
 <?php
 
-if ($argc < 2) {
-    exit("Too few arguments.");
-}
-
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Webmozart\PathUtil\Path;
 use Dej\Component\ShellOutput;
 use Dej\Component\JSONFileValidation;
+use Dej\Component\PathData;
 
 $shellOutput = new ShellOutput();
 
-$dataConfigPath = $argv[1];
-
 try {
-    // Load configurations and validate it
-    $config = (new JSONFileValidation($dataConfigPath))
+    $config = (new JSONFileValidation("config"))
         ->checkEverything()
         ->throwFirstError();
 } catch (Throwable $e) {
     return $shellOutput->error($e->getMessage());
 }
 
-// Change directory to TCPDump logs path
-chdir(Path::join($config->get("logs.path"), "tcpdump"));
+chdir(PathData::createAndGetTcpdumpDataDirPath());
 
-// TCPDump executable file
+// Tcpdump executable path
 $tcpdump = $config->get("executables.tcpdump");
 
 $i = 0;

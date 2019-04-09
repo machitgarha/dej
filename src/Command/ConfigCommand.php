@@ -70,7 +70,7 @@ class ConfigCommand extends BaseCommand
         }
 
         try {
-            $dataJson = $this->loadJson("config");
+            $dataJson = $this->loadConfig("config");
         } catch (\Throwable $e) {
             throw new InternalException("A configuration file could not be loaded.");
         }
