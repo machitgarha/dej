@@ -13,20 +13,27 @@ You need PHP7, tcpdump and screen tools to be able to run Dej. Their installatio
 As mentioned above, you must have root permissions.
 
 ### Installing
-Really simple. First, clone the project (or download it). Then go to the project directory, and just run:
+Download the latest release from Phar file in GitHub releases page. After that, change the file's permissions:
 ```
-# sh install.sh
+sudo chmod 755 ./dej.phar
 ```
+Now, install Dej by running:
+```
+sudo ./dej.phar install
+```
+
+#### Make the Phar
+If you don't want to download the Phar or you want to make the Phar for other purposes (e.g. development), you have to make the Phar. To perform this action, you need to clone the project. Then, go to the cloned project and run:
+```
+sudo php ./src/make-phar.php
+```
+The Phar file will be made in the root directory as `dej.phar`. Now, you can install Dej using the Phar.
 
 ### Updating
-Simple, too. After installation, you can do:
-```
-# dej update
-```
+Currently, there is no automated method for updating Dej. However, you can download a release and install it. For installing a different version, you need to use --force option.
 
 ### Uninstalling
-You can uninstall by running:
+Uninstalling can be done by:
 ```
-# dej uninstall
+sudo dej uninstall
 ```
-__Note__: Don't forget to confirm uninstallation.

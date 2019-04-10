@@ -9,12 +9,12 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Webmozart\PathUtil\Path;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
 use Dej\Exception\InternalException;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Installs Dej.
@@ -69,7 +69,7 @@ class InstallCommand extends BaseCommand
                 throw new OutputException("You must install Dej as a Phar file.");
             }
         } else {
-            throw new OutputException("Already installed.");
+            throw new OutputException("Already installed (use --force option).");
         }
 
         // Grant right permissions
