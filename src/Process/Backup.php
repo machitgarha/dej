@@ -23,11 +23,11 @@ Pusheh::createDirRecursive($dirPath);
 chdir($dirPath);
 
 // Set required variables from data file
-$backupDirName = $config->get("backup.dir");
+$backupDirPath = $config->get("backup.dir");
 $backupTimeout = $config->get("backup.timeout");
 
 // Create backup directory (if needed)
-Pusheh::createDirRecursive($backupDirName);
+Pusheh::createDirRecursive($backupDirPath);
 
 while (true) {
     // Make a list of the whole files
@@ -39,13 +39,13 @@ while (true) {
     } catch (Throwable $e) {
         $now = time();
     }
-    file_put_contents(Path::join($backupDirName, "update_time"), $now);
+    file_put_contents(Path::join($backupDirPath, "update_time"), $now);
 
     // Make backup from the files
     foreach ($filesDir as $file) {
         if ($file->isFile()) {
             $filename = $file->getFilename();
-            `cp $filename $backupDirName/$filename`;
+            copy($filename, Path::join($backupDirPath, $filename));
         }
     }
 
