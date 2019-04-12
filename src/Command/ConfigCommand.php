@@ -126,15 +126,18 @@ class ConfigCommand extends BaseCommand
             $output->write("(" . json_encode($curValue) . " => " . json_encode($newValue) . ")");
         }
 
-        $output->writeln([
-            "",
-            ""
-        ]);
+        $output->writeln("");
 
-        // Restart Dej to see the effects and show the result, if root permissions granted
+        // Restart Dej if root permissions granted and if it's running
         try {
-            $this->forceRootPermissions(new NullOutput());
-            $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
+            // Show warning when root permissions is not present
+            if (!$this->areWeRoot($output)) {
+                throw new \Exception("Root permissions has not been granted.");
+            }
+
+            if (StatusCommand::isRunning()) {
+                $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
+            }
         } catch (\Throwable $e) {
             $output->warn("You have to restart Dej to see effects.");
         }

@@ -54,6 +54,27 @@ abstract class BaseCommand extends Command
     }
 
     /**
+     * Tells whether is root permission enabled or not.
+     *
+     * @param OutputInterface $output
+     * @return bool
+     */
+    protected function areWeRoot(OutputInterface $output): bool
+    {
+        /*
+         * The reason why we use the following method inside this method and not the opposite is
+         * facing the condition that root permissions cannot be detected.
+         */
+        try {
+            $this->forceRootPermissions($output);
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Gets a help from a file.
      *
      * It tries to get the help file, but if reading it was unsuccessful, it uses the command's description. Also, you can inject values in the help file contents.

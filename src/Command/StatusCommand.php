@@ -121,11 +121,14 @@ class StatusCommand extends BaseCommand
     /**
      * Tells whether a process is running or not.
      *
-     * @param string $process The process name to be checked.
+     * @param string $process The process name to be checked; pass * to check all processes.
      * @return bool
      */
-    public static function isRunning(string $process): bool
+    public static function isRunning(string $process = "*"): bool
     {
+        if ($process === "*")
+            return self::getStatus() === self::STATUS_RUNNING;
+            
         return in_array(strtolower($process), self::getRunningScreens());
     }
 }
