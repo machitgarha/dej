@@ -18,6 +18,8 @@ use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;
 use Dej\Exception\OutputException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Dej\Component\PathData;
+use Dej\Exception\InternalException;
 
 /**
  * Starts Dej.
@@ -99,21 +101,12 @@ class StartCommand extends BaseCommand
         $tcpdump = $config->get("executables.tcpdump");
 
         foreach (["screen", "tcpdump"] as $exeName) {
-            if (empty(`which {$$exeName}`)) {
+            if (@empty(`which {$$exeName}`)) {
                 throw new OutputException("You must have $exeName command installed, "
                     . "i.e. the specified executable file cannot be used ({$$exeName}). "
                     . "Change it by 'dej config'.");
             }
         }
-
-        // Names of directories and files
-        $sourceDir = "src/Process";
-        $filenames = [
-            "Tcpdump",
-            "Reader",
-            "Sniffer",
-            "Backup",
-        ];
 
         // Get logging configurations
         $isLoggingEnabled = $config->get("logs.screen");
@@ -121,21 +114,27 @@ class StartCommand extends BaseCommand
         Pusheh::createDirRecursive($logsPath);
 
         // Run each file with a logger
-        foreach ($filenames as $filename) {
-            // The logging part; check if it's enabled or not
-            $logFile = Path::join($logsPath, "$filename.log");
-            $logPart = $isLoggingEnabled ? "-L -Logfile $logFile" : "";
+        foreach ($this->getProcessFilesInfo() as [$processName, $processFilePath]) {
+            // Logging part, whether to log processes output or not
+            $logFilePath = Path::join($logsPath, "$processName.log");
+            $logPart = $isLoggingEnabled ? (new Process([
+                "-L",
+                "-Logfile",
+                $logFilePath
+            ]))->getCommandLine() : "";
 
             // Create the command to be executed in a screen
             $primaryProcessCommand = (new Process([
                 $this->phpExecutable,
-                // The PHP file path to be run
-                Path::join($sourceDir, "$filename.php"),
+                $processFilePath,
+                // Autoloader file to be used in processes
+                Path::join(__DIR__, "../../vendor/autoload.php")
             ]))->getCommandLine();
-
-            // Start the process
-            $command = "$screen -S $filename.dej $logPart -d -m $primaryProcessCommand";
-            Process::fromShellCommandline($command)->run();
+            
+            // Run the process
+            $command = "$screen -S $processName.dej $logPart -d -m $primaryProcessCommand";
+            $screenProcess = Process::fromShellCommandline($command);
+            $screenProcess->run();
         }
 
         $status = StatusCommand::getStatus();
@@ -167,12 +166,12 @@ class StartCommand extends BaseCommand
         // Get files information
         Pusheh::createDirRecursive($path);
         $files = new \DirectoryIterator($path);
-        $backupDir = "$path/$backupDir";
+        $backupDir = Path::join($path, $backupDir);
 
         foreach ($files as $file) {
-            $filename = $file->getFilename();
-            $filePath = Path::join($path, $filename);
-            $backupFilePath = Path::join($backupDir, $filename);
+            $processName = $file->getFilename();
+            $filePath = Path::join($path, $processName);
+            $backupFilePath = Path::join($backupDir, $processName);
 
             // Replacing broken file
             if (is_dir($backupDir) && file_exists($backupFilePath) &&
@@ -183,6 +182,45 @@ class StartCommand extends BaseCommand
                 // Replace it with the backup file
                 copy($backupFilePath, $filePath);
             }
+        }
+    }
+
+    /**
+     * Get process files information.
+     * 
+     * Copy process files to Dej data directory and return the process information.
+     *
+     * @return \Generator Each process file information:
+     * [0]: The process name (i.e. without extension),
+     * [1]: The filename of the copied process file.
+     */
+    private function getProcessFilesInfo(): \Generator
+    {
+        $processNames = [
+            "Tcpdump",
+            "Reader",
+            "Sniffer",
+            "Backup",
+        ];
+
+        // Set and create destination and source directories
+        $destDirPath = Path::join(PathData::createAndGetDataDirPath(), "processes");
+        $srcDirPath = Path::join(__DIR__, "../Process");
+        Pusheh::createDir($destDirPath);
+
+        foreach ($processNames as $processName) {
+            $destFilePath = Path::join($destDirPath, "$processName.php");
+            $srcFilePath = Path::join($srcDirPath, "$processName.php");
+
+            // Copy files if destination does not exist or source is newer
+            if (!file_exists($destFilePath) || sha1_file($srcFilePath) !== sha1_file($destFilePath))
+                if (!copy($srcFilePath, $destFilePath))
+                    throw new InternalException("Cannot copy files.");
+
+            yield [
+                $processName,
+                $destFilePath
+            ];
         }
     }
 }

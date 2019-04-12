@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../vendor/autoload.php";
+require_once $argv[1];
 
 use MAChitgarha\Component\Pusheh;
 use Webmozart\PathUtil\Path;

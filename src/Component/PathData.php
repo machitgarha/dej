@@ -23,7 +23,7 @@ class PathData
      */
     public static function createAndGetConfigDirPath(): string
     {
-        return self::createDirAndReturn(Path::join(getenv("HOME"), ".config/dej"));
+        return self::createDirAndReturn(Path::join(self::getHomeDirPath(), ".config/dej"));
     }
 
     /**
@@ -67,6 +67,16 @@ class PathData
     }
 
     /**
+     * Creates and returns data directory path.
+     *
+     * @return string
+     */
+    public static function createAndGetDataDirPath(): string
+    {
+        return self::createDirAndReturn(Path::join(self::getHomeDirPath(), ".local/share/dej"));
+    }
+
+    /**
      * Creates a directory and returns its path.
      *
      * @param string $dirPath Directory path to be created and returned.
@@ -76,5 +86,15 @@ class PathData
     {
         Pusheh::createDirRecursive($dirPath);
         return $dirPath;
+    }
+
+    /**
+     * Returns user's home directory path.
+     *
+     * @return string
+     */
+    private static function getHomeDirPath(): string
+    {
+        return getenv("HOME");
     }
 }
