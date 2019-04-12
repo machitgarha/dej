@@ -55,7 +55,7 @@ foreach ($filesToBeImported as $filePath) {
 }
 
 // Set default stub
-$dejPhar->setStub("#!/usr/bin/env php" . PHP_EOL . $defaultStub);
+$dejPhar->setStub("#!/bin/env php" . PHP_EOL . $defaultStub);
 
 $section->overwrite("Saving the Phar file...");
 

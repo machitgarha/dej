@@ -10,6 +10,7 @@ namespace Dej\Component;
 
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Process\Process;
 
 /**
  * Print messages to the shell output.
@@ -186,13 +187,18 @@ class ShellOutput extends ConsoleOutput
             throw new \InvalidArgumentException("Line limit cannot be negative.");
         }
 
-        if ($lineLimit === 0) {
-            $this->disableLineLimit();
-        }
-
         // Default line limit is shell width
         if ($lineLimit === null) {
             $lineLimit = self::getShellWidth();
+        }
+
+        /*
+         * Disable line limit in two conditions:
+         * When the function argument is zero,
+         * When the shell width cannot be detected.
+         */
+        if ($lineLimit === 0) {
+            $this->disableLineLimit();
         }
 
         $this->lineLimit = $lineLimit;
@@ -205,11 +211,12 @@ class ShellOutput extends ConsoleOutput
      *
      * It is supported only on Linux systems.
      *
-     * @return int
+     * @return int Returns shell width, or 0 when cannot be detected.
      */
     public static function getShellWidth(): int
     {
-        return (int)(`tput cols`);
+        ($getWidth = Process::fromShellCommandline("tput cols"))->run();
+        return ($getWidth->isSuccessful() ? (int)($getWidth->getOutput()) : 0);
     }
 
     /**
@@ -217,10 +224,11 @@ class ShellOutput extends ConsoleOutput
      *
      * It is supported only on Linux systems.
      *
-     * @return int
+     * @return int Returns shell height, or 0 when cannot be detected.
      */
     public static function getShellHeight(): int
     {
-        return (int)(`tput lines`);
+        ($getHeight = Process::fromShellCommandline("tput lines"))->run();
+        return ($getHeight->isSuccessful() ? (int)($getHeight->getOutput()) : 0);
     }
 }
