@@ -133,17 +133,21 @@ class StartCommand extends BaseCommand
             
             // Run the process
             $command = "$screen -S $processName.dej $logPart -d -m $primaryProcessCommand";
-            $screenProcess = Process::fromShellCommandline($command);
-            $screenProcess->run();
+            Process::fromShellCommandline($command)->run();
         }
+
+        // Wait for processes to start
+        usleep(200 * 1000);
 
         $status = StatusCommand::getStatus();
         if ($status === StatusCommand::STATUS_RUNNING) {
             $output->writeln("Done!");
-        } elseif ($status === StatusCommand::STATUS_PARTIAL || $status === StatusCommand::STATUS_STOPPED) {
-            $output->writeln("Something went wrong. Try again!");
         } else {
-            $output->writeln("Too much instances are running.");
+            // Stop all processes if something went wrong with any process
+            $output->disableOutput();
+            $this->getApplication()->find("stop")->run(new ArrayInput([]), $output);
+
+            throw new OutputException("Something went wrong!");
         }
     }
 
@@ -214,7 +218,7 @@ class StartCommand extends BaseCommand
 
             // Copy files if destination does not exist or source is newer
             if (!file_exists($destFilePath) || sha1_file($srcFilePath) !== sha1_file($destFilePath))
-                if (!copy($srcFilePath, $destFilePath))
+                if (!@copy($srcFilePath, $destFilePath))
                     throw new InternalException("Cannot copy files.");
 
             yield [
