@@ -191,7 +191,7 @@ class StartCommand extends BaseCommand
 
     /**
      * Get process files information.
-     * 
+     *
      * Copy process files to Dej data directory and return the process information.
      *
      * @return \Generator Each process file information:
@@ -217,9 +217,11 @@ class StartCommand extends BaseCommand
             $srcFilePath = Path::join($srcDirPath, "$processName.php");
 
             // Copy files if destination does not exist or source is newer
-            if (!file_exists($destFilePath) || sha1_file($srcFilePath) !== sha1_file($destFilePath))
-                if (!@copy($srcFilePath, $destFilePath))
+            if (!file_exists($destFilePath) || sha1_file($srcFilePath) !== sha1_file($destFilePath)) {
+                if (!@copy($srcFilePath, $destFilePath)) {
                     throw new InternalException("Cannot copy files.");
+                }
+            }
 
             yield [
                 $processName,

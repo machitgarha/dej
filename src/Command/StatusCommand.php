@@ -126,8 +126,9 @@ class StatusCommand extends BaseCommand
      */
     public static function isRunning(string $process = "*"): bool
     {
-        if ($process === "*")
+        if ($process === "*") {
             return self::getStatus() === self::STATUS_RUNNING;
+        }
             
         return in_array(strtolower($process), self::getRunningScreens());
     }
