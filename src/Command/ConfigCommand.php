@@ -77,7 +77,7 @@ class ConfigCommand extends BaseCommand
         // Handling 'dej config [option]'
         if ($value === null) {
             if ($dataJson->isSet($firstArgument)) {
-                $output->writeln($dataJson->get($firstArgument));
+                $output->writeln(json_encode($dataJson->get($firstArgument)));
             } else {
                 $output->writeln([
                     "Option '$firstArgument' is not set.",
