@@ -66,7 +66,7 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
-     * Outputs an error.
+     * Outputs an error and return a code.
      *
      * @param string $message The message.
      * @param int $returnCode The return code.
@@ -74,7 +74,19 @@ class ShellOutput extends ConsoleOutput
      */
     public function error(string $message, int $returnCode = 1): int
     {
-        $this->writeln("Error: $message");
+        return $this->abort("Error: $message", $returnCode);
+    }
+
+    /**
+     * Outputs something and returns a code (to stop the code using it).
+     *
+     * @param string $message The message.
+     * @param int $returnCode The return code.
+     * @return int The passed return code.
+     */
+    public function abort(string $message, int $returnCode = 0): int
+    {
+        $this->writeln($message);
         return $returnCode;
     }
 
