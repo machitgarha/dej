@@ -45,9 +45,10 @@ class RestartCommand extends BaseCommand
         // Run a start command followed by a stop command
         try {
             $args = new ArrayInput([]);
-            $nullOutput = new NullOutput();
-            $stopResult = $dej->find("stop")->run($args, $nullOutput);
-            $startResult = $dej->find("start")->run($args, $nullOutput);
+            $output->disableOutput();
+            $stopResult = $dej->find("stop")->run($args, $output);
+            $startResult = $dej->find("start")->run($args, $output);
+            $output->enableOutput();
         } catch (\Throwable $e) {
         }
 

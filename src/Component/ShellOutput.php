@@ -11,7 +11,6 @@ namespace Dej\Component;
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Process\Process;
-
 /**
  * Print messages to the shell output.
  */
@@ -21,6 +20,9 @@ class ShellOutput extends ConsoleOutput
     private $toLimitLines = true;
     /** @var int */
     private $lineLimit;
+
+    /** @var bool Whether to output things or not. */
+    private $outputEnabled = true;
 
     /**
      * Constructs a shell output.
@@ -40,6 +42,9 @@ class ShellOutput extends ConsoleOutput
 
     public function doWrite($message, $newLine = false): void
     {
+        if (!$this->outputEnabled)
+            return;
+
         $output = $message . ($newLine ? PHP_EOL : "");
 
         // Output with limited lines
@@ -230,5 +235,27 @@ class ShellOutput extends ConsoleOutput
     {
         ($getHeight = Process::fromShellCommandline("tput lines"))->run();
         return ($getHeight->isSuccessful() ? (int)($getHeight->getOutput()) : 0);
+    }
+
+    /**
+     * Disable printing output.
+     * 
+     * @return self
+     */
+    public function disableOutput(): self
+    {
+        $this->outputEnabled = false;
+        return $this;
+    }
+
+    /**
+     * Enable printing output.
+     *
+     * @return self
+     */
+    public function enableOutput(): self
+    {
+        $this->outputEnabled = true;
+        return $this;
     }
 }
