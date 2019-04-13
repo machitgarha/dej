@@ -120,7 +120,18 @@ class StartCommand extends BaseCommand
         // Get logging configurations
         $isLoggingEnabled = $config->get("logs.screen");
         $logsPath = $config->get("logs.path");
-        Pusheh::createDirRecursive($logsPath);
+
+        // Try to create logs path, and when failed, alert user
+        try {
+            if ($isLoggingEnabled) {
+                Pusheh::createDirRecursive($logsPath);
+            }
+        } catch (\Throwable $e) {
+            throw new OutputException(
+                "Cannot make logs directory path ($logsPath). " .
+                "Change it using 'dej config logs.path *path*'."
+            );
+        }
 
         // Run each file with a logger
         foreach ($this->getProcessFilesInfo() as [$processName, $processFilePath]) {
