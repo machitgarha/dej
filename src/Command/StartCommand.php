@@ -113,8 +113,9 @@ class StartCommand extends BaseCommand
          */
         if (!empty($currentPharPath = \Phar::running(false))) {
             $dejPharPath = Path::join(PathData::createAndGetDataDirPath(), "dej.phar");
-            if (!@copy($currentPharPath, $dejPharPath))
+            if (!@copy($currentPharPath, $dejPharPath)) {
                 throw new InternalException("Cannot copy Dej installation file.");
+            }
         }
 
         // Get logging configurations

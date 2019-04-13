@@ -67,8 +67,10 @@ class InstallCommand extends BaseCommand
 
         // Prompt user for overwriting installed version when force mode is not enabled
         if (file_exists($installationPath) && !$forceMode) {
-            $question = new ConfirmationQuestion("Overwrite the installed version? [N(o)/y(es)] ",
-                false);
+            $question = new ConfirmationQuestion(
+                "Overwrite the installed version? [N(o)/y(es)] ",
+                false
+            );
             if (!$this->getHelper("question")->ask($input, $output, $question)) {
                 return $output->abort("Aborted.");
             }
