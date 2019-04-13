@@ -63,7 +63,11 @@ class PathData
      */
     public static function createAndGetTcpdumpDataDirPath(): string
     {
-        return self::createDirAndReturn("/tmp/dej/tcpdump");
+        try {
+            return self::createDirAndReturn("/data/data/com.termux/tmp/dej");
+        } catch (\Throwable $e) {
+            return Path::join(self::createAndGetDataDirPath(), "tmp");
+        }
     }
 
     /**
