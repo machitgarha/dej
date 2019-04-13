@@ -78,7 +78,6 @@ class StartCommand extends BaseCommand
                 if (!isset($result) || $result !== 0) {
                     throw new OutputException("Cannot stop Dej.");
                 }
-                // User canceled starting Dej
             } else {
                 return $output->abort("Aborted.");
             }
@@ -107,6 +106,17 @@ class StartCommand extends BaseCommand
             }
         }
 
+        /*
+         * To use files inside the installed Phar, unfortunately, due to a bug in Phar, we must
+         * copy the Phar file to a new destination (i.e. data directory) to use its files. The bug
+         * is that a Phar cannot be accessed via phar:// if its filename does not end with .phar!
+         */
+        if (!empty($currentPharPath = \Phar::running(false))) {
+            $dejPharPath = Path::join(PathData::createAndGetDataDirPath(), "dej.phar");
+            if (!@copy($currentPharPath, $dejPharPath))
+                throw new InternalException("Cannot copy Dej installation file.");
+        }
+
         // Get logging configurations
         $isLoggingEnabled = $config->get("logs.screen");
         $logsPath = $config->get("logs.path");
@@ -126,8 +136,6 @@ class StartCommand extends BaseCommand
             $primaryProcessCommand = (new Process([
                 $this->phpExecutable,
                 $processFilePath,
-                // Autoloader file to be used in processes
-                Path::join(__DIR__, "../../vendor/autoload.php")
             ]))->getCommandLine();
             
             // Run the process
@@ -145,6 +153,7 @@ class StartCommand extends BaseCommand
             // Stop all processes if something went wrong with any process
             $output->disableOutput();
             $this->getApplication()->find("stop")->run(new ArrayInput([]), $output);
+            $output->enableOutput();
 
             throw new OutputException("Something went wrong!");
         }

@@ -1,6 +1,6 @@
 <?php
 
-require_once $argv[1];
+require_once "phar://" . __DIR__ . "/../dej.phar/vendor/autoload.php";
 
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
