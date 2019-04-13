@@ -10,6 +10,7 @@ namespace Dej\Component;
 
 use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Process\Process;
 
 /**
  * Print messages to the shell output.
@@ -20,6 +21,9 @@ class ShellOutput extends ConsoleOutput
     private $toLimitLines = true;
     /** @var int */
     private $lineLimit;
+
+    /** @var bool Whether to output things or not. */
+    private $outputEnabled = true;
 
     /**
      * Constructs a shell output.
@@ -39,6 +43,10 @@ class ShellOutput extends ConsoleOutput
 
     public function doWrite($message, $newLine = false): void
     {
+        if (!$this->outputEnabled) {
+            return;
+        }
+
         $output = $message . ($newLine ? PHP_EOL : "");
 
         // Output with limited lines
@@ -58,7 +66,7 @@ class ShellOutput extends ConsoleOutput
     }
 
     /**
-     * Outputs an error.
+     * Outputs an error and return a code.
      *
      * @param string $message The message.
      * @param int $returnCode The return code.
@@ -66,7 +74,19 @@ class ShellOutput extends ConsoleOutput
      */
     public function error(string $message, int $returnCode = 1): int
     {
-        $this->writeln("Error: $message");
+        return $this->abort("Error: $message", $returnCode);
+    }
+
+    /**
+     * Outputs something and returns a code (to stop the code using it).
+     *
+     * @param string $message The message.
+     * @param int $returnCode The return code.
+     * @return int The passed return code.
+     */
+    public function abort(string $message, int $returnCode = 0): int
+    {
+        $this->writeln($message);
         return $returnCode;
     }
 
@@ -186,13 +206,18 @@ class ShellOutput extends ConsoleOutput
             throw new \InvalidArgumentException("Line limit cannot be negative.");
         }
 
-        if ($lineLimit === 0) {
-            $this->disableLineLimit();
-        }
-
         // Default line limit is shell width
         if ($lineLimit === null) {
             $lineLimit = self::getShellWidth();
+        }
+
+        /*
+         * Disable line limit in two conditions:
+         * When the function argument is zero,
+         * When the shell width cannot be detected.
+         */
+        if ($lineLimit === 0) {
+            $this->disableLineLimit();
         }
 
         $this->lineLimit = $lineLimit;
@@ -205,11 +230,12 @@ class ShellOutput extends ConsoleOutput
      *
      * It is supported only on Linux systems.
      *
-     * @return int
+     * @return int Returns shell width, or 0 when cannot be detected.
      */
     public static function getShellWidth(): int
     {
-        return (int)(`tput cols`);
+        ($getWidth = Process::fromShellCommandline("tput cols"))->run();
+        return ($getWidth->isSuccessful() ? (int)($getWidth->getOutput()) : 0);
     }
 
     /**
@@ -217,10 +243,33 @@ class ShellOutput extends ConsoleOutput
      *
      * It is supported only on Linux systems.
      *
-     * @return int
+     * @return int Returns shell height, or 0 when cannot be detected.
      */
     public static function getShellHeight(): int
     {
-        return (int)(`tput lines`);
+        ($getHeight = Process::fromShellCommandline("tput lines"))->run();
+        return ($getHeight->isSuccessful() ? (int)($getHeight->getOutput()) : 0);
+    }
+
+    /**
+     * Disable printing output.
+     *
+     * @return self
+     */
+    public function disableOutput(): self
+    {
+        $this->outputEnabled = false;
+        return $this;
+    }
+
+    /**
+     * Enable printing output.
+     *
+     * @return self
+     */
+    public function enableOutput(): self
+    {
+        $this->outputEnabled = true;
+        return $this;
     }
 }

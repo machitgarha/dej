@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . "/../../vendor/autoload.php";
+require_once "phar://" . __DIR__ . "/../dej.phar/vendor/autoload.php";
 
 use Dej\Component\ShellOutput;
 use Dej\Component\JSONFileValidation;

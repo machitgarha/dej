@@ -12,7 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
 use Dej\Exception\InternalException;
@@ -78,7 +77,7 @@ class ConfigCommand extends BaseCommand
         // Handling 'dej config [option]'
         if ($value === null) {
             if ($dataJson->isSet($firstArgument)) {
-                $output->writeln($dataJson->get($firstArgument));
+                $output->writeln(json_encode($dataJson->get($firstArgument)));
             } else {
                 $output->writeln([
                     "Option '$firstArgument' is not set.",
@@ -126,15 +125,18 @@ class ConfigCommand extends BaseCommand
             $output->write("(" . json_encode($curValue) . " => " . json_encode($newValue) . ")");
         }
 
-        $output->writeln([
-            "",
-            ""
-        ]);
+        $output->writeln("");
 
-        // Restart Dej to see the effects and show the result, if root permissions granted
+        // Restart Dej if root permissions granted and if it's running
         try {
-            $this->forceRootPermissions(new NullOutput());
-            $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
+            // Show warning when root permissions is not present
+            if (!$this->areWeRoot($output)) {
+                throw new \Exception("Root permissions has not been granted.");
+            }
+
+            if (StatusCommand::isRunning()) {
+                $this->getApplication()->find("restart")->run(new ArrayInput([]), $output);
+            }
         } catch (\Throwable $e) {
             $output->warn("You have to restart Dej to see effects.");
         }

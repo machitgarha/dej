@@ -11,6 +11,7 @@ namespace Dej\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Webmozart\PathUtil\Path;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
@@ -25,7 +26,7 @@ class InstallCommand extends BaseCommand
     {
         $this
             ->setName("install")
-            ->addOption("force", null, InputOption::VALUE_NONE)
+            ->addOption("force", "f", InputOption::VALUE_NONE)
             ->setDescription("Installs Dej (or updates it).")
         ;
     }
@@ -39,6 +40,11 @@ class InstallCommand extends BaseCommand
         assert($output instanceof ShellOutput);
 
         $this->forceRootPermissions($output);
+
+        // Force user to install using a Phar (and not Dej repository)
+        if (empty($currentPharPath = \Phar::running(false))) {
+            throw new OutputException("You must install Dej as a Phar file.");
+        }
 
         $output->writeln("Preparing...");
 
@@ -58,26 +64,26 @@ class InstallCommand extends BaseCommand
         }
 
         $installationPath = Path::join($installationDir, "dej");
-        $currentPharPath = \Phar::running(false);
 
-        // Install if it's not installed or force mode is enabled
-        if (!file_exists($installationPath) || $forceMode) {
-            // Check if user is working with a Phar or with the repository
-            if (!empty($currentPharPath)) {
-                copy($currentPharPath, $installationPath);
-            } else {
-                throw new OutputException("You must install Dej as a Phar file.");
+        // Prompt user for overwriting installed version when force mode is not enabled
+        if (file_exists($installationPath) && !$forceMode) {
+            $question = new ConfirmationQuestion(
+                "Overwrite the installed version? [N(o)/y(es)] ",
+                false
+            );
+            if (!$this->getHelper("question")->ask($input, $output, $question)) {
+                return $output->abort("Aborted.");
             }
-        } else {
-            throw new OutputException("Already installed (use --force option).");
         }
 
-        // Grant right permissions
-        chmod($installationPath, 0755);
-
-        $output->writeln([
-            "Completed.",
-            "Try 'dej help' for more information."
-        ]);
+        // Installation
+        if (@copy($currentPharPath, $installationPath) && @chmod($installationPath, 0755)) {
+            $output->writeln([
+                "Installed successfully.",
+                "Try 'dej help' for more information."
+            ]);
+        } else {
+            $output->writeln("Installation failed.");
+        }
     }
 }

@@ -9,11 +9,10 @@
 namespace Dej\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Output\NullOutput;
 use Dej\Component\ShellOutput;
 use Dej\Exception\OutputException;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Restarts Dej.
@@ -45,11 +44,13 @@ class RestartCommand extends BaseCommand
         // Run a start command followed by a stop command
         try {
             $args = new ArrayInput([]);
-            $nullOutput = new NullOutput();
-            $stopResult = $dej->find("stop")->run($args, $nullOutput);
-            $startResult = $dej->find("start")->run($args, $nullOutput);
+            $output->disableOutput();
+            $stopResult = $dej->find("stop")->run($args, $output);
+            $startResult = $dej->find("start")->run($args, $output);
         } catch (\Throwable $e) {
         }
+
+        $output->enableOutput();
 
         // Check for errors and badnesses during the processes
         if (!isset($stopResult, $startResult) || $stopResult !== 0 || $startResult !== 0) {
