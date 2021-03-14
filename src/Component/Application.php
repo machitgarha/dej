@@ -1086,7 +1086,7 @@ class Application extends \Symfony\Component\Console\Application
     /**
      * @internal
      */
-    public function isSingleCommand()
+    public function isSingleCommand(): bool
     {
         return $this->singleCommand;
     }
