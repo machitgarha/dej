@@ -23,6 +23,7 @@ $directoriesToBeImported = [
     "src",
     "vendor",
 ];
+
 // Replace directories with CLI arguments, if present
 if ($argc > 1) {
     array_shift($argv);
@@ -30,7 +31,7 @@ if ($argc > 1) {
 }
 
 $filesToBeImported = [
-    "LICENSE"
+    "LICENSE.md"
 ];
 
 // Import files in directories that has to be imported
