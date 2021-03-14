@@ -23,6 +23,7 @@ $directoriesToBeImported = [
     "src",
     "vendor",
 ];
+
 // Replace directories with CLI arguments, if present
 if ($argc > 1) {
     array_shift($argv);
@@ -30,7 +31,7 @@ if ($argc > 1) {
 }
 
 $filesToBeImported = [
-    "LICENSE"
+    "LICENSE.md"
 ];
 
 // Import files in directories that has to be imported
@@ -44,6 +45,9 @@ foreach ($directoriesToBeImported as $dirName) {
     $section->writeln("'$dirName'...");
     $recDirIt = new RecursiveDirectoryIterator($dirName, RecursiveDirectoryIterator::SKIP_DOTS);
     foreach (new RecursiveIteratorIterator($recDirIt) as $file) {
+        if ($file->isLink()) {
+            continue;
+        }
         $dejPhar->addFile($file->getPathname());
     }
 }

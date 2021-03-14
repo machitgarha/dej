@@ -1,16 +1,17 @@
 {
     "name": "dej/dej",
     "description": "A CLI tool to sniff packets transmitting over an interface",
+    "type": "application",
+    "readme": "README.md",
+    "license": "GPLv3",
     "authors": [
         {
             "name": "Mohammad Amin Chitgarha",
             "email": "machitgarha@outlook.com",
+            "homepage": "https://github.com/machitgarha",
             "role": "Creator"
         }
     ],
-    "license": "MIT",
-    "readme": "README.md",
-    "type": "application",
     "require": {
         "php": "^7.1",
         "symfony/console": "^4.2",
@@ -20,9 +21,7 @@
         "machitgarha/pusheh": "^0.2.0",
         "symfony/process": "^4.2"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^7.5"
-    },
+    "require-dev": {},
     "autoload": {
         "psr-4": {
             "Dej\\": "src"
