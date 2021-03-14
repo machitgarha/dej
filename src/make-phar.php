@@ -45,6 +45,9 @@ foreach ($directoriesToBeImported as $dirName) {
     $section->writeln("'$dirName'...");
     $recDirIt = new RecursiveDirectoryIterator($dirName, RecursiveDirectoryIterator::SKIP_DOTS);
     foreach (new RecursiveIteratorIterator($recDirIt) as $file) {
+        if ($file->isLink()) {
+            continue;
+        }
         $dejPhar->addFile($file->getPathname());
     }
 }
