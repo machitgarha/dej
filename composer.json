@@ -3,11 +3,12 @@
     "description": "A CLI tool to sniff packets transmitting over an interface",
     "type": "application",
     "readme": "README.md",
-    "license": "MIT",
+    "license": "GPLv3",
     "authors": [
         {
             "name": "Mohammad Amin Chitgarha",
             "email": "machitgarha@outlook.com",
+            "homepage": "https://github.com/machitgarha",
             "role": "Creator"
         }
     ],
