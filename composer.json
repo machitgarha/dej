@@ -19,7 +19,7 @@
         "machitgarha/json-file": "^0.2.0",
         "webmozart/path-util": "^2.3",
         "machitgarha/pusheh": "^0.2.0",
-        "symfony/process": "^4.2"
+        "symfony/process": "^5.4"
     },
     "require-dev": {},
     "autoload": {
